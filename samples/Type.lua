@@ -3,10 +3,8 @@ local ClassSystem = require("ClassSystem")
 ---@overload fun() : TestClass.Type
 local class = {}
 ClassSystem.Create(class, "Class Name")
-local instance = class()
 
-
-local type = typeof(instance)
+local type = typeof(class)
 
 local base = type.Base
 -- Is the base type of the class. Default is object.

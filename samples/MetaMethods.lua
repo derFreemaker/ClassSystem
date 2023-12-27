@@ -12,16 +12,14 @@ function class:__index(key)
     return "some value"
 end
 
-class.foo = 100
-
 ClassSystem.Create(class, "Class Name")
 
 
 local instance = class()
 
+---@diagnostic disable-next-line
 local val1, val2 = instance.foo, instance["foo"]
 -- Invokes class:__index with key "foo".
--- Would return in this case "some value" instead of 100
 
 ---@diagnostic disable-next-line
 instance = nil
