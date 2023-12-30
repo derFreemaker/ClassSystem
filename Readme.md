@@ -6,6 +6,8 @@ Build in lua 5.4 maybe works with lower versions.
 
 **Please** read the [Samples](https://github.com/derFreemaker/ClassSystem/tree/master/samples) they also act as Documentation.
 
+It is not performance optimized at the moment.
+
 ## Features
 
 -   Class Basics
