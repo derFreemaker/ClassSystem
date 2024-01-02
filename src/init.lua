@@ -12,7 +12,8 @@ local ClassSystem = {}
 
 ClassSystem.GetNormal = Config.GetNormal
 ClassSystem.SetNormal = Config.SetNormal
-ClassSystem.Deconstruct = Config.Deconstruct
+ClassSystem.Deconstructed = Config.Deconstructed
+ClassSystem.Placeholder = Config.Placeholder
 
 ---@generic TClass : object
 ---@param data TClass

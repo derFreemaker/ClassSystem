@@ -18,7 +18,7 @@ It is not performance optimized at the moment.
 
 ## TODO
 
--   Type Specific Function Execution
+-   Performance improvements
 
 ## Dev Environment
 

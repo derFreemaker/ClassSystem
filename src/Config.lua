@@ -66,6 +66,10 @@ Configs.GetNormal = {}
 Configs.SetNormal = {}
 
 -- Indicates that the __close method is called from the ClassSystem.Deconstruct method.
-Configs.Deconstruct = {}
+Configs.Deconstructed = {}
+
+-- Placeholder has no functionality.
+---@type any
+Configs.Placeholder = {}
 
 return Configs
