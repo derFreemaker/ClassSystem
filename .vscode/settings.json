@@ -1,3 +1,4 @@
 {
-	"Lua.workspace.ignoreDir": [".vscode", "ClassSystem.lua"]
+	"Lua.workspace.ignoreDir": [".vscode", "ClassSystem.lua"],
+	"cSpell.ignoreWords": ["argparse"]
 }
