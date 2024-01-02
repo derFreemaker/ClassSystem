@@ -1,10 +1,16 @@
-local ClassSystem = require("ClassSystem")
+local ClassSystem = require("src")
 ---@class TestClass.Type : object
 ---@overload fun() : TestClass.Type
 local class = {}
 ClassSystem.Create(class, "Class Name")
 
-local type = typeof(class)
+local type = ClassSystem.Typeof(class)
+if not type then
+    return
+end
+
+local name = type.Name
+-- Name of the type.
 
 local base = type.Base
 -- Is the base type of the class. Default is object.
@@ -25,10 +31,6 @@ local HasIndex = type.HasIndex
 local HasNewIndex = type.HasNewIndex
 -- Indicates if type has a __newindex meta method invoked.
 
-local IndexingDisabled = type.IndexingDisabled
--- Indicates if the class instance of the type has indexing disabled.
--- If `true` then __index will not be called can be set with the class:Raw__ModifyBehavior() function.
-
 local instances = type.Instances
 -- All instances of the type.
 
@@ -38,12 +40,6 @@ local members = type.Members
 local metaMethods = type.MetaMethods
 -- All metaMethods of the type.
 
-local name = type.Name
--- Name of the type.
-
 local static = type.Static
 -- Static Table in which all Static functions and values are stored.
 -- Will be access when class.Static__Foo is used
-
-local template = type.Template
--- The Template used for constructing this type.

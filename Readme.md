@@ -6,6 +6,7 @@ Build in lua 5.4 maybe works with lower versions.
 
 **Please** read the [Samples](https://github.com/derFreemaker/ClassSystem/tree/master/samples) they also act as Documentation.
 
+`ClassSystem.lua` is the only file it contains all files combined from the src folder.
 It is not performance optimized at the moment.
 
 ## Features
@@ -19,7 +20,7 @@ It is not performance optimized at the moment.
 
 -   Type Specific Function Execution
 
-## Environment
+## Dev Environment
 
 **Editor:** VSCode
 

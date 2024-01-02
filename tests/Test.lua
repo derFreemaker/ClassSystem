@@ -1,6 +1,6 @@
 local luaunit = require("tests.Luaunit")
 
-local ClassSystem = require("ClassSystem")
+local ClassSystem = require("src")
 
 function TestCreateClass()
     local test = ClassSystem.Create({}, 'CreateEmpty')
