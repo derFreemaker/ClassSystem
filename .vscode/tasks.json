@@ -5,7 +5,7 @@
 			"label": "bundle",
 			"command": "lua",
 			"args": [
-				"${workspaceFolder}\\tools\\bundle.lua",
+				"${workspaceFolder}\\tools\\Freemaker\\bin\\bundle.lua",
 				"-o",
 				"${workspaceFolder}\\ClassSystem.lua",
 				"${workspaceFolder}\\src\\init.lua"
