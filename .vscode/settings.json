@@ -1,4 +1,8 @@
 {
-	"Lua.workspace.ignoreDir": [".vscode", "ClassSystem.lua"],
+	"Lua.workspace.ignoreDir": [
+		".vscode",
+		"ClassSystem.lua",
+		"tools/Freemaker"
+	],
 	"cSpell.ignoreWords": ["argparse"]
 }
