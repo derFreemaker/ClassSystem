@@ -1,0 +1,3 @@
+[submodule "tools/Freemaker.Lua"]
+	path = tools/Freemaker.Lua
+	url = https://github.com/derFreemaker/Freemaker.Lua.git
