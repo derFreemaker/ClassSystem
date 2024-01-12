@@ -1,4 +1,4 @@
-local Utils = require("src.Utils")
+local Utils = require("tools.Freemaker.bin.utils")
 
 local Config = require("src.Config")
 

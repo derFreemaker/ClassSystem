@@ -1,16 +1,172 @@
 local __fileFuncs__ = {}
-local __cache__ = {}
-local function __loadFile__(module)
-    if not __cache__[module] then
-        __cache__[module] = { __fileFuncs__[module]() }
+    local __cache__ = {}
+    local function __loadFile__(module)
+        if not __cache__[module] then
+            __cache__[module] = { __fileFuncs__[module]() }
+        end
+        return table.unpack(__cache__[module])
     end
-    return table.unpack(__cache__[module])
+    __fileFuncs__["tools.Freemaker.bin.utils"] = function()
+    local __fileFuncs__ = {}
+        local __cache__ = {}
+        local function __loadFile__(module)
+            if not __cache__[module] then
+                __cache__[module] = { __fileFuncs__[module]() }
+            end
+            return table.unpack(__cache__[module])
+        end
+        __fileFuncs__["src.Utils.String"] = function()
+        local String = {}
+        local function findNext(str, pattern, plain)
+            local found = str:find(pattern, 0, plain or false)
+            if found == nil then
+                return nil, 0
+            end
+            return str:sub(0, found - 1), found - 1
+        end
+        function String.Split(str, sep, plain)
+            if str == nil then
+                return {}
+            end
+            local strLen = str:len()
+            local sepLen
+            if sep == nil then
+                sep = "%s"
+                sepLen = 2
+            else
+                sepLen = sep:len()
+            end
+            local tbl = {}
+            local i = 0
+            while true do
+                i = i + 1
+                local foundStr, foundPos = findNext(str, sep, plain)
+                if foundStr == nil then
+                    tbl[i] = str
+                    return tbl
+                end
+                tbl[i] = foundStr
+                str = str:sub(foundPos + sepLen + 1, strLen)
+            end
+        end
+        function String.IsNilOrEmpty(str)
+            if str == nil then
+                return true
+            end
+            if str == "" then
+                return true
+            end
+            return false
+        end
+        function String.Join(array, sep)
+            local str = ""
+            str = array[1]
+            for _, value in next, array, 1 do
+                str = str .. sep .. value
+            end
+            return str
+        end
+        return String
+    end
+    __fileFuncs__["src.Utils.Table"] = function()
+        local Table = {}
+        local function copyTable(obj, copy, seen)
+            if obj == nil then return nil end
+            if seen[obj] then return seen[obj] end
+            seen[obj] = copy
+            setmetatable(copy, copyTable(getmetatable(obj), {}, seen))
+            for key, value in next, obj, nil do
+                key = (type(key) == "table") and copyTable(key, {}, seen) or key
+                value = (type(value) == "table") and copyTable(value, {}, seen) or value
+                rawset(copy, key, value)
+            end
+            return copy
+        end
+        function Table.Copy(t)
+            return copyTable(t, {}, {})
+        end
+        function Table.CopyTo(from, to)
+            copyTable(from, to, {})
+        end
+        function Table.Clear(t, ignoreProperties)
+            if not ignoreProperties then
+                ignoreProperties = {}
+            end
+            for key, _ in next, t, nil do
+                if not Table.Contains(ignoreProperties, key) then
+                    t[key] = nil
+                end
+            end
+            setmetatable(t, nil)
+        end
+        function Table.Contains(t, value)
+            for _, tValue in pairs(t) do
+                if value == tValue then
+                    return true
+                end
+            end
+            return false
+        end
+        function Table.ContainsKey(t, key)
+            if t[key] ~= nil then
+                return true
+            end
+            return false
+        end
+        function Table.Clean(t)
+            for key, value in pairs(t) do
+                for i = key - 1, 1, -1 do
+                    if key ~= 1 then
+                        if t[i] == nil and (t[i - 1] ~= nil or i == 1) then
+                            t[i] = value
+                            t[key] = nil
+                            break
+                        end
+                    end
+                end
+            end
+        end
+        function Table.Count(t)
+            local count = 0
+            for _, _ in next, t, nil do
+                count = count + 1
+            end
+            return count
+        end
+        function Table.Invert(t)
+            local inverted = {}
+            for key, value in pairs(t) do
+                inverted[value] = key
+            end
+            return inverted
+        end
+        return Table
+    end
+    __fileFuncs__["src.Utils.Value"] = function()
+        local Table = __loadFile__("src.Utils.Table")
+        local Value = {}
+        function Value.Copy(value)
+            local typeStr = type(value)
+            if typeStr == "table" then
+                return Table.Copy(value)
+            end
+            return value
+        end
+        return Value
+    end
+    __fileFuncs__["__main__"] = function()
+        local Utils = {}
+        Utils.String = __loadFile__("src.Utils.String")
+        Utils.Table = __loadFile__("src.Utils.Table")
+        Utils.Value = __loadFile__("src.Utils.Value")
+        return Utils
+    end
+    local main = __fileFuncs__["__main__"]()
+    return main
 end
 
 __fileFuncs__["src.Config"] = function()
-    ---@class Freemaker.ClassSystem.Configs
     local Configs = {}
-    --- All meta methods that should be added as meta method to the class.
     Configs.AllMetaMethods = {
         --- Constructor
         __init = true,
@@ -46,159 +202,29 @@ __fileFuncs__["src.Config"] = function()
         __lt = true,
         __le = true
     }
-    --- Blocks meta methods on the blueprint of an class.
     Configs.BlockMetaMethodsOnBlueprint = {
         __pairs = true,
         __ipairs = true
     }
-    --- Blocks meta methods if not set by the class.
     Configs.BlockMetaMethodsOnInstance = {
         __pairs = true,
         __ipairs = true
     }
-    --- Meta methods that should not be set to the classes metatable, but remain in the type.MetaMethods.
     Configs.IndirectMetaMethods = {
         __gc = true,
         __index = true,
         __newindex = true
     }
-    -- Indicates that the value should be retrieved with rawget. Needs to be returned by the __index meta method.
     Configs.GetNormal = {}
-    -- Indicates that value in newindex should be set like table[index] = value. Needs to be returned by the __newindex meta method.
     Configs.SetNormal = {}
-    -- Indicates that the __close method is called from the ClassSystem.Deconstruct method.
-    Configs.Deconstructed = {}
-    -- Placeholder has no functionality.
-    ---@type any
+    Configs.Deconstructing = {}
     Configs.Placeholder = {}
     return Configs
 end
 
-__fileFuncs__["src.Utils"] = function()
-    ---@class Freemaker.ClassSystem.Utils
+__fileFuncs__["src.ClassUtils"] = function()
     local Utils = {}
-    -- ############ Table ############ --
-    ---@class Freemaker.ClassSystem.Utils.Table
-    local Table = {}
-    ---@param obj table?
-    ---@param seen table[]
-    ---@return table?
-    local function copyTable(obj, copy, seen)
-        if obj == nil then return nil end
-        if seen[obj] then return seen[obj] end
-        seen[obj] = copy
-        setmetatable(copy, copyTable(getmetatable(obj), {}, seen))
-        for key, value in next, obj, nil do
-            key = (type(key) == "table") and copyTable(key, {}, seen) or key
-            value = (type(value) == "table") and copyTable(value, {}, seen) or value
-            rawset(copy, key, value)
-        end
-        return copy
-    end
-    ---@generic TTable
-    ---@param t TTable
-    ---@return TTable table
-    function Table.Copy(t)
-        return copyTable(t, {}, {})
-    end
-    ---@param t table
-    ---@param ignoreProperties string[]?
-    function Table.Clear(t, ignoreProperties)
-        if not ignoreProperties then
-            ignoreProperties = {}
-        end
-        for key, _ in next, t, nil do
-            if not Table.Contains(ignoreProperties, key) then
-                t[key] = nil
-            end
-        end
-        setmetatable(t, nil)
-    end
-    ---@param t table
-    ---@param value any
-    ---@return boolean
-    function Table.Contains(t, value)
-        for _, tValue in pairs(t) do
-            if value == tValue then
-                return true
-            end
-        end
-        return false
-    end
-    ---@param t table
-    ---@param key any
-    ---@return boolean
-    function Table.ContainsKey(t, key)
-        if t[key] ~= nil then
-            return true
-        end
-        return false
-    end
-    Utils.Table = Table
-    -- ############ Table ############ --
-    -- ############ String ############ --
-    ---@class Freemaker.ClassSystem.Utils.String
-    local String = {}
-    ---@param str string
-    ---@param pattern string
-    ---@return string?, integer
-    local function findNext(str, pattern)
-        local found = str:find(pattern, 0, true)
-        if found == nil then
-            return nil, 0
-        end
-        return str:sub(0, found - 1), found - 1
-    end
-    ---@param str string?
-    ---@param sep string?
-    ---@return string[]
-    function String.Split(str, sep)
-        if str == nil then
-            return {}
-        end
-        local strLen = str:len()
-        local sepLen
-        if sep == nil then
-            sep = "%s"
-            sepLen = 2
-        else
-            sepLen = sep:len()
-        end
-        local tbl = {}
-        local i = 0
-        while true do
-            i = i + 1
-            local foundStr, foundPos = findNext(str, sep)
-            if foundStr == nil then
-                tbl[i] = str
-                return tbl
-            end
-            tbl[i] = foundStr
-            str = str:sub(foundPos + sepLen + 1, strLen)
-        end
-    end
-    Utils.String = String
-    -- ############ String ############ --
-    -- ############ Value ############ --
-    ---@class Freemaker.ClassSystem.Utils.Value
-    local Value = {}
-    ---@generic T
-    ---@param value T
-    ---@return T
-    function Value.Copy(value)
-        local typeStr = type(value)
-        if typeStr == "table" then
-            return Table.Copy(value)
-        end
-        return value
-    end
-    Utils.Value = Value
-    -- ############ Value ############ --
-    -- ############ Class ############ --
-    ---@class Freemaker.ClassSystem.Utils.Class
     local Class = {}
-    ---@param obj any
-    ---@return Freemaker.ClassSystem.Type?
     function Class.Typeof(obj)
         if not type(obj) == "table" then
             return nil
@@ -206,8 +232,6 @@ __fileFuncs__["src.Utils"] = function()
         local metatable = getmetatable(obj)
         return metatable.Type
     end
-    ---@param obj any
-    ---@return string
     function Class.Nameof(obj)
         local typeInfo = Class.Typeof(obj)
         if not typeInfo then
@@ -215,8 +239,6 @@ __fileFuncs__["src.Utils"] = function()
         end
         return typeInfo.Name
     end
-    ---@param obj object
-    ---@return Freemaker.ClassSystem.Instance?
     function Class.GetInstanceData(obj)
         if not Class.IsClass(obj) then
             return
@@ -225,8 +247,6 @@ __fileFuncs__["src.Utils"] = function()
         local metatable = getmetatable(obj)
         return metatable.Instance
     end
-    ---@param obj any
-    ---@return boolean isClass
     function Class.IsClass(obj)
         if type(obj) ~= "table" then
             return false
@@ -243,9 +263,6 @@ __fileFuncs__["src.Utils"] = function()
         end
         return true
     end
-    ---@param obj any
-    ---@param className string
-    ---@return boolean hasBaseClass
     function Class.HasBase(obj, className)
         if not Class.IsClass(obj) then
             return false
@@ -265,29 +282,20 @@ __fileFuncs__["src.Utils"] = function()
         return hasTypeBase(metatable.Type)
     end
     Utils.Class = Class
-    -- ############ Class ############ --
     return Utils
 end
 
 __fileFuncs__["src.Object"] = function()
-    local Utils = __loadFile__("src.Utils")
+    local Utils = __loadFile__("tools.Freemaker.bin.utils")
     local Config = __loadFile__("src.Config")
-    ---@class object
+    local ClassUtils = __loadFile__("src.ClassUtils")
     local Object = {}
-    ---@protected
-    ---@return string typeName
     function Object:__tostring()
-        return Utils.Class.Typeof(self).Name
+        return ClassUtils.Class.Typeof(self).Name
     end
-    ---@protected
-    ---@return string
     function Object.__concat(left, right)
         return tostring(left) .. tostring(right)
     end
-    ---@class object.Modify
-    ---@field CustomIndexing boolean?
-    ---@protected
-    ---@param func fun(modify: object.Modify)
     function Object:Raw__ModifyBehavior(func)
         ---@type Freemaker.ClassSystem.Metatable
         local metatable = getmetatable(self)
@@ -299,10 +307,6 @@ __fileFuncs__["src.Object"] = function()
             metatable.Instance.CustomIndexing = modify.CustomIndexing
         end
     end
-    ----------------------------------------
-    -- Type Info
-    ----------------------------------------
-    ---@type Freemaker.ClassSystem.Type
     local objectTypeInfo = {
         Name = "object",
         Base = nil,
@@ -336,10 +340,7 @@ __fileFuncs__["src.Object"] = function()
 end
 
 __fileFuncs__["src.Type"] = function()
-    ---@class Freemaker.ClassSystem.TypeHandler
     local TypeHandler = {}
-    ---@param name string
-    ---@param baseClass Freemaker.ClassSystem.Type
     function TypeHandler.Create(name, baseClass)
         local typeInfo = { Name = name }
         ---@cast typeInfo Freemaker.ClassSystem.Type
@@ -358,37 +359,27 @@ __fileFuncs__["src.Type"] = function()
 end
 
 __fileFuncs__["src.Instance"] = function()
-    local Utils = __loadFile__("src.Utils")
-    ---@class Freemaker.ClassSystem.InstanceHandler
+    local Utils = __loadFile__("tools.Freemaker.bin.utils")
     local InstanceHandler = {}
-    ---@param instance Freemaker.ClassSystem.Instance
     function InstanceHandler.Initialize(instance)
-        instance.Members = {}
+        -- instance.Members = {}
         instance.CustomIndexing = true
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
     function InstanceHandler.InitializeType(typeInfo)
         typeInfo.Instances = setmetatable({}, { __mode = "k" })
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param instance Freemaker.ClassSystem.Instance
     function InstanceHandler.Add(typeInfo, instance)
         typeInfo.Instances[instance] = true
         if typeInfo.Base then
             InstanceHandler.Add(typeInfo.Base, instance)
         end
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param instance Freemaker.ClassSystem.Instance
     function InstanceHandler.Remove(typeInfo, instance)
         typeInfo.Instances[instance] = nil
         if typeInfo.Base then
             InstanceHandler.Remove(typeInfo.Base, instance)
         end
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param name string
-    ---@param func function
     function InstanceHandler.UpdateMetaMethod(typeInfo, name, func)
         typeInfo.MetaMethods[name] = func
         for instance in pairs(typeInfo.Instances) do
@@ -398,9 +389,6 @@ __fileFuncs__["src.Instance"] = function()
             end
         end
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param key any
-    ---@param value any
     function InstanceHandler.UpdateMember(typeInfo, key, value)
         typeInfo.Members[key] = value
         for instance in pairs(typeInfo.Instances) do
@@ -413,18 +401,15 @@ __fileFuncs__["src.Instance"] = function()
 end
 
 __fileFuncs__["src.Members"] = function()
-    local Utils = __loadFile__("src.Utils")
+    local Utils = __loadFile__("tools.Freemaker.bin.utils")
     local Config = __loadFile__("src.Config")
     local InstanceHandler = __loadFile__("src.Instance")
-    ---@class Freemaker.ClassSystem.MembersHandler
     local MembersHandler = {}
-    ---@param typeInfo Freemaker.ClassSystem.Type
     function MembersHandler.Initialize(typeInfo)
         typeInfo.Static = {}
         typeInfo.MetaMethods = {}
         typeInfo.Members = {}
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
     function MembersHandler.UpdateState(typeInfo)
         local metaMethods = typeInfo.MetaMethods
         typeInfo.HasConstructor = metaMethods.__init ~= nil
@@ -443,10 +428,6 @@ __fileFuncs__["src.Members"] = function()
         end
         return nil
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param key string
-    ---@param value any
-    ---@return boolean wasFound
     local function assignStatic(typeInfo, key, value)
         if rawget(typeInfo.Static, key) ~= nil then
             rawset(typeInfo.Static, key, value)
@@ -457,19 +438,11 @@ __fileFuncs__["src.Members"] = function()
         end
         return false
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param key string
-    ---@param value any
     function MembersHandler.SetStatic(typeInfo, key, value)
         if not assignStatic(typeInfo, key, value) then
             rawset(typeInfo.Static, key, value)
         end
     end
-    -------------------------------------------------------------------------------
-    -- Index & NewIndex
-    -------------------------------------------------------------------------------
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@return fun(obj: object, key: any) : any value
     function MembersHandler.TemplateIndex(typeInfo)
         return function(obj, key)
             if type(key) ~= "string" then
@@ -483,8 +456,6 @@ __fileFuncs__["src.Members"] = function()
             error("can only use static members in template")
         end
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@return fun(obj: object, key: any, value: any)
     function MembersHandler.TemplateNewIndex(typeInfo)
         return function(obj, key, value)
             if type(key) ~= "string" then
@@ -499,9 +470,6 @@ __fileFuncs__["src.Members"] = function()
             error("can only use static members in template")
         end
     end
-    ---@param instance Freemaker.ClassSystem.Instance
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@return fun(obj: object, key: any) : any value
     function MembersHandler.InstanceIndex(instance, typeInfo)
         return function(obj, key)
             if type(key) == "string" then
@@ -509,7 +477,7 @@ __fileFuncs__["src.Members"] = function()
                 if Utils.Table.Contains(splittedKey, "Static") then
                     return MembersHandler.GetStatic(typeInfo, key)
                 elseif Utils.Table.Contains(splittedKey, "Raw") then
-                    return instance.Members[key]
+                    return rawget(obj, key)
                 end
             end
             if typeInfo.HasIndex and not instance.CustomIndexing then
@@ -518,12 +486,9 @@ __fileFuncs__["src.Members"] = function()
                     return value
                 end
             end
-            return instance.Members[key]
+            return rawget(obj, key)
         end
     end
-    ---@param instance Freemaker.ClassSystem.Instance
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@return fun(obj: object, key: any, value: any)
     function MembersHandler.InstanceNewIndex(instance, typeInfo)
         return function(obj, key, value)
             if type(key) == "string" then
@@ -531,7 +496,7 @@ __fileFuncs__["src.Members"] = function()
                 if Utils.Table.Contains(splittedKey, "Static") then
                     return MembersHandler.SetStatic(typeInfo, key, value)
                 elseif Utils.Table.Contains(splittedKey, "Raw") then
-                    instance.Members[key] = value
+                    rawset(obj, key, value)
                 end
             end
             if typeInfo.HasNewIndex and not instance.CustomIndexing then
@@ -539,15 +504,9 @@ __fileFuncs__["src.Members"] = function()
                     return
                 end
             end
-            instance.Members[key] = value
+            rawset(obj, key, value)
         end
     end
-    -------------------------------------------------------------------------------
-    -- Sort
-    -------------------------------------------------------------------------------
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param name string
-    ---@param func function
     local function isNormalFunction(typeInfo, name, func)
         if Utils.Table.ContainsKey(Config.AllMetaMethods, name) then
             typeInfo.MetaMethods[name] = func
@@ -555,9 +514,6 @@ __fileFuncs__["src.Members"] = function()
         end
         typeInfo.Members[name] = func
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param name string
-    ---@param value any
     local function isNormalMember(typeInfo, name, value)
         if type(value) == 'function' then
             isNormalFunction(typeInfo, name, value)
@@ -565,15 +521,9 @@ __fileFuncs__["src.Members"] = function()
         end
         typeInfo.Members[name] = value
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param name string
-    ---@param value any
     local function isStaticMember(typeInfo, name, value)
         typeInfo.Static[name] = value
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param key any
-    ---@param value any
     local function sortMember(typeInfo, key, value)
         if type(key) == 'string' then
             local splittedKey = Utils.String.Split(key, '__')
@@ -592,48 +542,30 @@ __fileFuncs__["src.Members"] = function()
         end
         MembersHandler.UpdateState(typeInfo)
     end
-    -------------------------------------------------------------------------------
-    -- Extend
-    -------------------------------------------------------------------------------
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param name string
-    ---@param func function
     local function UpdateMethods(typeInfo, name, func)
         if Utils.Table.ContainsKey(typeInfo.Members, name) then
             error("trying to extend already existing meta method: " .. name)
         end
         InstanceHandler.UpdateMetaMethod(typeInfo, name, func)
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param key any
-    ---@param value any
     local function UpdateMember(typeInfo, key, value)
         if Utils.Table.ContainsKey(typeInfo.Members, key) then
             error("trying to extend already existing member: " .. tostring(key))
         end
         InstanceHandler.UpdateMember(typeInfo, key, value)
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param name string
-    ---@param value any
     local function extendIsStaticMember(typeInfo, name, value)
         if Utils.Table.ContainsKey(typeInfo.Static, name) then
             error("trying to extend already existing static member: " .. name)
         end
         typeInfo.Static[name] = value
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param name string
-    ---@param func function
     local function extendIsNormalFunction(typeInfo, name, func)
         if Utils.Table.ContainsKey(Config.AllMetaMethods, name) then
             UpdateMethods(typeInfo, name, func)
         end
         UpdateMember(typeInfo, name, func)
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param name string
-    ---@param value any
     local function extendIsNormalMember(typeInfo, name, value)
         if type(value) == 'function' then
             extendIsNormalFunction(typeInfo, name, value)
@@ -641,9 +573,6 @@ __fileFuncs__["src.Members"] = function()
         end
         UpdateMember(typeInfo, name, value)
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param key any
-    ---@param value any
     local function extendMember(typeInfo, key, value)
         if type(key) == 'string' then
             local splittedKey = Utils.String.Split(key, '__')
@@ -658,8 +587,6 @@ __fileFuncs__["src.Members"] = function()
             typeInfo.Members[key] = value
         end
     end
-    ---@param data table
-    ---@param typeInfo Freemaker.ClassSystem.Type
     function MembersHandler.Extend(typeInfo, data)
         for key, value in pairs(data) do
             extendMember(typeInfo, key, value)
@@ -670,13 +597,10 @@ __fileFuncs__["src.Members"] = function()
 end
 
 __fileFuncs__["src.Metatable"] = function()
-    local Utils = __loadFile__("src.Utils")
+    local Utils = __loadFile__("tools.Freemaker.bin.utils")
     local Config = __loadFile__("src.Config")
     local MembersHandler = __loadFile__("src.Members")
-    ---@class Freemaker.ClassSystem.MetatableHandler
     local MetatableHandler = {}
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@return Freemaker.ClassSystem.BlueprintMetatable metatable
     function MetatableHandler.Template(typeInfo)
         ---@type Freemaker.ClassSystem.BlueprintMetatable
         local metatable = { Type = typeInfo }
@@ -694,9 +618,6 @@ __fileFuncs__["src.Metatable"] = function()
         end
         return metatable
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param instance Freemaker.ClassSystem.Instance
-    ---@param metatable Freemaker.ClassSystem.Metatable
     function MetatableHandler.Create(typeInfo, instance, metatable)
         metatable.Type = typeInfo
         metatable.__index = MembersHandler.InstanceIndex(instance, typeInfo)
@@ -714,14 +635,11 @@ __fileFuncs__["src.Metatable"] = function()
 end
 
 __fileFuncs__["src.Construction"] = function()
-    local Utils = __loadFile__("src.Utils")
+    local Utils = __loadFile__("tools.Freemaker.bin.utils")
     local Config = __loadFile__("src.Config")
     local InstanceHandler = __loadFile__("src.Instance")
     local MetatableHandler = __loadFile__("src.Metatable")
-    ---@class Freemaker.ClassSystem.ConstructionHandler
     local ConstructionHandler = {}
-    ---@param obj object
-    ---@return Freemaker.ClassSystem.Instance instance
     local function construct(obj, ...)
         ---@type Freemaker.ClassSystem.Metatable
         local metatable = getmetatable(obj)
@@ -737,29 +655,20 @@ __fileFuncs__["src.Construction"] = function()
         InstanceHandler.Add(typeInfo, classInstance)
         return instance
     end
-    ---@param data table
-    ---@param typeInfo Freemaker.ClassSystem.Type
     function ConstructionHandler.Template(data, typeInfo)
         local metatable = MetatableHandler.Template(typeInfo)
         metatable.__call = construct
         setmetatable(data, metatable)
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param class table
     local function invokeDeconstructor(typeInfo, class)
         if typeInfo.HasClose then
-            typeInfo.MetaMethods.__close(class, Config.Deconstruct)
+            typeInfo.MetaMethods.__close(class, Config.Deconstructing)
         end
         if typeInfo.HasDeconstructor then
             typeInfo.MetaMethods.__gc(class)
             invokeDeconstructor(typeInfo.Base, class)
         end
     end
-    ---@param typeInfo Freemaker.ClassSystem.Type
-    ---@param obj object
-    ---@param instance Freemaker.ClassSystem.Instance
-    ---@param metatable Freemaker.ClassSystem.Metatable
-    ---@param ... any
     function ConstructionHandler.Construct(typeInfo, obj, instance, metatable, ...)
         ---@type function
         local super = nil
@@ -770,7 +679,7 @@ __fileFuncs__["src.Construction"] = function()
                 end
             end
             for key, value in pairs(typeInfo.Members) do
-                rawset(metatable.Instance.Members, key, Utils.Value.Copy(value))
+                rawset(obj, key, Utils.Value.Copy(value))
             end
             metatable.__gc = function(deClass)
                 invokeDeconstructor(typeInfo, deClass)
@@ -799,10 +708,6 @@ __fileFuncs__["src.Construction"] = function()
             end
         end
     end
-    ---@param obj object
-    ---@param metatable Freemaker.ClassSystem.Metatable
-    ---@param instance Freemaker.ClassSystem.Instance
-    ---@param typeInfo Freemaker.ClassSystem.Type
     function ConstructionHandler.Deconstruct(obj, metatable, instance, typeInfo)
         InstanceHandler.Remove(typeInfo, instance)
         invokeDeconstructor(typeInfo, instance)
@@ -822,24 +727,19 @@ __fileFuncs__["src.Construction"] = function()
 end
 
 __fileFuncs__["__main__"] = function()
+    local Utils = __loadFile__("tools.Freemaker.bin.utils")
     local Config = __loadFile__("src.Config")
-    local Utils = __loadFile__("src.Utils")
+    local ClassUtils = __loadFile__("src.ClassUtils")
     local ObjectType = __loadFile__("src.Object")
     local TypeHandler = __loadFile__("src.Type")
     local MembersHandler = __loadFile__("src.Members")
     local InstanceHandler = __loadFile__("src.Instance")
     local ConstructionHandler = __loadFile__("src.Construction")
-    ---@class Freemaker.ClassSystem
     local ClassSystem = {}
     ClassSystem.GetNormal = Config.GetNormal
     ClassSystem.SetNormal = Config.SetNormal
-    ClassSystem.Deconstructed = Config.Deconstructed
+    ClassSystem.Deconstructed = Config.Deconstructing
     ClassSystem.Placeholder = Config.Placeholder
-    ---@generic TClass : object
-    ---@param data TClass
-    ---@param name string
-    ---@param baseClass object?
-    ---@return TClass
     function ClassSystem.Create(data, name, baseClass)
         local baseClassType
         if not baseClass then
@@ -858,10 +758,6 @@ __fileFuncs__["__main__"] = function()
         ConstructionHandler.Template(data, typeInfo)
         return data
     end
-    ---@generic TClass : object
-    ---@param class TClass
-    ---@param extensions TClass
-    ---@return TClass
     function ClassSystem.Extend(class, extensions)
         if not ClassSystem.IsClass(class) then
             error("provided class is not an class")
@@ -872,7 +768,6 @@ __fileFuncs__["__main__"] = function()
         MembersHandler.Extend(typeInfo, extensions)
         return class
     end
-    ---@param obj object
     function ClassSystem.Deconstruct(obj)
         ---@type Freemaker.ClassSystem.Metatable
         local metatable = getmetatable(obj)
@@ -880,12 +775,12 @@ __fileFuncs__["__main__"] = function()
         local typeInfo = metatable.Type
         ConstructionHandler.Deconstruct(obj, metatable, instance, typeInfo)
     end
-    ClassSystem.Typeof = Utils.Class.Typeof
-    ClassSystem.Nameof = Utils.Class.Nameof
-    ClassSystem.GetInstanceData = Utils.Class.GetInstanceData
-    ClassSystem.IsClass = Utils.Class.IsClass
-    ClassSystem.HasBase = Utils.Class.HasBase
+    ClassSystem.Typeof = ClassUtils.Class.Typeof
+    ClassSystem.Nameof = ClassUtils.Class.Nameof
+    ClassSystem.GetInstanceData = ClassUtils.Class.GetInstanceData
+    ClassSystem.IsClass = ClassUtils.Class.IsClass
+    ClassSystem.HasBase = ClassUtils.Class.HasBase
     return ClassSystem
 end
 
-return __loadFile__("__main__")
+return __fileFuncs__["__main__"]()

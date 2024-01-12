@@ -1,4 +1,4 @@
-local Utils = require("src.Utils")
+local Utils = require("tools.Freemaker.bin.utils")
 
 local Config = require("src.Config")
 
@@ -43,7 +43,7 @@ end
 ---@param class table
 local function invokeDeconstructor(typeInfo, class)
     if typeInfo.HasClose then
-        typeInfo.MetaMethods.__close(class, Config.Deconstruct)
+        typeInfo.MetaMethods.__close(class, Config.Deconstructing)
     end
     if typeInfo.HasDeconstructor then
         typeInfo.MetaMethods.__gc(class)
@@ -68,7 +68,7 @@ function ConstructionHandler.Construct(typeInfo, obj, instance, metatable, ...)
         end
 
         for key, value in pairs(typeInfo.Members) do
-            rawset(metatable.Instance.Members, key, Utils.Value.Copy(value))
+            rawset(obj, key, Utils.Value.Copy(value))
         end
 
         metatable.__gc = function(deClass)

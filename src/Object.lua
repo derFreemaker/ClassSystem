@@ -1,5 +1,6 @@
-local Utils = require("src.Utils")
+local Utils = require("tools.Freemaker.bin.utils")
 local Config = require("src.Config")
+local ClassUtils = require("src.ClassUtils")
 
 ---@class object
 local Object = {}
@@ -7,7 +8,7 @@ local Object = {}
 ---@protected
 ---@return string typeName
 function Object:__tostring()
-    return Utils.Class.Typeof(self).Name
+    return ClassUtils.Class.Typeof(self).Name
 end
 
 ---@protected

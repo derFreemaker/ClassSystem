@@ -1,11 +1,11 @@
-local Utils = require("src.Utils")
+local Utils = require("tools.Freemaker.bin.utils")
 
 ---@class Freemaker.ClassSystem.InstanceHandler
 local InstanceHandler = {}
 
 ---@param instance Freemaker.ClassSystem.Instance
 function InstanceHandler.Initialize(instance)
-    instance.Members = {}
+    -- instance.Members = {}
     instance.CustomIndexing = true
 end
 

@@ -1,5 +1,7 @@
+local Utils = require("tools.Freemaker.bin.utils")
+
 local Config = require("src.Config")
-local Utils = require("src.Utils")
+local ClassUtils = require("src.ClassUtils")
 
 local ObjectType = require("src.Object")
 local TypeHandler = require("src.Type")
@@ -12,7 +14,7 @@ local ClassSystem = {}
 
 ClassSystem.GetNormal = Config.GetNormal
 ClassSystem.SetNormal = Config.SetNormal
-ClassSystem.Deconstructed = Config.Deconstructed
+ClassSystem.Deconstructed = Config.Deconstructing
 ClassSystem.Placeholder = Config.Placeholder
 
 ---@generic TClass : object
@@ -72,10 +74,10 @@ function ClassSystem.Deconstruct(obj)
     ConstructionHandler.Deconstruct(obj, metatable, instance, typeInfo)
 end
 
-ClassSystem.Typeof = Utils.Class.Typeof
-ClassSystem.Nameof = Utils.Class.Nameof
-ClassSystem.GetInstanceData = Utils.Class.GetInstanceData
-ClassSystem.IsClass = Utils.Class.IsClass
-ClassSystem.HasBase = Utils.Class.HasBase
+ClassSystem.Typeof = ClassUtils.Class.Typeof
+ClassSystem.Nameof = ClassUtils.Class.Nameof
+ClassSystem.GetInstanceData = ClassUtils.Class.GetInstanceData
+ClassSystem.IsClass = ClassUtils.Class.IsClass
+ClassSystem.HasBase = ClassUtils.Class.HasBase
 
 return ClassSystem

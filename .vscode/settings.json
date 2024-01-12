@@ -1,8 +1,16 @@
 {
 	"Lua.workspace.ignoreDir": [
 		".vscode",
-		"ClassSystem.lua",
-		"tools/Freemaker"
+		"ClassSystem.lua"
 	],
-	"cSpell.ignoreWords": ["argparse"]
+	"cSpell.ignoreWords": ["argparse"],
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/CVS": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true,
+		".stfolder": true
+	}
 }

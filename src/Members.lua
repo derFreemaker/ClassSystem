@@ -1,4 +1,4 @@
-local Utils = require("src.Utils")
+local Utils = require("tools.Freemaker.bin.utils")
 
 local Config = require("src.Config")
 
@@ -116,7 +116,7 @@ function MembersHandler.InstanceIndex(instance, typeInfo)
             if Utils.Table.Contains(splittedKey, "Static") then
                 return MembersHandler.GetStatic(typeInfo, key)
             elseif Utils.Table.Contains(splittedKey, "Raw") then
-                return instance.Members[key]
+                return rawget(obj, key)
             end
         end
 
@@ -127,7 +127,7 @@ function MembersHandler.InstanceIndex(instance, typeInfo)
             end
         end
 
-        return instance.Members[key]
+        return rawget(obj, key)
     end
 end
 
@@ -141,7 +141,7 @@ function MembersHandler.InstanceNewIndex(instance, typeInfo)
             if Utils.Table.Contains(splittedKey, "Static") then
                 return MembersHandler.SetStatic(typeInfo, key, value)
             elseif Utils.Table.Contains(splittedKey, "Raw") then
-                instance.Members[key] = value
+                rawset(obj, key, value)
             end
         end
 
@@ -151,7 +151,7 @@ function MembersHandler.InstanceNewIndex(instance, typeInfo)
             end
         end
 
-        instance.Members[key] = value
+        rawset(obj, key, value)
     end
 end
 
