@@ -783,4 +783,6 @@ __fileFuncs__["__main__"] = function()
     return ClassSystem
 end
 
-return __fileFuncs__["__main__"]()
+---@type Freemaker.ClassSystem
+local main = __fileFuncs__["__main__"]()
+return main
