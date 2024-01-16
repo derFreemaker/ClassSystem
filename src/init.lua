@@ -1,3 +1,6 @@
+-- to package meta in the bundled file
+_ = require("src.Meta")
+
 local Utils = require("tools.Freemaker.bin.utils")
 
 local Config = require("src.Config")
