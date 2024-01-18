@@ -15,7 +15,7 @@ function InstanceHandler.InitializeType(typeInfo)
 end
 
 ---@param typeInfo Freemaker.ClassSystem.Type
----@param instance Freemaker.ClassSystem.Instance
+---@param instance object
 function InstanceHandler.Add(typeInfo, instance)
     typeInfo.Instances[instance] = true
 
@@ -25,7 +25,7 @@ function InstanceHandler.Add(typeInfo, instance)
 end
 
 ---@param typeInfo Freemaker.ClassSystem.Type
----@param instance Freemaker.ClassSystem.Instance
+---@param instance object
 function InstanceHandler.Remove(typeInfo, instance)
     typeInfo.Instances[instance] = nil
 
@@ -57,7 +57,7 @@ function InstanceHandler.UpdateMember(typeInfo, key, value)
 
     for instance in pairs(typeInfo.Instances) do
         if not Utils.Table.ContainsKey(instance, key) then
-            instance.Members[key] = value
+            rawset(instance, key, value)
         end
     end
 end

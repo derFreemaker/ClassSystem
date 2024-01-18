@@ -81,7 +81,7 @@
 ---
 ---@field IsAbstract boolean
 ---
----@field Instances table<Freemaker.ClassSystem.Instance, boolean>
+---@field Instances table<object, boolean>
 
 ---@class Freemaker.ClassSystem.Metatable : Freemaker.ClassSystem.MetaMethods
 ---@field Type Freemaker.ClassSystem.Type

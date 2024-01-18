@@ -79,10 +79,9 @@ end
 function ClassSystem.Deconstruct(obj)
     ---@type Freemaker.ClassSystem.Metatable
     local metatable = getmetatable(obj)
-    local instance = metatable.Instance
     local typeInfo = metatable.Type
 
-    ConstructionHandler.Deconstruct(obj, metatable, instance, typeInfo)
+    ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
 end
 
 ClassSystem.Typeof = ClassUtils.Class.Typeof
