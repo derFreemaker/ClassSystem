@@ -15,6 +15,10 @@ local function construct(obj, ...)
     local metatable = getmetatable(obj)
     local typeInfo = metatable.Type
 
+    if typeInfo.IsAbstract then
+        error("cannot construct abstract class: " .. typeInfo.Name)
+    end
+
     local classInstance, classMetatable = {}, {}
     ---@cast classInstance Freemaker.ClassSystem.Instance
     ---@cast classMetatable Freemaker.ClassSystem.Metatable

@@ -1,9 +1,11 @@
+-- required at top to be at the top of the bundled file
+local Configs = require("src.Config")
+
 -- to package meta in the bundled file
 _ = require("src.Meta")
 
 local Utils = require("tools.Freemaker.bin.utils")
 
-local Config = require("src.Config")
 local ClassUtils = require("src.ClassUtils")
 
 local ObjectType = require("src.Object")
@@ -15,17 +17,22 @@ local ConstructionHandler = require("src.Construction")
 ---@class Freemaker.ClassSystem
 local ClassSystem = {}
 
-ClassSystem.GetNormal = Config.GetNormal
-ClassSystem.SetNormal = Config.SetNormal
-ClassSystem.Deconstructed = Config.Deconstructing
-ClassSystem.Placeholder = Config.Placeholder
+ClassSystem.GetNormal = Configs.GetNormal
+ClassSystem.SetNormal = Configs.SetNormal
+ClassSystem.Deconstructed = Configs.Deconstructing
+ClassSystem.Placeholder = Configs.Placeholder
+ClassSystem.IsAbstract = Configs.AbstractPlaceholder
 
 ---@generic TClass : object
 ---@param data TClass
 ---@param name string
 ---@param baseClass object?
+---@param options Freemaker.ClassSystem.Create.Options?
 ---@return TClass
-function ClassSystem.Create(data, name, baseClass)
+function ClassSystem.Create(data, name, baseClass, options)
+    options = options or {}
+    options.IsAbstract = options.IsAbstract or false
+
     local baseClassType
     if not baseClass then
         baseClassType = ObjectType
@@ -36,10 +43,11 @@ function ClassSystem.Create(data, name, baseClass)
         error("provided base class is not a class")
     end
 
-    local typeInfo = TypeHandler.Create(name, baseClassType)
+    local typeInfo = TypeHandler.Create(name, baseClassType, options)
 
     MembersHandler.Initialize(typeInfo)
     MembersHandler.Sort(data, typeInfo)
+    MembersHandler.Check(typeInfo)
 
     Utils.Table.Clear(data)
 

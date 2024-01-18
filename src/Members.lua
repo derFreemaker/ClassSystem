@@ -1,6 +1,6 @@
 local Utils = require("tools.Freemaker.bin.utils")
 
-local Config = require("src.Config")
+local Configs = require("src.Config")
 
 local InstanceHandler = require("src.Instance")
 
@@ -122,7 +122,7 @@ function MembersHandler.InstanceIndex(instance, typeInfo)
 
         if typeInfo.HasIndex and not instance.CustomIndexing then
             local value = typeInfo.MetaMethods.__index(obj, key)
-            if value ~= Config.GetNormal then
+            if value ~= Configs.GetNormal then
                 return value
             end
         end
@@ -146,7 +146,7 @@ function MembersHandler.InstanceNewIndex(instance, typeInfo)
         end
 
         if typeInfo.HasNewIndex and not instance.CustomIndexing then
-            if typeInfo.MetaMethods.__newindex(obj, key, value) ~= Config.SetNormal then
+            if typeInfo.MetaMethods.__newindex(obj, key, value) ~= Configs.SetNormal then
                 return
             end
         end
@@ -163,7 +163,7 @@ end
 ---@param name string
 ---@param func function
 local function isNormalFunction(typeInfo, name, func)
-    if Utils.Table.ContainsKey(Config.AllMetaMethods, name) then
+    if Utils.Table.ContainsKey(Configs.AllMetaMethods, name) then
         typeInfo.MetaMethods[name] = func
         return
     end
@@ -257,7 +257,7 @@ end
 ---@param name string
 ---@param func function
 local function extendIsNormalFunction(typeInfo, name, func)
-    if Utils.Table.ContainsKey(Config.AllMetaMethods, name) then
+    if Utils.Table.ContainsKey(Configs.AllMetaMethods, name) then
         UpdateMethods(typeInfo, name, func)
     end
 
@@ -304,6 +304,33 @@ function MembersHandler.Extend(typeInfo, data)
     end
 
     MembersHandler.UpdateState(typeInfo)
+end
+
+-------------------------------------------------------------------------------
+-- Check
+-------------------------------------------------------------------------------
+
+---@param typeInfo Freemaker.ClassSystem.Type
+function MembersHandler.Check(typeInfo)
+    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.IsAbstract then
+        error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
+    end
+
+    if not typeInfo.Base then
+        return
+    end
+
+    for key, value in pairs(typeInfo.Base.Members) do
+        if value == Configs.AbstractPlaceholder then
+            if not Utils.Table.ContainsKey(typeInfo.Members, key) then
+                error(
+                    typeInfo.Name
+                    .. "does not implement inherited abstract member: "
+                    .. typeInfo.Base.Name .. "." .. tostring(key)
+                )
+            end
+        end
+    end
 end
 
 return MembersHandler

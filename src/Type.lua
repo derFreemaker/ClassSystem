@@ -3,8 +3,9 @@ local TypeHandler = {}
 
 ---@param name string
 ---@param baseClass Freemaker.ClassSystem.Type
-function TypeHandler.Create(name, baseClass)
-    local typeInfo = { Name = name }
+---@param options Freemaker.ClassSystem.Create.Options
+function TypeHandler.Create(name, baseClass, options)
+    local typeInfo = { Name = name, IsAbstract = options.IsAbstract }
     ---@cast typeInfo Freemaker.ClassSystem.Type
 
     typeInfo.Base = baseClass

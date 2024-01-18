@@ -72,4 +72,8 @@ Configs.Deconstructing = {}
 ---@type any
 Configs.Placeholder = {}
 
+-- Placeholder is used to indicate that this member should be set by super class of the abstract class
+---@type any
+Configs.AbstractPlaceholder = {}
+
 return Configs

@@ -8,7 +8,90 @@
 	    end
 	    return table.unpack(__cache__[module])
 	end
-	__fileFuncs__["src.Meta"] = function()
+	__fileFuncs__["src.Config"] = function()
+	---@class Freemaker.ClassSystem.Configs
+	local Configs = {}
+
+	--- All meta methods that should be added as meta method to the class.
+	Configs.AllMetaMethods = {
+	    --- Constructor
+	    __init = true,
+	    --- Garbage Collection
+	    __gc = true,
+	    --- Out of Scope
+	    __close = true,
+
+	    --- Special
+	    __call = true,
+	    __newindex = true,
+	    __index = true,
+	    __pairs = true,
+	    __ipairs = true,
+	    __tostring = true,
+
+	    -- Operators
+	    __add = true,
+	    __sub = true,
+	    __mul = true,
+	    __div = true,
+	    __mod = true,
+	    __pow = true,
+	    __unm = true,
+	    __idiv = true,
+	    __band = true,
+	    __bor = true,
+	    __bxor = true,
+	    __bnot = true,
+	    __shl = true,
+	    __shr = true,
+	    __concat = true,
+	    __len = true,
+	    __eq = true,
+	    __lt = true,
+	    __le = true
+	}
+
+	--- Blocks meta methods on the blueprint of an class.
+	Configs.BlockMetaMethodsOnBlueprint = {
+	    __pairs = true,
+	    __ipairs = true
+	}
+
+	--- Blocks meta methods if not set by the class.
+	Configs.BlockMetaMethodsOnInstance = {
+	    __pairs = true,
+	    __ipairs = true
+	}
+
+	--- Meta methods that should not be set to the classes metatable, but remain in the type.MetaMethods.
+	Configs.IndirectMetaMethods = {
+	    __gc = true,
+	    __index = true,
+	    __newindex = true
+	}
+
+	-- Indicates that the value should be retrieved with rawget. Needs to be returned by the __index meta method.
+	Configs.GetNormal = {}
+
+	-- Indicates that value in newindex should be set like table[index] = value. Needs to be returned by the __newindex meta method.
+	Configs.SetNormal = {}
+
+	-- Indicates that the __close method is called from the ClassSystem.Deconstruct method.
+	Configs.Deconstructing = {}
+
+	-- Placeholder has no functionality.
+	---@type any
+	Configs.Placeholder = {}
+
+	-- Placeholder is used to indicate that this member should be set by super class of the abstract class
+	---@type any
+	Configs.AbstractPlaceholder = {}
+
+	return Configs
+
+end
+
+__fileFuncs__["src.Meta"] = function()
 	---@meta
 
 	---@class Freemaker.ClassSystem.ObjectMetaMethods
@@ -90,6 +173,8 @@
 	---@field HasIndex boolean
 	---@field HasNewIndex boolean
 	---
+	---@field IsAbstract boolean
+	---
 	---@field Instances table<Freemaker.ClassSystem.Instance, boolean>
 
 	---@class Freemaker.ClassSystem.Metatable : Freemaker.ClassSystem.MetaMethods
@@ -106,6 +191,9 @@
 	---@field Members table<any, any>
 	---
 	---@field CustomIndexing boolean
+
+	---@class Freemaker.ClassSystem.Create.Options
+	---@field IsAbstract boolean?
 
 end
 
@@ -321,85 +409,6 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 
 end
 
-__fileFuncs__["src.Config"] = function()
-	---@class Freemaker.ClassSystem.Configs
-	local Configs = {}
-
-	--- All meta methods that should be added as meta method to the class.
-	Configs.AllMetaMethods = {
-	    --- Constructor
-	    __init = true,
-	    --- Garbage Collection
-	    __gc = true,
-	    --- Out of Scope
-	    __close = true,
-
-	    --- Special
-	    __call = true,
-	    __newindex = true,
-	    __index = true,
-	    __pairs = true,
-	    __ipairs = true,
-	    __tostring = true,
-
-	    -- Operators
-	    __add = true,
-	    __sub = true,
-	    __mul = true,
-	    __div = true,
-	    __mod = true,
-	    __pow = true,
-	    __unm = true,
-	    __idiv = true,
-	    __band = true,
-	    __bor = true,
-	    __bxor = true,
-	    __bnot = true,
-	    __shl = true,
-	    __shr = true,
-	    __concat = true,
-	    __len = true,
-	    __eq = true,
-	    __lt = true,
-	    __le = true
-	}
-
-	--- Blocks meta methods on the blueprint of an class.
-	Configs.BlockMetaMethodsOnBlueprint = {
-	    __pairs = true,
-	    __ipairs = true
-	}
-
-	--- Blocks meta methods if not set by the class.
-	Configs.BlockMetaMethodsOnInstance = {
-	    __pairs = true,
-	    __ipairs = true
-	}
-
-	--- Meta methods that should not be set to the classes metatable, but remain in the type.MetaMethods.
-	Configs.IndirectMetaMethods = {
-	    __gc = true,
-	    __index = true,
-	    __newindex = true
-	}
-
-	-- Indicates that the value should be retrieved with rawget. Needs to be returned by the __index meta method.
-	Configs.GetNormal = {}
-
-	-- Indicates that value in newindex should be set like table[index] = value. Needs to be returned by the __newindex meta method.
-	Configs.SetNormal = {}
-
-	-- Indicates that the __close method is called from the ClassSystem.Deconstruct method.
-	Configs.Deconstructing = {}
-
-	-- Placeholder has no functionality.
-	---@type any
-	Configs.Placeholder = {}
-
-	return Configs
-
-end
-
 __fileFuncs__["src.ClassUtils"] = function()
 	---@class Freemaker.ClassSystem.Utils
 	local Utils = {}
@@ -561,6 +570,8 @@ __fileFuncs__["src.Object"] = function()
 	    HasIndex = false,
 	    HasNewIndex = false,
 
+	    IsAbstract = true,
+
 	    Instances = setmetatable({}, { __mode = 'k' })
 	}
 
@@ -591,8 +602,9 @@ __fileFuncs__["src.Type"] = function()
 
 	---@param name string
 	---@param baseClass Freemaker.ClassSystem.Type
-	function TypeHandler.Create(name, baseClass)
-	    local typeInfo = { Name = name }
+	---@param options Freemaker.ClassSystem.Create.Options
+	function TypeHandler.Create(name, baseClass, options)
+	    local typeInfo = { Name = name, IsAbstract = options.IsAbstract }
 	    ---@cast typeInfo Freemaker.ClassSystem.Type
 
 	    typeInfo.Base = baseClass
@@ -685,7 +697,7 @@ end
 __fileFuncs__["src.Members"] = function()
 	local Utils = __loadFile__("tools.Freemaker.bin.utils")
 
-	local Config = __loadFile__("src.Config")
+	local Configs = __loadFile__("src.Config")
 
 	local InstanceHandler = __loadFile__("src.Instance")
 
@@ -807,7 +819,7 @@ __fileFuncs__["src.Members"] = function()
 
 	        if typeInfo.HasIndex and not instance.CustomIndexing then
 	            local value = typeInfo.MetaMethods.__index(obj, key)
-	            if value ~= Config.GetNormal then
+	            if value ~= Configs.GetNormal then
 	                return value
 	            end
 	        end
@@ -831,7 +843,7 @@ __fileFuncs__["src.Members"] = function()
 	        end
 
 	        if typeInfo.HasNewIndex and not instance.CustomIndexing then
-	            if typeInfo.MetaMethods.__newindex(obj, key, value) ~= Config.SetNormal then
+	            if typeInfo.MetaMethods.__newindex(obj, key, value) ~= Configs.SetNormal then
 	                return
 	            end
 	        end
@@ -848,7 +860,7 @@ __fileFuncs__["src.Members"] = function()
 	---@param name string
 	---@param func function
 	local function isNormalFunction(typeInfo, name, func)
-	    if Utils.Table.ContainsKey(Config.AllMetaMethods, name) then
+	    if Utils.Table.ContainsKey(Configs.AllMetaMethods, name) then
 	        typeInfo.MetaMethods[name] = func
 	        return
 	    end
@@ -942,7 +954,7 @@ __fileFuncs__["src.Members"] = function()
 	---@param name string
 	---@param func function
 	local function extendIsNormalFunction(typeInfo, name, func)
-	    if Utils.Table.ContainsKey(Config.AllMetaMethods, name) then
+	    if Utils.Table.ContainsKey(Configs.AllMetaMethods, name) then
 	        UpdateMethods(typeInfo, name, func)
 	    end
 
@@ -989,6 +1001,33 @@ __fileFuncs__["src.Members"] = function()
 	    end
 
 	    MembersHandler.UpdateState(typeInfo)
+	end
+
+	-------------------------------------------------------------------------------
+	-- Check
+	-------------------------------------------------------------------------------
+
+	---@param typeInfo Freemaker.ClassSystem.Type
+	function MembersHandler.Check(typeInfo)
+	    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.IsAbstract then
+	        error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
+	    end
+
+	    if not typeInfo.Base then
+	        return
+	    end
+
+	    for key, value in pairs(typeInfo.Base.Members) do
+	        if value == Configs.AbstractPlaceholder then
+	            if not Utils.Table.ContainsKey(typeInfo.Members, key) then
+	                error(
+	                    typeInfo.Name
+	                    .. "does not implement inherited abstract member: "
+	                    .. typeInfo.Base.Name .. "." .. tostring(key)
+	                )
+	            end
+	        end
+	    end
 	end
 
 	return MembersHandler
@@ -1069,6 +1108,10 @@ __fileFuncs__["src.Construction"] = function()
 	    ---@type Freemaker.ClassSystem.Metatable
 	    local metatable = getmetatable(obj)
 	    local typeInfo = metatable.Type
+
+	    if typeInfo.IsAbstract then
+	        error("cannot construct abstract class: " .. typeInfo.Name)
+	    end
 
 	    local classInstance, classMetatable = {}, {}
 	    ---@cast classInstance Freemaker.ClassSystem.Instance
@@ -1186,12 +1229,14 @@ __fileFuncs__["src.Construction"] = function()
 end
 
 __fileFuncs__["__main__"] = function()
+	-- required at top to be at the top of the bundled file
+	local Configs = __loadFile__("src.Config")
+
 	-- to package meta in the bundled file
 	_ = __loadFile__("src.Meta")
 
 	local Utils = __loadFile__("tools.Freemaker.bin.utils")
 
-	local Config = __loadFile__("src.Config")
 	local ClassUtils = __loadFile__("src.ClassUtils")
 
 	local ObjectType = __loadFile__("src.Object")
@@ -1203,17 +1248,22 @@ __fileFuncs__["__main__"] = function()
 	---@class Freemaker.ClassSystem
 	local ClassSystem = {}
 
-	ClassSystem.GetNormal = Config.GetNormal
-	ClassSystem.SetNormal = Config.SetNormal
-	ClassSystem.Deconstructed = Config.Deconstructing
-	ClassSystem.Placeholder = Config.Placeholder
+	ClassSystem.GetNormal = Configs.GetNormal
+	ClassSystem.SetNormal = Configs.SetNormal
+	ClassSystem.Deconstructed = Configs.Deconstructing
+	ClassSystem.Placeholder = Configs.Placeholder
+	ClassSystem.IsAbstract = Configs.AbstractPlaceholder
 
 	---@generic TClass : object
 	---@param data TClass
 	---@param name string
 	---@param baseClass object?
+	---@param options Freemaker.ClassSystem.Create.Options?
 	---@return TClass
-	function ClassSystem.Create(data, name, baseClass)
+	function ClassSystem.Create(data, name, baseClass, options)
+	    options = options or {}
+	    options.IsAbstract = options.IsAbstract or false
+
 	    local baseClassType
 	    if not baseClass then
 	        baseClassType = ObjectType
@@ -1224,10 +1274,11 @@ __fileFuncs__["__main__"] = function()
 	        error("provided base class is not a class")
 	    end
 
-	    local typeInfo = TypeHandler.Create(name, baseClassType)
+	    local typeInfo = TypeHandler.Create(name, baseClassType, options)
 
 	    MembersHandler.Initialize(typeInfo)
 	    MembersHandler.Sort(data, typeInfo)
+	    MembersHandler.Check(typeInfo)
 
 	    Utils.Table.Clear(data)
 

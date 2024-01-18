@@ -79,6 +79,8 @@
 ---@field HasIndex boolean
 ---@field HasNewIndex boolean
 ---
+---@field IsAbstract boolean
+---
 ---@field Instances table<Freemaker.ClassSystem.Instance, boolean>
 
 ---@class Freemaker.ClassSystem.Metatable : Freemaker.ClassSystem.MetaMethods
@@ -95,3 +97,6 @@
 ---@field Members table<any, any>
 ---
 ---@field CustomIndexing boolean
+
+---@class Freemaker.ClassSystem.Create.Options
+---@field IsAbstract boolean?

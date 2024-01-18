@@ -56,6 +56,8 @@ local objectTypeInfo = {
     HasIndex = false,
     HasNewIndex = false,
 
+    IsAbstract = true,
+
     Instances = setmetatable({}, { __mode = 'k' })
 }
 
