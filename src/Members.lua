@@ -325,7 +325,7 @@ function MembersHandler.Check(typeInfo)
             if not Utils.Table.ContainsKey(typeInfo.Members, key) then
                 error(
                     typeInfo.Name
-                    .. "does not implement inherited abstract member: "
+                    .. " does not implement inherited abstract member: "
                     .. typeInfo.Base.Name .. "." .. tostring(key)
                 )
             end
