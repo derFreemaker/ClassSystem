@@ -25,7 +25,7 @@ function MetatableHandler.Template(typeInfo)
     end
 
     metatable.__tostring = function()
-        return typeInfo.Name .. ".Blueprint"
+        return typeInfo.Name .. ".__Blueprint__"
     end
 
     return metatable
