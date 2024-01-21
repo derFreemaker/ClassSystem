@@ -5,8 +5,8 @@ local InstanceHandler = {}
 
 ---@param instance Freemaker.ClassSystem.Instance
 function InstanceHandler.Initialize(instance)
-    -- instance.Members = {}
     instance.CustomIndexing = true
+    instance.IsConstructed = false
 end
 
 ---@param typeInfo Freemaker.ClassSystem.Type

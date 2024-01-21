@@ -1,4 +1,6 @@
+---@type Freemaker.ClassSystem
 local ClassSystem = require("ClassSystem")
+
 ---@class TestClass.Extensions : object
 ---@overload fun() : TestClass.Extensions
 local class = {}
@@ -25,5 +27,5 @@ instanceBeforeExtension:foo()
 
 local val1 = instanceAfterExtension.fooVal
 local val2 = instanceBeforeExtension.fooVal
--- Works all instances of the type get extended.
--- If an instance already has a value or function with the same name like one in the extensions this value or function gets ignored.
+-- All instances of the type get extended.
+-- If an instance already has a value or function with the same name it will not be overridden.

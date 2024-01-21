@@ -15,7 +15,7 @@ local function construct(obj, ...)
     local metatable = getmetatable(obj)
     local typeInfo = metatable.Type
 
-    if typeInfo.IsAbstract then
+    if typeInfo.Options.IsAbstract then
         error("cannot construct abstract class: " .. typeInfo.Name)
     end
 
@@ -106,6 +106,8 @@ function ConstructionHandler.Construct(typeInfo, obj, instance, metatable, ...)
             typeInfo.MetaMethods.__init(obj, ...)
         end
     end
+
+    instance.IsConstructed = true
 end
 
 ---@param obj object

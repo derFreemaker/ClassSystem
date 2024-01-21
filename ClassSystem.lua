@@ -94,6 +94,10 @@ end
 __fileFuncs__["src.Meta"] = function()
 	---@meta
 
+	----------------------------------------------------------------
+	-- MetaMethods
+	----------------------------------------------------------------
+
 	---@class Freemaker.ClassSystem.ObjectMetaMethods
 	---@field protected __init (fun(self: object, ...))? self(...) before construction
 	---@field protected __call (fun(self: object, ...) : ...)? self(...) after construction
@@ -158,6 +162,10 @@ __fileFuncs__["src.Meta"] = function()
 	---@class Freemaker.ClassSystem.TypeMetaMethods : Freemaker.ClassSystem.MetaMethods
 	---@field __init (fun(self: object, ...))? self(...) before construction
 
+	----------------------------------------------------------------
+	-- Type
+	----------------------------------------------------------------
+
 	---@class Freemaker.ClassSystem.Type
 	---@field Name string
 	---@field Base Freemaker.ClassSystem.Type?
@@ -173,27 +181,45 @@ __fileFuncs__["src.Meta"] = function()
 	---@field HasIndex boolean
 	---@field HasNewIndex boolean
 	---
-	---@field IsAbstract boolean
+	---@field Options Freemaker.ClassSystem.Type.Options
 	---
 	---@field Instances table<object, boolean>
+
+	---@class Freemaker.ClassSystem.Type.Options
+	---@field IsAbstract boolean?
+
+	----------------------------------------------------------------
+	-- Metatable
+	----------------------------------------------------------------
 
 	---@class Freemaker.ClassSystem.Metatable : Freemaker.ClassSystem.MetaMethods
 	---@field Type Freemaker.ClassSystem.Type
 	---@field Instance Freemaker.ClassSystem.Instance
+
+	----------------------------------------------------------------
+	-- Blueprint
+	----------------------------------------------------------------
 
 	---@class Freemaker.ClassSystem.BlueprintMetatable : Freemaker.ClassSystem.MetaMethods
 	---@field Type Freemaker.ClassSystem.Type
 
 	---@class Freemaker.ClassSystem.Blueprint
 
+	----------------------------------------------------------------
+	-- Instance
+	----------------------------------------------------------------
+
 	---@class Freemaker.ClassSystem.Instance
-	---
-	---@field Members table<any, any>
+	---@field IsConstructed boolean
 	---
 	---@field CustomIndexing boolean
 
-	---@class Freemaker.ClassSystem.Create.Options
-	---@field IsAbstract boolean?
+	----------------------------------------------------------------
+	-- Create Options
+	----------------------------------------------------------------
+
+	---@class Freemaker.ClassSystem.Create.Options : Freemaker.ClassSystem.Type.Options
+	---@field BaseClass object?
 
 end
 
@@ -461,7 +487,7 @@ __fileFuncs__["src.ClassUtils"] = function()
 	        return nil
 	    end
 
-	    local metatable = getmetatable(obj)
+	    local metatable = getmetatable(obj) or {}
 	    return metatable.Type
 	end
 
@@ -606,7 +632,10 @@ __fileFuncs__["src.Object"] = function()
 	    HasIndex = false,
 	    HasNewIndex = false,
 
-	    IsAbstract = true,
+	    Options = {
+	        IsAbstract = true,
+	        IsReadOnly = false,
+	    },
 
 	    Instances = setmetatable({}, { __mode = 'k' })
 	}
@@ -638,12 +667,14 @@ __fileFuncs__["src.Type"] = function()
 
 	---@param name string
 	---@param baseClass Freemaker.ClassSystem.Type
-	---@param options Freemaker.ClassSystem.Create.Options
+	---@param options Freemaker.ClassSystem.Type.Options
 	function TypeHandler.Create(name, baseClass, options)
-	    local typeInfo = { Name = name, IsAbstract = options.IsAbstract }
+	    local typeInfo = {
+	        Name = name,
+	        Base = baseClass,
+	        Options = options
+	    }
 	    ---@cast typeInfo Freemaker.ClassSystem.Type
-
-	    typeInfo.Base = baseClass
 
 	    setmetatable(
 	        typeInfo,
@@ -669,8 +700,8 @@ __fileFuncs__["src.Instance"] = function()
 
 	---@param instance Freemaker.ClassSystem.Instance
 	function InstanceHandler.Initialize(instance)
-	    -- instance.Members = {}
 	    instance.CustomIndexing = true
+	    instance.IsConstructed = false
 	end
 
 	---@param typeInfo Freemaker.ClassSystem.Type
@@ -1045,7 +1076,7 @@ __fileFuncs__["src.Members"] = function()
 
 	---@param typeInfo Freemaker.ClassSystem.Type
 	function MembersHandler.Check(typeInfo)
-	    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.IsAbstract then
+	    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.Options.IsAbstract then
 	        error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
 	    end
 
@@ -1145,7 +1176,7 @@ __fileFuncs__["src.Construction"] = function()
 	    local metatable = getmetatable(obj)
 	    local typeInfo = metatable.Type
 
-	    if typeInfo.IsAbstract then
+	    if typeInfo.Options.IsAbstract then
 	        error("cannot construct abstract class: " .. typeInfo.Name)
 	    end
 
@@ -1236,6 +1267,8 @@ __fileFuncs__["src.Construction"] = function()
 	            typeInfo.MetaMethods.__init(obj, ...)
 	        end
 	    end
+
+	    instance.IsConstructed = true
 	end
 
 	---@param obj object
@@ -1291,27 +1324,30 @@ __fileFuncs__["__main__"] = function()
 	ClassSystem.Placeholder = Configs.Placeholder
 	ClassSystem.IsAbstract = Configs.AbstractPlaceholder
 
+	---@param options Freemaker.ClassSystem.Create.Options
+	---@return Freemaker.ClassSystem.Type baseClass
+	local function processOptions(options)
+	    options.IsAbstract = options.IsAbstract or false
+
+	    if options.BaseClass and not ClassSystem.IsClass(options.BaseClass) then
+	        error("the provided base class is not a class", 2)
+	    end
+	    local baseClass = ClassSystem.Typeof(options.BaseClass) or ObjectType
+	    options.BaseClass = nil
+
+	    return baseClass
+	end
+
 	---@generic TClass : object
 	---@param data TClass
 	---@param name string
-	---@param baseClass object?
 	---@param options Freemaker.ClassSystem.Create.Options?
 	---@return TClass
-	function ClassSystem.Create(data, name, baseClass, options)
+	function ClassSystem.Create(data, name, options)
 	    options = options or {}
-	    options.IsAbstract = options.IsAbstract or false
+	    local baseClass = processOptions(options)
 
-	    local baseClassType
-	    if not baseClass then
-	        baseClassType = ObjectType
-	    else
-	        baseClassType = ClassSystem.Typeof(baseClass)
-	    end
-	    if not baseClassType then
-	        error("provided base class is not a class")
-	    end
-
-	    local typeInfo = TypeHandler.Create(name, baseClassType, options)
+	    local typeInfo = TypeHandler.Create(name, baseClass, options)
 
 	    MembersHandler.Initialize(typeInfo)
 	    MembersHandler.Sort(data, typeInfo)

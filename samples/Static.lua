@@ -1,3 +1,4 @@
+---@type Freemaker.ClassSystem
 local ClassSystem = require("ClassSystem")
 
 ---@class TestClass.Raw : object

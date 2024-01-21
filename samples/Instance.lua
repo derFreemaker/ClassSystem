@@ -1,4 +1,6 @@
-local ClassSystem = require("src")
+---@type Freemaker.ClassSystem
+local ClassSystem = require("ClassSystem")
+
 ---@class TestClass.Instance : object
 ---@overload fun() : TestClass.Instance
 local class = {}
@@ -11,11 +13,13 @@ if not instanceData then
     return
 end
 
-local members = instanceData.Members
--- All the members of the current instance of the type.
--- Here are all members stored so the `__index` meta method is called every time when getting a value.
+-- ! All of these values are not meant to be changed !
 
-local customIndexing = instanceData.CustomIndexing
--- Indicates if the class instance of the type has custom indexing enabled.
--- If `false` then `class:__index` and `class:__newindex` will not be called.
--- Can be set with the class:Raw__ModifyBehavior() function.
+local CustomIndexing = instanceData.CustomIndexing
+-- Indicates if custom index is enabled.
+-- If true will call __index or __newindex.
+-- Default: true
+
+local IsConstructed = instanceData.IsConstructed
+-- Indicates if instance is constructed.
+-- Is only false while the constructor (__init) is getting executed.

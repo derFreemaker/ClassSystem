@@ -1,5 +1,9 @@
 ---@meta
 
+----------------------------------------------------------------
+-- MetaMethods
+----------------------------------------------------------------
+
 ---@class Freemaker.ClassSystem.ObjectMetaMethods
 ---@field protected __init (fun(self: object, ...))? self(...) before construction
 ---@field protected __call (fun(self: object, ...) : ...)? self(...) after construction
@@ -64,6 +68,10 @@
 ---@class Freemaker.ClassSystem.TypeMetaMethods : Freemaker.ClassSystem.MetaMethods
 ---@field __init (fun(self: object, ...))? self(...) before construction
 
+----------------------------------------------------------------
+-- Type
+----------------------------------------------------------------
+
 ---@class Freemaker.ClassSystem.Type
 ---@field Name string
 ---@field Base Freemaker.ClassSystem.Type?
@@ -79,24 +87,42 @@
 ---@field HasIndex boolean
 ---@field HasNewIndex boolean
 ---
----@field IsAbstract boolean
+---@field Options Freemaker.ClassSystem.Type.Options
 ---
 ---@field Instances table<object, boolean>
+
+---@class Freemaker.ClassSystem.Type.Options
+---@field IsAbstract boolean?
+
+----------------------------------------------------------------
+-- Metatable
+----------------------------------------------------------------
 
 ---@class Freemaker.ClassSystem.Metatable : Freemaker.ClassSystem.MetaMethods
 ---@field Type Freemaker.ClassSystem.Type
 ---@field Instance Freemaker.ClassSystem.Instance
+
+----------------------------------------------------------------
+-- Blueprint
+----------------------------------------------------------------
 
 ---@class Freemaker.ClassSystem.BlueprintMetatable : Freemaker.ClassSystem.MetaMethods
 ---@field Type Freemaker.ClassSystem.Type
 
 ---@class Freemaker.ClassSystem.Blueprint
 
+----------------------------------------------------------------
+-- Instance
+----------------------------------------------------------------
+
 ---@class Freemaker.ClassSystem.Instance
----
----@field Members table<any, any>
+---@field IsConstructed boolean
 ---
 ---@field CustomIndexing boolean
 
----@class Freemaker.ClassSystem.Create.Options
----@field IsAbstract boolean?
+----------------------------------------------------------------
+-- Create Options
+----------------------------------------------------------------
+
+---@class Freemaker.ClassSystem.Create.Options : Freemaker.ClassSystem.Type.Options
+---@field BaseClass object?

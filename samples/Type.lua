@@ -1,4 +1,6 @@
-local ClassSystem = require("src")
+---@type Freemaker.ClassSystem
+local ClassSystem = require("ClassSystem")
+
 ---@class TestClass.Type : object
 ---@overload fun() : TestClass.Type
 local class = {}
@@ -9,14 +11,12 @@ if not type then
     return
 end
 
-local name = type.Name
--- Name of the type.
+-- ! All of these values are not meant to be changed !
 
-local base = type.Base
+local Base = type.Base
 -- Is the base type of the class. Default is object.
--- !! Will be nil if type is the object type.
 
-local hasClose = type.HasClose
+local HasClose = type.HasClose
 -- Indicates if type has a __close meta method.
 
 local HasConstructor = type.HasConstructor
@@ -31,15 +31,21 @@ local HasIndex = type.HasIndex
 local HasNewIndex = type.HasNewIndex
 -- Indicates if type has a __newindex meta method invoked.
 
-local instances = type.Instances
+local Instances = type.Instances
 -- All instances of the type.
 
-local members = type.Members
+local Members = type.Members
 -- All members of the type.
 
-local metaMethods = type.MetaMethods
+local MetaMethods = type.MetaMethods
 -- All metaMethods of the type.
 
-local static = type.Static
+local Name = type.Name
+-- Name of the type.
+
+local Options = type.Options
+-- Has some options like if it is a abstract class
+
+local Static = type.Static
 -- Static Table in which all Static functions and values are stored.
 -- Will be access when class.Static__Foo is used

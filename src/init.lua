@@ -23,27 +23,30 @@ ClassSystem.Deconstructed = Configs.Deconstructing
 ClassSystem.Placeholder = Configs.Placeholder
 ClassSystem.IsAbstract = Configs.AbstractPlaceholder
 
+---@param options Freemaker.ClassSystem.Create.Options
+---@return Freemaker.ClassSystem.Type baseClass
+local function processOptions(options)
+    options.IsAbstract = options.IsAbstract or false
+
+    if options.BaseClass and not ClassSystem.IsClass(options.BaseClass) then
+        error("the provided base class is not a class", 2)
+    end
+    local baseClass = ClassSystem.Typeof(options.BaseClass) or ObjectType
+    options.BaseClass = nil
+
+    return baseClass
+end
+
 ---@generic TClass : object
 ---@param data TClass
 ---@param name string
----@param baseClass object?
 ---@param options Freemaker.ClassSystem.Create.Options?
 ---@return TClass
-function ClassSystem.Create(data, name, baseClass, options)
+function ClassSystem.Create(data, name, options)
     options = options or {}
-    options.IsAbstract = options.IsAbstract or false
+    local baseClass = processOptions(options)
 
-    local baseClassType
-    if not baseClass then
-        baseClassType = ObjectType
-    else
-        baseClassType = ClassSystem.Typeof(baseClass)
-    end
-    if not baseClassType then
-        error("provided base class is not a class")
-    end
-
-    local typeInfo = TypeHandler.Create(name, baseClassType, options)
+    local typeInfo = TypeHandler.Create(name, baseClass, options)
 
     MembersHandler.Initialize(typeInfo)
     MembersHandler.Sort(data, typeInfo)

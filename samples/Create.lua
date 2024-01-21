@@ -1,7 +1,8 @@
+---@type Freemaker.ClassSystem
 local ClassSystem = require("ClassSystem")
 
----@class TestClass.Basic : object
----@overload fun() : TestClass.Basic
+---@class TestClass.Create : object
+---@overload fun() : TestClass.Create
 local class = {}
 
 ---@private
@@ -19,7 +20,7 @@ ClassSystem.Create(class, "Class Name")
 
 
 local instance = class()
--- Triggers class:__init with self being set with all members and all meta methods added.
+-- Triggers class:__init with self being set with all members added.
 
 instance:foo()
 

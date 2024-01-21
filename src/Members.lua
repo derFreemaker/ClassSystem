@@ -312,7 +312,7 @@ end
 
 ---@param typeInfo Freemaker.ClassSystem.Type
 function MembersHandler.Check(typeInfo)
-    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.IsAbstract then
+    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.Options.IsAbstract then
         error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
     end
 

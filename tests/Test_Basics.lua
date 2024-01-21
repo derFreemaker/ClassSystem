@@ -10,7 +10,7 @@ end
 
 function TestCreateClassWithBaseClass()
     local testBaseClass = ClassSystem.Create({}, 'EmptyBaseClass')
-    local test = ClassSystem.Create({}, 'CreateEmptyWithBaseClass', testBaseClass)
+    local test = ClassSystem.Create({}, 'CreateEmptyWithBaseClass', { BaseClass = testBaseClass })
 
     luaunit.assertNotIsNil(test)
 end
@@ -25,7 +25,7 @@ function TestExtendClass()
     local test = ClassSystem.Create({}, 'CreateEmpty')
     local testClassInstance = test()
 
-    local testBaseClass = ClassSystem.Create({}, "CreateEmptyWithBaseClass", test)
+    local testBaseClass = ClassSystem.Create({}, "CreateEmptyWithBaseClass", { BaseClass = test })
     local testBaseClassInstance = testBaseClass()
 
     local extended = ClassSystem.Extend(test, { Test = "hi" })

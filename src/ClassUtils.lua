@@ -13,7 +13,7 @@ function Class.Typeof(obj)
         return nil
     end
 
-    local metatable = getmetatable(obj)
+    local metatable = getmetatable(obj) or {}
     return metatable.Type
 end
 
