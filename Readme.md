@@ -4,7 +4,7 @@ Class System in pure lua.
 
 Made in lua 5.4 maybe works with lower versions.
 
-**Please** read the [Samples](https://github.com/derFreemaker/ClassSystem/tree/master/samples) they also act as Documentation.
+The [Samples](https://github.com/derFreemaker/ClassSystem/tree/master/samples) they also act as Documentation.
 
 `ClassSystem.lua` is the only file you need. It contains all files combined from the src folder.
 It is not performance optimized at the moment.
