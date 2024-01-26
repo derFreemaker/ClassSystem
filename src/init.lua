@@ -6,6 +6,7 @@ _ = require("src.Meta")
 
 local Utils = require("tools.Freemaker.bin.utils")
 
+---@type Freemaker.ClassSystem.Utils
 local ClassUtils = require("src.ClassUtils")
 
 local ObjectType = require("src.Object")
