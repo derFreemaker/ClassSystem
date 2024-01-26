@@ -2,7 +2,7 @@
 
 Class System in pure lua.
 
-Build in lua 5.4 maybe works with lower versions.
+Made in lua 5.4 maybe works with lower versions.
 
 **Please** read the [Samples](https://github.com/derFreemaker/ClassSystem/tree/master/samples) they also act as Documentation.
 
@@ -15,6 +15,7 @@ It is not performance optimized at the moment.
 -   Class Extension
 -   MetaMethods
 -   Static Class Values/Functions
+-   Abstract Class
 
 ## TODO
 
