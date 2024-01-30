@@ -49,3 +49,8 @@ local Options = type.Options
 local Static = type.Static
 -- Static Table in which all Static functions and values are stored.
 -- Will be access when class.Static__Foo is used
+
+local Blueprint = type.Blueprint
+-- The table that gets produced from ClassSystem.Create.
+-- Which acts as Blueprint to be constructed with. Will be nil if class is abstract
+-- Can also access static members.

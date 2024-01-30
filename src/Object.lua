@@ -32,9 +32,7 @@ function Object:Raw__ModifyBehavior(func)
 
     func(modify)
 
-    if modify.CustomIndexing ~= nil then
-        metatable.Instance.CustomIndexing = modify.CustomIndexing
-    end
+    metatable.Instance.CustomIndexing = modify.CustomIndexing
 end
 
 ----------------------------------------
@@ -58,7 +56,6 @@ local objectTypeInfo = {
 
     Options = {
         IsAbstract = true,
-        IsReadOnly = false,
     },
 
     Instances = setmetatable({}, { __mode = 'k' })

@@ -41,6 +41,10 @@ function ConstructionHandler.Template(data, typeInfo)
     metatable.__call = construct
 
     setmetatable(data, metatable)
+
+    if not typeInfo.Options.IsAbstract then
+        typeInfo.Blueprint = data
+    end
 end
 
 ---@param typeInfo Freemaker.ClassSystem.Type

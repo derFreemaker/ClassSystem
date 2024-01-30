@@ -90,6 +90,8 @@
 ---@field Options Freemaker.ClassSystem.Type.Options
 ---
 ---@field Instances table<object, boolean>
+---
+---@field Blueprint Freemaker.ClassSystem.Blueprint?
 
 ---@class Freemaker.ClassSystem.Type.Options
 ---@field IsAbstract boolean?
