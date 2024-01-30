@@ -4,6 +4,7 @@
 		"**/Freemaker/src",
 		"ClassSystem.lua"
 	],
+	"Lua.diagnostics.ignoredFiles": "Disable",
 	"cSpell.ignoreWords": ["argparse"],
 	"files.exclude": {
 		"**/.git": true,
