@@ -2,7 +2,7 @@
 
 local luaunit = require("tests.Luaunit")
 
-local ClassSystem = require("src")
+local ClassSystem = require("src.init")
 
 function TestCreateAbstractClass()
     local testClass = {}

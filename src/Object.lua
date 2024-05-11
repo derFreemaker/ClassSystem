@@ -1,6 +1,6 @@
 local Utils = require("tools.Freemaker.bin.utils")
 local Config = require("src.Config")
-local ClassUtils = require("src.ClassUtils")
+local Class = require("src.Class")
 
 ---@class object
 local Object = {}
@@ -8,7 +8,7 @@ local Object = {}
 ---@protected
 ---@return string typeName
 function Object:__tostring()
-    return ClassUtils.Class.Typeof(self).Name
+    return Class.Typeof(self).Name
 end
 
 ---@protected
@@ -77,5 +77,14 @@ for key, value in pairs(Object) do
         end
     end
 end
+
+setmetatable(
+        objectTypeInfo,
+        {
+            __tostring = function(self)
+                return self.Name
+            end
+        }
+    )
 
 return objectTypeInfo

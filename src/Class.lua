@@ -1,9 +1,4 @@
----@class Freemaker.ClassSystem.Utils
-local Utils = {}
-
--- ############ Class ############ --
-
----@class Freemaker.ClassSystem.Utils.Class
+---@class Freemaker.ClassSystem
 local Class = {}
 
 ---@param obj any
@@ -91,8 +86,4 @@ function Class.HasBase(obj, className)
     return hasTypeBase(metatable.Type)
 end
 
-Utils.Class = Class
-
--- ############ Class ############ --
-
-return Utils
+return Class

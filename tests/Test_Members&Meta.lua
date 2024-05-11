@@ -1,6 +1,6 @@
 local luaunit = require("tests.Luaunit")
 
-local ClassSystem = require("src")
+local ClassSystem = require("src.init")
 
 function TestStaticAccess()
     local testClass = ClassSystem.Create({ Static__Test = "hi" }, "StaticTestClass")

@@ -2,13 +2,11 @@
 local Configs = require("src.Config")
 
 -- to package meta in the bundled file
-_ = require("src.Meta")
+require("src.Meta")
 
 local Utils = require("tools.Freemaker.bin.utils")
 
----@type Freemaker.ClassSystem.Utils
-local ClassUtils = require("src.ClassUtils")
-
+local Class = require("src.Class")
 local ObjectType = require("src.Object")
 local TypeHandler = require("src.Type")
 local MembersHandler = require("src.Members")
@@ -88,10 +86,10 @@ function ClassSystem.Deconstruct(obj)
     ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
 end
 
-ClassSystem.Typeof = ClassUtils.Class.Typeof
-ClassSystem.Nameof = ClassUtils.Class.Nameof
-ClassSystem.GetInstanceData = ClassUtils.Class.GetInstanceData
-ClassSystem.IsClass = ClassUtils.Class.IsClass
-ClassSystem.HasBase = ClassUtils.Class.HasBase
+ClassSystem.Typeof = Class.Typeof
+ClassSystem.Nameof = Class.Nameof
+ClassSystem.GetInstanceData = Class.GetInstanceData
+ClassSystem.IsClass = Class.IsClass
+ClassSystem.HasBase = Class.HasBase
 
 return ClassSystem
