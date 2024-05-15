@@ -39,7 +39,7 @@ end
 ---@generic TClass : object
 ---@param data TClass
 ---@param name string
----@param options Freemaker.ClassSystem.Create.Options?
+---@param options Freemaker.ClassSystem.Create.Options | nil
 ---@return TClass
 function ClassSystem.Create(data, name, options)
     options = options or {}

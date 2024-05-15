@@ -31,6 +31,8 @@ local function class(table, name, optionsOrInit, initOpt)
     return Class.Create(table, name, optionsOrInit)
 end
 
+---@class TestClass : object
+---@overload fun() : TestClass
 local TestClass = {}
 class(TestClass, "TestClass", function()
 

@@ -2,7 +2,7 @@
 local Class = {}
 
 ---@param obj any
----@return Freemaker.ClassSystem.Type?
+---@return Freemaker.ClassSystem.Type | nil
 function Class.Typeof(obj)
     if not type(obj) == "table" then
         return nil
@@ -24,7 +24,7 @@ function Class.Nameof(obj)
 end
 
 ---@param obj object
----@return Freemaker.ClassSystem.Instance?
+---@return Freemaker.ClassSystem.Instance | nil
 function Class.GetInstanceData(obj)
     if not Class.IsClass(obj) then
         return

@@ -18,7 +18,7 @@ function Object.__concat(left, right)
 end
 
 ---@class object.Modify
----@field CustomIndexing boolean?
+---@field CustomIndexing boolean | nil
 
 ---@protected
 ---@param func fun(modify: object.Modify)
