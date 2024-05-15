@@ -1,9 +1,11 @@
 local Class = require("src.init")
 
----@param table table
+---@generic TClass : object
+---@param table TClass
 ---@param name string
 ---@param optionsOrInit Freemaker.ClassSystem.Create.Options | function | nil
 ---@param initOpt function | nil
+---@return TClass
 local function class(table, name, optionsOrInit, initOpt)
     local optionsOrInitT = type(optionsOrInit)
     if optionsOrInitT == "function" then
@@ -26,7 +28,7 @@ local function class(table, name, optionsOrInit, initOpt)
         initOpt()
     end
 
-    Class.Create(table, name, optionsOrInit)
+    return Class.Create(table, name, optionsOrInit)
 end
 
 local TestClass = {}
