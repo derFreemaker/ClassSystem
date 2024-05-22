@@ -47,5 +47,3 @@ end
 end)
 
 local testClass = TestClass()
-
-print("hi")
