@@ -35,8 +35,17 @@ local function processOptions(options)
     options.IsAbstract = options.IsAbstract or false
     options.IsInterface = options.IsInterface or false
 
-    if type(options.Inherit) ~= "table" then
-        options.Inherit = { options.Inherit }
+    if options.IsAbstract and options.IsInterface then
+        error("cannot mark class as interface and abstract class")
+    end
+
+    if options.Inherit then
+        if ClassSystem.IsClass(options.Inherit) then
+            options.Inherit = { options.Inherit }
+        end
+    else
+        -- could also return here
+        options.Inherit = {}
     end
 
     ---@type Freemaker.ClassSystem.Type, table<Freemaker.ClassSystem.Type>

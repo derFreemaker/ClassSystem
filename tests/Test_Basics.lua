@@ -25,7 +25,7 @@ function TestExtendClass()
     local test = ClassSystem.Create({}, { Name = "CreateEmpty" })
     local testClassInstance = test()
 
-    local testBaseClass = ClassSystem.Create({}, { Name = "CreateEmptyWithBaseClass", BaseClass = test })
+    local testBaseClass = ClassSystem.Create({}, { Name = "CreateEmptyWithBaseClass", Inherit = test })
     local testBaseClassInstance = testBaseClass()
 
     local extended = ClassSystem.Extend(test, { Test = "hi" })

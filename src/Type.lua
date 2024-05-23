@@ -8,7 +8,7 @@ function TypeHandler.Create(base, interfaces, options)
     local typeInfo = {
         Name = options.Name,
         Base = base,
-        interfaces = interfaces,
+        Interfaces = interfaces,
 
         Options = options,
 

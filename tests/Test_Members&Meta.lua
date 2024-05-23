@@ -3,7 +3,7 @@ local luaunit = require("tests.Luaunit")
 local ClassSystem = require("src.init")
 
 function TestStaticAccess()
-    local testClass = ClassSystem.Create({ Static__Test = "hi" }, "StaticTestClass")
+    local testClass = ClassSystem.Create({ Static__Test = "hi" }, { Name = "StaticTestClass" })
     local testClassInstance = testClass()
 
     luaunit.assertEquals(testClassInstance.Static__Test, "hi")
@@ -25,7 +25,7 @@ end
 function TestRawAccess()
     local testClass = ClassSystem.Create({
         Raw__Test = "hi"
-    }, 'CreateEmpty')
+    }, { Name = "CreateEmpty" })
     local testClassInstance1 = testClass()
     local testClassInstance2 = testClass()
 
@@ -46,7 +46,7 @@ function TestMetaMethod()
         __gc = function(self)
             error("gc error")
         end
-    }, "TestMetaMethod")
+    }, { Name = "TestMetaMethod" })
     local instance = testClass()
 
     local function throwErrorBecauseOfErrorInGC()

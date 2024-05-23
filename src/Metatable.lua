@@ -9,7 +9,7 @@ local MetatableHandler = {}
 
 ---@param typeInfo Freemaker.ClassSystem.Type
 ---@return Freemaker.ClassSystem.BlueprintMetatable metatable
-function MetatableHandler.Template(typeInfo)
+function MetatableHandler.CreateTemplateMetatable(typeInfo)
     ---@type Freemaker.ClassSystem.BlueprintMetatable
     local metatable = { Type = typeInfo }
 

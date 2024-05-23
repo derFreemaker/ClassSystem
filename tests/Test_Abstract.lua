@@ -31,7 +31,7 @@ function TestCreateClassWithAbstractClassAsBase()
     end
 
     local function errorBecauseOfNotImplementedMember()
-        ClassSystem.Create(testClass, { Name = "testClass", BaseClass = abstractTestClass })
+        ClassSystem.Create(testClass, { Name = "testClass", Inherit = abstractTestClass })
     end
 
     luaunit.assertErrorMsgContains("does not implement inherited abstract member", errorBecauseOfNotImplementedMember)
