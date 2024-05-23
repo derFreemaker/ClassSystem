@@ -12,7 +12,7 @@ function TestCreateAbstractClass()
 
     testClass.foo = ClassSystem.IsAbstract
 
-    ClassSystem.Create(testClass, "testClass", { IsAbstract = true })
+    ClassSystem.Create(testClass, { Name = "testClass", IsAbstract = true })
 
     luaunit.assertErrorMsgContains("cannot construct abstract class", testClass)
 end
@@ -23,7 +23,7 @@ function TestCreateClassWithAbstractClassAsBase()
     end
 
     abstractTestClass.foo = ClassSystem.IsAbstract
-    ClassSystem.Create(abstractTestClass, "abstractTestClass", { IsAbstract = true })
+    ClassSystem.Create(abstractTestClass, { Name = "abstractTestClass", IsAbstract = true })
 
     local testClass = {}
     function testClass:foo2()
@@ -31,7 +31,7 @@ function TestCreateClassWithAbstractClassAsBase()
     end
 
     local function errorBecauseOfNotImplementedMember()
-        ClassSystem.Create(testClass, "testClass", { BaseClass = abstractTestClass })
+        ClassSystem.Create(testClass, { Name = "testClass", BaseClass = abstractTestClass })
     end
 
     luaunit.assertErrorMsgContains("does not implement inherited abstract member", errorBecauseOfNotImplementedMember)
@@ -45,7 +45,7 @@ function TestCreateClassWithAbstractMembers()
     abstractTestClass.foo = ClassSystem.IsAbstract
 
     local function errorBecauseOfNotMarkedAsAbstract()
-        ClassSystem.Create(abstractTestClass, "abstractTestClass")
+        ClassSystem.Create(abstractTestClass, { Name = "abstractTestClass" })
     end
 
     luaunit.assertErrorMsgContains("has abstract member/s but is not marked as abstract",

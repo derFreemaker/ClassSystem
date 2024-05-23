@@ -36,7 +36,7 @@ end
 
 ---@param data table
 ---@param typeInfo Freemaker.ClassSystem.Type
-function ConstructionHandler.Template(data, typeInfo)
+function ConstructionHandler.CreateTemplate(data, typeInfo)
     local metatable = MetatableHandler.Template(typeInfo)
     metatable.__call = construct
 
@@ -55,7 +55,10 @@ local function invokeDeconstructor(typeInfo, class)
     end
     if typeInfo.HasDeconstructor then
         typeInfo.MetaMethods.__gc(class)
-        invokeDeconstructor(typeInfo.Base, class)
+
+        for _, parent in pairs(typeInfo.Inherits) do
+            invokeDeconstructor(parent, class)
+        end
     end
 end
 

@@ -28,7 +28,8 @@ local function class(table, name, optionsOrInit, initOpt)
         initOpt()
     end
 
-    return Class.Create(table, name, optionsOrInit)
+    optionsOrInit.Name = name
+    return Class.Create(table, optionsOrInit)
 end
 
 ---@class TestClass : object

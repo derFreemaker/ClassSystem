@@ -3,29 +3,29 @@ local luaunit = require("tests.Luaunit")
 local ClassSystem = require("src.init")
 
 function TestCreateClass()
-    local test = ClassSystem.Create({}, 'CreateEmpty')
+    local test = ClassSystem.Create({}, { Name = "CreateEmpty" })
 
     luaunit.assertNotIsNil(test)
 end
 
 function TestCreateClassWithBaseClass()
-    local testBaseClass = ClassSystem.Create({}, 'EmptyBaseClass')
-    local test = ClassSystem.Create({}, 'CreateEmptyWithBaseClass', { BaseClass = testBaseClass })
+    local testBaseClass = ClassSystem.Create({}, { Name = "EmptyBaseClass" })
+    local test = ClassSystem.Create({}, { Name = "CreateEmptyWithBaseClass", BaseClass = testBaseClass })
 
     luaunit.assertNotIsNil(test)
 end
 
 function TestConstructClass()
-    local test = ClassSystem.Create({}, 'CreateEmpty')
+    local test = ClassSystem.Create({}, { Name = "CreateEmpty" })
 
     luaunit.assertNotIsNil(test())
 end
 
 function TestExtendClass()
-    local test = ClassSystem.Create({}, 'CreateEmpty')
+    local test = ClassSystem.Create({}, { Name = "CreateEmpty" })
     local testClassInstance = test()
 
-    local testBaseClass = ClassSystem.Create({}, "CreateEmptyWithBaseClass", { BaseClass = test })
+    local testBaseClass = ClassSystem.Create({}, { Name = "CreateEmptyWithBaseClass", BaseClass = test })
     local testBaseClassInstance = testBaseClass()
 
     local extended = ClassSystem.Extend(test, { Test = "hi" })
@@ -42,7 +42,7 @@ function TestExtendClass()
 end
 
 function TestDeconstructClass()
-    local testClass = ClassSystem.Create({}, 'CreateEmpty')
+    local testClass = ClassSystem.Create({}, { Name = "CreateEmpty" })
     local test = testClass()
     local function throwErrorBecauseOfDeconstructedClass()
         _ = test.hi

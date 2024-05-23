@@ -8,7 +8,11 @@ function Class.Typeof(obj)
         return nil
     end
 
-    local metatable = getmetatable(obj) or {}
+    local metatable = getmetatable(obj)
+    if not metatable then
+        return nil
+    end
+
     return metatable.Type
 end
 
@@ -76,8 +80,12 @@ function Class.HasBase(obj, className)
             return true
         end
 
-        if typeName ~= "object" then
-            return hasTypeBase(typeInfo.Base)
+        if typeName ~= "object" then 
+            for _, value in pairs(typeInfo.Inherits) do
+                if hasTypeBase(value) then
+                    return true
+                end
+            end
         end
 
         return false

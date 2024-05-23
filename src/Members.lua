@@ -8,13 +8,6 @@ local InstanceHandler = require("src.Instance")
 local MembersHandler = {}
 
 ---@param typeInfo Freemaker.ClassSystem.Type
-function MembersHandler.Initialize(typeInfo)
-    typeInfo.Static = {}
-    typeInfo.MetaMethods = {}
-    typeInfo.Members = {}
-end
-
----@param typeInfo Freemaker.ClassSystem.Type
 function MembersHandler.UpdateState(typeInfo)
     local metaMethods = typeInfo.MetaMethods
 
@@ -312,22 +305,74 @@ end
 
 ---@param typeInfo Freemaker.ClassSystem.Type
 function MembersHandler.Check(typeInfo)
-    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.Options.IsAbstract then
-        error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
+    if not typeInfo.Options.IsAbstract then
+        if Utils.Table.Contains(typeInfo.MetaMethods, Configs.AbstractPlaceholder) then
+            error(typeInfo.Name .. " has abstract meta method/s but is not marked as abstract")
+        end
+
+        if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) then
+            error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
+        end
     end
 
-    if not typeInfo.Base then
-        return
+    if not typeInfo.Options.IsInterface then
+        if Utils.Table.Contains(typeInfo.Members, Configs.InterfacePlaceholder) then
+            error(typeInfo.Name .. " has interface meta methods/s but is not marked as interface")
+        end
+
+        if Utils.Table.Contains(typeInfo.Members, Configs.InterfacePlaceholder) then
+            error(typeInfo.Name .. " has interface member/s but is not marked as interface")
+        end
     end
 
-    for key, value in pairs(typeInfo.Base.Members) do
-        if value == Configs.AbstractPlaceholder then
-            if not Utils.Table.ContainsKey(typeInfo.Members, key) then
-                error(
-                    typeInfo.Name
-                    .. " does not implement inherited abstract member: "
-                    .. typeInfo.Base.Name .. "." .. tostring(key)
-                )
+    for _, interface in pairs(typeInfo.Interfaces) do
+        for key, value in pairs(interface.MetaMethods) do
+            if value == Configs.InterfacePlaceholder then
+                if not Utils.Table.ContainsKey(typeInfo.MetaMethods, key) then
+                    error(
+                        typeInfo.Name
+                        .. " does not implement inherited interface meta method: "
+                        .. typeInfo.Base.Name .. "." .. tostring(key)
+                    )
+                end
+            end
+        end
+
+        for key, value in pairs(interface.Members) do
+            if value == Configs.InterfacePlaceholder then
+                if not Utils.Table.ContainsKey(typeInfo.Members, key) then
+                    error(
+                        typeInfo.Name
+                        .. " does not implement inherited interface member: "
+                        .. typeInfo.Base.Name .. "." .. tostring(key)
+                    )
+                end
+            end
+        end
+    end
+
+    if typeInfo.Base then
+        for key, value in pairs(typeInfo.Base.MetaMethods) do
+            if value == Configs.AbstractPlaceholder then
+                if not Utils.Table.ContainsKey(typeInfo.MetaMethods, key) then
+                    error(
+                        typeInfo.Name
+                        .. " does not implement inherited abstract meta method: "
+                        .. typeInfo.Base.Name .. "." .. tostring(key)
+                    )
+                end
+            end
+        end
+
+        for key, value in pairs(typeInfo.Base.Members) do
+            if value == Configs.AbstractPlaceholder then
+                if not Utils.Table.ContainsKey(typeInfo.Members, key) then
+                    error(
+                        typeInfo.Name
+                        .. " does not implement inherited abstract member: "
+                        .. typeInfo.Base.Name .. "." .. tostring(key)
+                    )
+                end
             end
         end
     end

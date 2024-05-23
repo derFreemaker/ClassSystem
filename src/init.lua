@@ -22,39 +22,68 @@ ClassSystem.Deconstructed = Configs.Deconstructing
 ClassSystem.Placeholder = Configs.Placeholder
 ClassSystem.IsAbstract = Configs.AbstractPlaceholder
 
+ClassSystem.ObjectType = ObjectType
+
+ClassSystem.Typeof = Class.Typeof
+ClassSystem.Nameof = Class.Nameof
+ClassSystem.GetInstanceData = Class.GetInstanceData
+ClassSystem.IsClass = Class.IsClass
+ClassSystem.HasBase = Class.HasBase
+
 ---@param options Freemaker.ClassSystem.Create.Options
----@return Freemaker.ClassSystem.Type baseClass
+---@return Freemaker.ClassSystem.Type | nil base, table<Freemaker.ClassSystem.Type> interfaces
 local function processOptions(options)
     options.IsAbstract = options.IsAbstract or false
+    options.IsInterface = options.IsInterface or false
 
-    if options.BaseClass and not ClassSystem.IsClass(options.BaseClass) then
-        error("the provided base class is not a class", 2)
+    if type(options.Inherit) ~= "table" then
+        options.Inherit = { options.Inherit }
     end
-    local baseClass = ClassSystem.Typeof(options.BaseClass) or ObjectType
-    options.BaseClass = nil
 
-    return baseClass
+    ---@type Freemaker.ClassSystem.Type, table<Freemaker.ClassSystem.Type>
+    local base, interfaces = nil, {}
+    for i, parent in ipairs(options.Inherit) do
+        local parentType = ClassSystem.Typeof(parent)
+        ---@cast parentType Freemaker.ClassSystem.Type
+
+        if options.IsAbstract and not parentType.Options.IsAbstract then
+            error("cannot inherit from not abstract class: ".. tostring(parent) .." in abstract class: " .. options.Name)
+        end
+
+        if parentType.Options.IsInterface then
+            interfaces[i] = ClassSystem.Typeof(parent)
+        else
+            if base ~= nil then
+                error("cannot inherit from more than one (abstract) class: " .. tostring(parent) .. " in class: " .. options.Name)
+            end
+
+            base = parentType
+        end
+    end
+
+    if not options.IsAbstract and not options.IsInterface and not base then
+        base = ObjectType
+    end
+
+    return base, interfaces
 end
 
 ---@generic TClass : object
 ---@param data TClass
----@param name string
----@param options Freemaker.ClassSystem.Create.Options | nil
+---@param options Freemaker.ClassSystem.Create.Options
 ---@return TClass
-function ClassSystem.Create(data, name, options)
+function ClassSystem.Create(data, options)
     options = options or {}
-    local baseClass = processOptions(options)
+    local base, interfaces = processOptions(options)
 
-    local typeInfo = TypeHandler.Create(name, baseClass, options)
+    local typeInfo = TypeHandler.Create(base, interfaces, options)
 
-    MembersHandler.Initialize(typeInfo)
     MembersHandler.Sort(data, typeInfo)
     MembersHandler.Check(typeInfo)
 
     Utils.Table.Clear(data)
 
-    InstanceHandler.InitializeType(typeInfo)
-    ConstructionHandler.Template(data, typeInfo)
+    ConstructionHandler.CreateTemplate(data, typeInfo)
 
     return data
 end
@@ -85,11 +114,5 @@ function ClassSystem.Deconstruct(obj)
 
     ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
 end
-
-ClassSystem.Typeof = Class.Typeof
-ClassSystem.Nameof = Class.Nameof
-ClassSystem.GetInstanceData = Class.GetInstanceData
-ClassSystem.IsClass = Class.IsClass
-ClassSystem.HasBase = Class.HasBase
 
 return ClassSystem

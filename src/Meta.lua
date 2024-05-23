@@ -8,7 +8,7 @@
 ---@field protected __init (fun(self: object, ...)) | nil self(...) before construction
 ---@field protected __call (fun(self: object, ...) : ...) | nil self(...) after construction
 ---@field protected __close (fun(self: object, errObj: any) : any) | nil invoked when the object gets out of scope
----@field protected __gc fun(self: object) | nil Freemaker.ClassSystem.old.Deconstruct(self) or garbageCollection
+---@field protected __gc fun(self: object) | nil Freemaker.ClassSystem.Deconstruct(self) or garbageCollection
 ---@field protected __add (fun(self: object, other: any) : any) | nil (self) + (value)
 ---@field protected __sub (fun(self: object, other: any) : any) | nil (self) - (value)
 ---@field protected __mul (fun(self: object, other: any) : any) | nil (self) * (value)
@@ -74,7 +74,9 @@
 
 ---@class Freemaker.ClassSystem.Type
 ---@field Name string
+---
 ---@field Base Freemaker.ClassSystem.Type | nil
+---@field Interfaces table<integer, Freemaker.ClassSystem.Type>
 ---
 ---@field Static table<string, any>
 ---
@@ -95,6 +97,7 @@
 
 ---@class Freemaker.ClassSystem.Type.Options
 ---@field IsAbstract boolean | nil
+---@field IsInterface boolean | nil
 
 ----------------------------------------------------------------
 -- Metatable
@@ -127,4 +130,6 @@
 ----------------------------------------------------------------
 
 ---@class Freemaker.ClassSystem.Create.Options : Freemaker.ClassSystem.Type.Options
----@field BaseClass object | nil
+---@field Name string
+---
+---@field Inherit table<object> | object | nil

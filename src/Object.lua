@@ -43,6 +43,7 @@ end
 local objectTypeInfo = {
     Name = "object",
     Base = nil,
+    Interfaces = {},
 
     Static = {},
     MetaMethods = {},

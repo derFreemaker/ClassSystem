@@ -10,17 +10,16 @@ function InstanceHandler.Initialize(instance)
 end
 
 ---@param typeInfo Freemaker.ClassSystem.Type
-function InstanceHandler.InitializeType(typeInfo)
-    typeInfo.Instances = setmetatable({}, { __mode = "k" })
-end
-
----@param typeInfo Freemaker.ClassSystem.Type
 ---@param instance object
 function InstanceHandler.Add(typeInfo, instance)
     typeInfo.Instances[instance] = true
 
     if typeInfo.Base then
         InstanceHandler.Add(typeInfo.Base, instance)
+    end
+
+    for _, parent in pairs(typeInfo.Interfaces) do
+        InstanceHandler.Add(parent, instance)
     end
 end
 
@@ -31,6 +30,10 @@ function InstanceHandler.Remove(typeInfo, instance)
 
     if typeInfo.Base then
         InstanceHandler.Remove(typeInfo.Base, instance)
+    end
+
+    for _, parent in pairs(typeInfo.Interfaces) do
+        InstanceHandler.Remove(parent, instance)
     end
 end
 
