@@ -36,6 +36,11 @@ end
 local TestClass = {}
 class(TestClass, "TestClass", function()
 
+---@private
+function TestClass.__init()
+    print("constructed TestClass")
+end
+
 function TestClass.Static__Test()
 
 end
