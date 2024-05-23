@@ -68,10 +68,6 @@ Configs.SetNormal = {}
 -- Indicates that the __close method is called from the ClassSystem.Deconstruct method.
 Configs.Deconstructing = {}
 
--- //TODO: have to find functionality
----@type any
-Configs.Placeholder = {}
-
 -- Placeholder is used to indicate that this member should be set by super class of the abstract class
 ---@type any
 Configs.AbstractPlaceholder = {}

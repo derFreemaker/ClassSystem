@@ -59,7 +59,10 @@ local objectTypeInfo = {
         IsAbstract = true,
     },
 
-    Instances = setmetatable({}, { __mode = 'k' })
+    Instances = setmetatable({}, { __mode = 'k' }),
+
+    -- no blueprint since cannot be constructed
+    Blueprint = nil
 }
 
 for key, value in pairs(Object) do

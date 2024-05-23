@@ -56,8 +56,8 @@ local function invokeDeconstructor(typeInfo, class)
     if typeInfo.HasDeconstructor then
         typeInfo.MetaMethods.__gc(class)
 
-        for _, parent in pairs(typeInfo.Inherits) do
-            invokeDeconstructor(parent, class)
+        if typeInfo.Base then
+            invokeDeconstructor(typeInfo.Base, class)
         end
     end
 end

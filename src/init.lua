@@ -10,7 +10,6 @@ local Class = require("src.Class")
 local ObjectType = require("src.Object")
 local TypeHandler = require("src.Type")
 local MembersHandler = require("src.Members")
-local InstanceHandler = require("src.Instance")
 local ConstructionHandler = require("src.Construction")
 
 ---@class Freemaker.ClassSystem
@@ -19,8 +18,8 @@ local ClassSystem = {}
 ClassSystem.GetNormal = Configs.GetNormal
 ClassSystem.SetNormal = Configs.SetNormal
 ClassSystem.Deconstructed = Configs.Deconstructing
-ClassSystem.Placeholder = Configs.Placeholder
 ClassSystem.IsAbstract = Configs.AbstractPlaceholder
+ClassSystem.IsInterface = Configs.InterfacePlaceholder --//TODO: how to find better name
 
 ClassSystem.ObjectType = ObjectType
 
