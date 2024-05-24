@@ -188,4 +188,7 @@ function interface(name, table, optionsOrInit, init)
     return ClassSystem.Create(table, options)
 end
 
+typeof = ClassSystem.Typeof
+nameof = ClassSystem.Nameof
+
 return ClassSystem

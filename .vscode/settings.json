@@ -17,6 +17,8 @@
 	},
 	"Lua.diagnostics.globals": [
 		"class",
-		"interface"
+		"interface",
+		"typeof",
+		"nameof"
 	]
 }
