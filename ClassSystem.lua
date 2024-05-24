@@ -1591,6 +1591,9 @@ __fileFuncs__["__main__"] = function()
 	    return ClassSystem.Create(table, options)
 	end
 
+	typeof = ClassSystem.Typeof
+	nameof = ClassSystem.Nameof
+
 	return ClassSystem
 
 end
