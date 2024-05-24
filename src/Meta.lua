@@ -130,6 +130,6 @@
 ----------------------------------------------------------------
 
 ---@class Freemaker.ClassSystem.Create.Options : Freemaker.ClassSystem.Type.Options
----@field Name string
+---@field Name string | nil
 ---
 ---@field Inherit table<object> | object | nil
