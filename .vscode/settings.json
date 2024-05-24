@@ -14,5 +14,9 @@
 		"**/.DS_Store": true,
 		"**/Thumbs.db": true,
 		".stfolder": true
-	}
+	},
+	"Lua.diagnostics.globals": [
+		"class",
+		"interface"
+	]
 }

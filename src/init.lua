@@ -76,7 +76,7 @@ local function processOptions(options)
     return base, interfaces
 end
 
----@generic TClass : object
+---@generic TClass
 ---@param data TClass
 ---@param options Freemaker.ClassSystem.Create.Options
 ---@return TClass
@@ -96,7 +96,7 @@ function ClassSystem.Create(data, options)
     return data
 end
 
----@generic TClass : object
+---@generic TClass
 ---@param class TClass
 ---@param extensions TClass
 ---@return TClass
@@ -121,6 +121,71 @@ function ClassSystem.Deconstruct(obj)
     local typeInfo = metatable.Type
 
     ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
+end
+
+---@generic TClass : object
+---@param name string
+---@param table TClass
+---@param optionsOrInit Freemaker.ClassSystem.Create.Options | fun() | nil
+---@param init fun() | nil
+---@return TClass
+function class(name, table, optionsOrInit, init)
+    if type(optionsOrInit) == "function" then
+        if type(init) == "function" then
+            local initFunc = init
+            init = function()
+                optionsOrInit()
+                initFunc()
+            end
+        else
+            init = optionsOrInit
+        end
+
+        optionsOrInit = {}
+    end
+    local options = optionsOrInit
+
+    if init then
+        init()
+    end
+
+    ---@cast options Freemaker.ClassSystem.Create.Options
+    options.Name = name
+
+    return ClassSystem.Create(table, options)
+end
+
+---@generic TClass
+---@param name string
+---@param table TClass
+---@param optionsOrInit Freemaker.ClassSystem.Create.Options | fun() | nil
+---@param init fun() | nil
+---@return TClass
+function interface(name, table, optionsOrInit, init)
+    if type(optionsOrInit) == "function" then
+        if type(init) == "function" then
+            local initFunc = init
+            init = function()
+                optionsOrInit()
+                initFunc()
+            end
+        else
+            init = optionsOrInit
+        end
+
+        optionsOrInit = {}
+    end
+    local options = optionsOrInit
+
+    if init then
+        init()
+    end
+
+    ---@cast options Freemaker.ClassSystem.Create.Options
+    options.Name = name
+    options.IsInterface = true
+
+    return ClassSystem.Create(table, options)
 end
 
 return ClassSystem
