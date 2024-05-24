@@ -1,5 +1,3 @@
---//TODO: create abstract tests
-
 local luaunit = require("tests.Luaunit")
 
 local ClassSystem = require("src.init")

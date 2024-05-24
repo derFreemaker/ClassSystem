@@ -15,8 +15,11 @@ local function construct(obj, ...)
     local metatable = getmetatable(obj)
     local typeInfo = metatable.Type
 
-    if typeInfo.Options.IsAbstract or typeInfo.Options.IsInterface then
+    if typeInfo.Options.IsAbstract then
         error("cannot construct abstract class: " .. typeInfo.Name)
+    end
+    if typeInfo.Options.IsInterface then
+        error("cannot construct interface class: " .. typeInfo.Name)
     end
 
     local classInstance, classMetatable = {}, {}
