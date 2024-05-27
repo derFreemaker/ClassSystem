@@ -113,7 +113,7 @@ function MembersHandler.InstanceIndex(instance, typeInfo)
             end
         end
 
-        if typeInfo.HasIndex and not instance.CustomIndexing then
+        if typeInfo.HasIndex and instance.CustomIndexing then
             local value = typeInfo.MetaMethods.__index(obj, key)
             if value ~= Configs.GetNormal then
                 return value
@@ -138,7 +138,7 @@ function MembersHandler.InstanceNewIndex(instance, typeInfo)
             end
         end
 
-        if typeInfo.HasNewIndex and not instance.CustomIndexing then
+        if typeInfo.HasNewIndex and instance.CustomIndexing then
             if typeInfo.MetaMethods.__newindex(obj, key, value) ~= Configs.SetNormal then
                 return
             end
