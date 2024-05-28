@@ -15,9 +15,7 @@ local ConstructionHandler = require("src.Construction")
 ---@class Freemaker.ClassSystem
 local ClassSystem = {}
 
-ClassSystem.GetNormal = Configs.GetNormal
-ClassSystem.SetNormal = Configs.SetNormal
-ClassSystem.Deconstructed = Configs.Deconstructing
+ClassSystem.Deconstructing = Configs.Deconstructing
 ClassSystem.IsAbstract = Configs.AbstractPlaceholder
 ClassSystem.IsInterface = Configs.InterfacePlaceholder --//TODO: how to find better name
 
@@ -28,6 +26,7 @@ ClassSystem.Nameof = Class.Nameof
 ClassSystem.GetInstanceData = Class.GetInstanceData
 ClassSystem.IsClass = Class.IsClass
 ClassSystem.HasBase = Class.HasBase
+ClassSystem.HasInterface = Class.HasInterface
 
 ---@param options Freemaker.ClassSystem.Create.Options
 ---@return Freemaker.ClassSystem.Type | nil base, table<Freemaker.ClassSystem.Type> interfaces

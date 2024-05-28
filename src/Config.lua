@@ -59,12 +59,6 @@ Configs.IndirectMetaMethods = {
     __newindex = true
 }
 
--- Indicates that the value should be retrieved with rawget. Needs to be returned by the __index meta method.
-Configs.GetNormal = {}
-
--- Indicates that value in newindex should be set like table[index] = value. Needs to be returned by the __newindex meta method.
-Configs.SetNormal = {}
-
 -- Indicates that the __close method is called from the ClassSystem.Deconstruct method.
 Configs.Deconstructing = {}
 

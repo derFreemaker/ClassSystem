@@ -74,24 +74,49 @@ function Class.HasBase(obj, className)
     local metatable = getmetatable(obj)
 
     ---@param typeInfo Freemaker.ClassSystem.Type
-    local function hasTypeBase(typeInfo)
+    local function hasBase(typeInfo)
         local typeName = typeInfo.Name
         if typeName == className then
             return true
         end
 
-        if typeName ~= "object" then 
-            for _, value in pairs(typeInfo.Inherits) do
-                if hasTypeBase(value) then
-                    return true
-                end
+        if not typeInfo.Base then
+            return false
+        end
+
+        return hasBase(typeInfo.Base)
+    end
+
+    return hasBase(metatable.Type)
+end
+
+---@param obj any
+---@param interfaceName string
+---@return boolean hasInterface
+function Class.HasInterface(obj, interfaceName)
+    if not Class.IsClass(obj) then
+        return false
+    end
+
+    local metatable = getmetatable(obj)
+
+    ---@param typeInfo Freemaker.ClassSystem.Type
+    local function hasInterface(typeInfo)
+        local typeName = typeInfo.Name
+        if typeName == interfaceName then
+            return true
+        end
+
+        for _, value in pairs(typeInfo.Interfaces) do
+            if hasInterface(value) then
+                return true
             end
         end
 
         return false
     end
 
-    return hasTypeBase(metatable.Type)
+    return hasInterface(metatable.Type)
 end
 
 return Class
