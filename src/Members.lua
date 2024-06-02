@@ -288,6 +288,38 @@ end
 -- Check
 -------------------------------------------------------------------------------
 
+---@private
+---@param baseInfo Freemaker.ClassSystem.Type
+---@param member string
+---@return boolean
+function MembersHandler.CheckForMetaMethod(baseInfo, member)
+    if Utils.Table.ContainsKey(baseInfo.MetaMethods, member) then
+        return true
+    end
+
+    if baseInfo.Base then
+        return MembersHandler.CheckForMetaMethod(baseInfo.Base, member)
+    end
+
+    return false
+end
+
+---@private
+---@param baseInfo Freemaker.ClassSystem.Type
+---@param member string
+---@return boolean
+function MembersHandler.CheckForMember(baseInfo, member)
+    if Utils.Table.ContainsKey(baseInfo.Members, member) then
+        return true
+    end
+
+    if baseInfo.Base then
+        return MembersHandler.CheckForMember(baseInfo.Base, member)
+    end
+
+    return false
+end
+
 ---@param typeInfo Freemaker.ClassSystem.Type
 function MembersHandler.Check(typeInfo)
     if not typeInfo.Options.IsAbstract then
@@ -310,53 +342,55 @@ function MembersHandler.Check(typeInfo)
         end
     end
 
-    for _, interface in pairs(typeInfo.Interfaces) do
-        for key, value in pairs(interface.MetaMethods) do
-            if value == Configs.InterfacePlaceholder then
-                if not Utils.Table.ContainsKey(typeInfo.MetaMethods, key) then
-                    error(
-                        typeInfo.Name
-                        .. " does not implement inherited interface meta method: "
-                        .. typeInfo.Base.Name .. "." .. tostring(key)
-                    )
+    if not typeInfo.Options.IsAbstract and not typeInfo.Options.IsInterface then
+        for _, interface in pairs(typeInfo.Interfaces) do
+            for key, value in pairs(interface.MetaMethods) do
+                if value == Configs.InterfacePlaceholder then
+                    if not MembersHandler.CheckForMetaMethod(typeInfo, key) then
+                        error(
+                            typeInfo.Name
+                            .. " does not implement inherited interface meta method: "
+                            .. interface.Name .. "." .. tostring(key)
+                        )
+                    end
+                end
+            end
+
+            for key, value in pairs(interface.Members) do
+                if value == Configs.InterfacePlaceholder then
+                    if not MembersHandler.CheckForMember(typeInfo, key) then
+                        error(
+                            typeInfo.Name
+                            .. " does not implement inherited interface member: "
+                            .. interface.Name .. "." .. tostring(key)
+                        )
+                    end
                 end
             end
         end
 
-        for key, value in pairs(interface.Members) do
-            if value == Configs.InterfacePlaceholder then
-                if not Utils.Table.ContainsKey(typeInfo.Members, key) then
-                    error(
-                        typeInfo.Name
-                        .. " does not implement inherited interface member: "
-                        .. typeInfo.Base.Name .. "." .. tostring(key)
-                    )
+        if typeInfo.Base then
+            for key, value in pairs(typeInfo.Base.MetaMethods) do
+                if value == Configs.AbstractPlaceholder then
+                    if not Utils.Table.ContainsKey(typeInfo.MetaMethods, key) then
+                        error(
+                            typeInfo.Name
+                            .. " does not implement inherited abstract meta method: "
+                            .. typeInfo.Base.Name .. "." .. tostring(key)
+                        )
+                    end
                 end
             end
-        end
-    end
 
-    if typeInfo.Base then
-        for key, value in pairs(typeInfo.Base.MetaMethods) do
-            if value == Configs.AbstractPlaceholder then
-                if not Utils.Table.ContainsKey(typeInfo.MetaMethods, key) then
-                    error(
-                        typeInfo.Name
-                        .. " does not implement inherited abstract meta method: "
-                        .. typeInfo.Base.Name .. "." .. tostring(key)
-                    )
-                end
-            end
-        end
-
-        for key, value in pairs(typeInfo.Base.Members) do
-            if value == Configs.AbstractPlaceholder then
-                if not Utils.Table.ContainsKey(typeInfo.Members, key) then
-                    error(
-                        typeInfo.Name
-                        .. " does not implement inherited abstract member: "
-                        .. typeInfo.Base.Name .. "." .. tostring(key)
-                    )
+            for key, value in pairs(typeInfo.Base.Members) do
+                if value == Configs.AbstractPlaceholder then
+                    if not Utils.Table.ContainsKey(typeInfo.Members, key) then
+                        error(
+                            typeInfo.Name
+                            .. " does not implement inherited abstract member: "
+                            .. typeInfo.Base.Name .. "." .. tostring(key)
+                        )
+                    end
                 end
             end
         end

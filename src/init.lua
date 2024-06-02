@@ -53,7 +53,7 @@ local function processOptions(options)
         local parentType = ClassSystem.Typeof(parent)
         ---@cast parentType Freemaker.ClassSystem.Type
 
-        if options.IsAbstract and not parentType.Options.IsAbstract then
+        if options.IsAbstract and (not parentType.Options.IsAbstract and not parentType.Options.IsInterface) then
             error("cannot inherit from not abstract class: ".. tostring(parent) .." in abstract class: " .. options.Name)
         end
 
@@ -68,7 +68,7 @@ local function processOptions(options)
         end
     end
 
-    if not options.IsAbstract and not options.IsInterface and not base then
+    if not options.IsInterface and not base then
         base = ObjectType
     end
 
