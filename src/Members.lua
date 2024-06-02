@@ -396,7 +396,7 @@ function MembersHandler.Check(typeInfo)
         end
     end
 
-    --//TODO: need to interrate over interfaces of base classes and abstract classes
+    --//TODO: need to interrate over interfaces of base classes
 end
 
 return MembersHandler
