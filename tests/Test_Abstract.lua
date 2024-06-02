@@ -50,4 +50,19 @@ function TestCreateClassWithAbstractMembers()
         errorBecauseOfNotMarkedAsAbstract)
 end
 
+function TestCreateAbstractClassWithInterfaces()
+    local interface = {}
+    interface.test = ClassSystem.IsInterface
+    ClassSystem.Create(interface, { Name = "interface", IsInterface = true })
+
+    local abstractClass = {}
+    abstractClass.class = ClassSystem.IsAbstract
+    ClassSystem.Create(abstractClass, { Name = "abstractClass", IsAbstract = true })
+
+    local class = {}
+    class.class = "set"
+    -- class.test = "set"
+    ClassSystem.Create(class, { Name = "class" })
+end
+
 os.exit(luaunit.LuaUnit.run())

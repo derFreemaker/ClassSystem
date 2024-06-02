@@ -372,7 +372,7 @@ function MembersHandler.Check(typeInfo)
         if typeInfo.Base then
             for key, value in pairs(typeInfo.Base.MetaMethods) do
                 if value == Configs.AbstractPlaceholder then
-                    if not Utils.Table.ContainsKey(typeInfo.MetaMethods, key) then
+                    if not MembersHandler.CheckForMetaMethod(typeInfo, key) then
                         error(
                             typeInfo.Name
                             .. " does not implement inherited abstract meta method: "
@@ -384,7 +384,7 @@ function MembersHandler.Check(typeInfo)
 
             for key, value in pairs(typeInfo.Base.Members) do
                 if value == Configs.AbstractPlaceholder then
-                    if not Utils.Table.ContainsKey(typeInfo.Members, key) then
+                    if not MembersHandler.CheckForMember(typeInfo, key) then
                         error(
                             typeInfo.Name
                             .. " does not implement inherited abstract member: "
@@ -395,6 +395,8 @@ function MembersHandler.Check(typeInfo)
             end
         end
     end
+
+    --//TODO: need to interrate over interfaces of base classes and abstract classes
 end
 
 return MembersHandler

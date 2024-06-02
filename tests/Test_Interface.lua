@@ -38,7 +38,7 @@ function TestCreateClassWithInterface()
     instance:Foo()
 
     local errorClass = {}
-    luaunit.assertErrorMsgContains("errorClass does not implement inherited interface member: object.Foo", function()
+    luaunit.assertErrorMsgContains("errorClass does not implement inherited interface member: testClass.Foo", function()
         ClassSystem.Create(errorClass, { Name = "errorClass", Inherit = testClass })
     end)
 end
