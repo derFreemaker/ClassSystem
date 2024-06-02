@@ -19,17 +19,7 @@ function MembersHandler.UpdateState(typeInfo)
 end
 
 function MembersHandler.GetStatic(typeInfo, key)
-    local value = rawget(typeInfo.Static, key)
-
-    if value ~= nil then
-        return value
-    end
-
-    if typeInfo.Base then
-        return MembersHandler.GetStatic(typeInfo.Base, key)
-    end
-
-    return nil
+    return rawget(typeInfo.Static, key)
 end
 
 ---@param typeInfo Freemaker.ClassSystem.Type
@@ -114,10 +104,7 @@ function MembersHandler.InstanceIndex(instance, typeInfo)
         end
 
         if typeInfo.HasIndex and instance.CustomIndexing then
-            local value = typeInfo.MetaMethods.__index(obj, key)
-            if value ~= Configs.GetNormal then
-                return value
-            end
+            return typeInfo.MetaMethods.__index(obj, key)
         end
 
         return rawget(obj, key)
@@ -139,9 +126,7 @@ function MembersHandler.InstanceNewIndex(instance, typeInfo)
         end
 
         if typeInfo.HasNewIndex and instance.CustomIndexing then
-            if typeInfo.MetaMethods.__newindex(obj, key, value) ~= Configs.SetNormal then
-                return
-            end
+            return typeInfo.MetaMethods.__newindex(obj, key, value)
         end
 
         rawset(obj, key, value)
