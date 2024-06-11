@@ -93,7 +93,7 @@
 ---
 ---@field Instances table<object, boolean>
 ---
----@field Blueprint Freemaker.ClassSystem.Blueprint | nil
+---@field Blueprint table | nil
 
 ---@class Freemaker.ClassSystem.Type.Options
 ---@field IsAbstract boolean | nil
@@ -113,8 +113,6 @@
 
 ---@class Freemaker.ClassSystem.BlueprintMetatable : Freemaker.ClassSystem.MetaMethods
 ---@field Type Freemaker.ClassSystem.Type
-
----@class Freemaker.ClassSystem.Blueprint
 
 ----------------------------------------------------------------
 -- Instance
