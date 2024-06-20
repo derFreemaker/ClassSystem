@@ -5,7 +5,6 @@
 		"ClassSystem.lua"
 	],
 	"Lua.diagnostics.ignoredFiles": "Disable",
-	"cSpell.ignoreWords": ["argparse"],
 	"files.exclude": {
 		"**/.git": true,
 		"**/.svn": true,
@@ -20,5 +19,5 @@
 		"interface",
 		"typeof",
 		"nameof"
-	]
+	],
 }

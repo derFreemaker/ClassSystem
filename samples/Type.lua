@@ -3,10 +3,10 @@ local ClassSystem = require("ClassSystem")
 
 ---@class TestClass.Type : object
 ---@overload fun() : TestClass.Type
-local class = {}
-ClassSystem.Create(class, "Class Name")
+local testClass = {}
+class("Class Name", testClass)
 
-local type = ClassSystem.Typeof(class)
+local type = ClassSystem.Typeof(testClass)
 if not type then
     return
 end
@@ -54,3 +54,6 @@ local Blueprint = type.Blueprint
 -- The table that gets produced from ClassSystem.Create.
 -- Which acts as Blueprint to be constructed with. Will be nil if class is abstract
 -- Can also access static members.
+
+local Interfaces = type.Interfaces
+-- All the implemented interfaces.

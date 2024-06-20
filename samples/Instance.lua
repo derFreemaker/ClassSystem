@@ -3,10 +3,10 @@ local ClassSystem = require("ClassSystem")
 
 ---@class TestClass.Instance : object
 ---@overload fun() : TestClass.Instance
-local class = {}
-ClassSystem.Create(class, "Class Name")
+local testClass = {}
+class("Class Name", testClass)
 
-local instance = class()
+local instance = testClass()
 
 local instanceData = ClassSystem.GetInstanceData(instance)
 if not instanceData then
