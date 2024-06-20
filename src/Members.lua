@@ -8,13 +8,6 @@ local InstanceHandler = require("src.Instance")
 local MembersHandler = {}
 
 ---@param typeInfo Freemaker.ClassSystem.Type
-function MembersHandler.Initialize(typeInfo)
-    typeInfo.Static = {}
-    typeInfo.MetaMethods = {}
-    typeInfo.Members = {}
-end
-
----@param typeInfo Freemaker.ClassSystem.Type
 function MembersHandler.UpdateState(typeInfo)
     local metaMethods = typeInfo.MetaMethods
 
@@ -26,17 +19,7 @@ function MembersHandler.UpdateState(typeInfo)
 end
 
 function MembersHandler.GetStatic(typeInfo, key)
-    local value = rawget(typeInfo.Static, key)
-
-    if value ~= nil then
-        return value
-    end
-
-    if typeInfo.Base then
-        return MembersHandler.GetStatic(typeInfo.Base, key)
-    end
-
-    return nil
+    return rawget(typeInfo.Static, key)
 end
 
 ---@param typeInfo Freemaker.ClassSystem.Type
@@ -120,11 +103,8 @@ function MembersHandler.InstanceIndex(instance, typeInfo)
             end
         end
 
-        if typeInfo.HasIndex and not instance.CustomIndexing then
-            local value = typeInfo.MetaMethods.__index(obj, key)
-            if value ~= Configs.GetNormal then
-                return value
-            end
+        if typeInfo.HasIndex and instance.CustomIndexing then
+            return typeInfo.MetaMethods.__index(obj, key)
         end
 
         return rawget(obj, key)
@@ -145,10 +125,8 @@ function MembersHandler.InstanceNewIndex(instance, typeInfo)
             end
         end
 
-        if typeInfo.HasNewIndex and not instance.CustomIndexing then
-            if typeInfo.MetaMethods.__newindex(obj, key, value) ~= Configs.SetNormal then
-                return
-            end
+        if typeInfo.HasNewIndex and instance.CustomIndexing then
+            return typeInfo.MetaMethods.__newindex(obj, key, value)
         end
 
         rawset(obj, key, value)
@@ -310,27 +288,115 @@ end
 -- Check
 -------------------------------------------------------------------------------
 
+---@private
+---@param baseInfo Freemaker.ClassSystem.Type
+---@param member string
+---@return boolean
+function MembersHandler.CheckForMetaMethod(baseInfo, member)
+    if Utils.Table.ContainsKey(baseInfo.MetaMethods, member) then
+        return true
+    end
+
+    if baseInfo.Base then
+        return MembersHandler.CheckForMetaMethod(baseInfo.Base, member)
+    end
+
+    return false
+end
+
+---@private
+---@param baseInfo Freemaker.ClassSystem.Type
+---@param member string
+---@return boolean
+function MembersHandler.CheckForMember(baseInfo, member)
+    if Utils.Table.ContainsKey(baseInfo.Members, member) then
+        return true
+    end
+
+    if baseInfo.Base then
+        return MembersHandler.CheckForMember(baseInfo.Base, member)
+    end
+
+    return false
+end
+
 ---@param typeInfo Freemaker.ClassSystem.Type
 function MembersHandler.Check(typeInfo)
-    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.Options.IsAbstract then
-        error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
+    if not typeInfo.Options.IsAbstract then
+        if Utils.Table.Contains(typeInfo.MetaMethods, Configs.AbstractPlaceholder) then
+            error(typeInfo.Name .. " has abstract meta method/s but is not marked as abstract")
+        end
+
+        if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) then
+            error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
+        end
     end
 
-    if not typeInfo.Base then
-        return
+    if not typeInfo.Options.IsInterface then
+        if Utils.Table.Contains(typeInfo.Members, Configs.InterfacePlaceholder) then
+            error(typeInfo.Name .. " has interface meta methods/s but is not marked as interface")
+        end
+
+        if Utils.Table.Contains(typeInfo.Members, Configs.InterfacePlaceholder) then
+            error(typeInfo.Name .. " has interface member/s but is not marked as interface")
+        end
     end
 
-    for key, value in pairs(typeInfo.Base.Members) do
-        if value == Configs.AbstractPlaceholder then
-            if not Utils.Table.ContainsKey(typeInfo.Members, key) then
-                error(
-                    typeInfo.Name
-                    .. " does not implement inherited abstract member: "
-                    .. typeInfo.Base.Name .. "." .. tostring(key)
-                )
+    if not typeInfo.Options.IsAbstract and not typeInfo.Options.IsInterface then
+        for _, interface in pairs(typeInfo.Interfaces) do
+            for key, value in pairs(interface.MetaMethods) do
+                if value == Configs.InterfacePlaceholder then
+                    if not MembersHandler.CheckForMetaMethod(typeInfo, key) then
+                        error(
+                            typeInfo.Name
+                            .. " does not implement inherited interface meta method: "
+                            .. interface.Name .. "." .. tostring(key)
+                        )
+                    end
+                end
+            end
+
+            for key, value in pairs(interface.Members) do
+                if value == Configs.InterfacePlaceholder then
+                    if not MembersHandler.CheckForMember(typeInfo, key) then
+                        error(
+                            typeInfo.Name
+                            .. " does not implement inherited interface member: "
+                            .. interface.Name .. "." .. tostring(key)
+                        )
+                    end
+                end
+            end
+        end
+
+        if typeInfo.Base then
+            for key, value in pairs(typeInfo.Base.MetaMethods) do
+                if value == Configs.AbstractPlaceholder then
+                    if not MembersHandler.CheckForMetaMethod(typeInfo, key) then
+                        error(
+                            typeInfo.Name
+                            .. " does not implement inherited abstract meta method: "
+                            .. typeInfo.Base.Name .. "." .. tostring(key)
+                        )
+                    end
+                end
+            end
+
+            for key, value in pairs(typeInfo.Base.Members) do
+                if value == Configs.AbstractPlaceholder then
+                    if not MembersHandler.CheckForMember(typeInfo, key) then
+                        error(
+                            typeInfo.Name
+                            .. " does not implement inherited abstract member: "
+                            .. typeInfo.Base.Name .. "." .. tostring(key)
+                        )
+                    end
+                end
             end
         end
     end
+
+    --//TODO: need to interrate over interfaces of base classes
 end
 
 return MembersHandler

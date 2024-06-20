@@ -1,8 +1,6 @@
---//TODO: create abstract tests
-
 local luaunit = require("tests.Luaunit")
 
-local ClassSystem = require("src")
+local ClassSystem = require("src.init")
 
 function TestCreateAbstractClass()
     local testClass = {}
@@ -12,7 +10,7 @@ function TestCreateAbstractClass()
 
     testClass.foo = ClassSystem.IsAbstract
 
-    ClassSystem.Create(testClass, "testClass", { IsAbstract = true })
+    ClassSystem.Create(testClass, { Name = "testClass", IsAbstract = true })
 
     luaunit.assertErrorMsgContains("cannot construct abstract class", testClass)
 end
@@ -23,7 +21,7 @@ function TestCreateClassWithAbstractClassAsBase()
     end
 
     abstractTestClass.foo = ClassSystem.IsAbstract
-    ClassSystem.Create(abstractTestClass, "abstractTestClass", { IsAbstract = true })
+    ClassSystem.Create(abstractTestClass, { Name = "abstractTestClass", IsAbstract = true })
 
     local testClass = {}
     function testClass:foo2()
@@ -31,7 +29,7 @@ function TestCreateClassWithAbstractClassAsBase()
     end
 
     local function errorBecauseOfNotImplementedMember()
-        ClassSystem.Create(testClass, "testClass", { BaseClass = abstractTestClass })
+        ClassSystem.Create(testClass, { Name = "testClass", Inherit = abstractTestClass })
     end
 
     luaunit.assertErrorMsgContains("does not implement inherited abstract member", errorBecauseOfNotImplementedMember)
@@ -45,11 +43,26 @@ function TestCreateClassWithAbstractMembers()
     abstractTestClass.foo = ClassSystem.IsAbstract
 
     local function errorBecauseOfNotMarkedAsAbstract()
-        ClassSystem.Create(abstractTestClass, "abstractTestClass")
+        ClassSystem.Create(abstractTestClass, { Name = "abstractTestClass" })
     end
 
     luaunit.assertErrorMsgContains("has abstract member/s but is not marked as abstract",
         errorBecauseOfNotMarkedAsAbstract)
+end
+
+function TestCreateAbstractClassWithInterfaces()
+    local interface = {}
+    interface.test = ClassSystem.IsInterface
+    ClassSystem.Create(interface, { Name = "interface", IsInterface = true })
+
+    local abstractClass = {}
+    abstractClass.class = ClassSystem.IsAbstract
+    ClassSystem.Create(abstractClass, { Name = "abstractClass", IsAbstract = true })
+
+    local class = {}
+    class.class = "set"
+    -- class.test = "set"
+    ClassSystem.Create(class, { Name = "class" })
 end
 
 os.exit(luaunit.LuaUnit.run())

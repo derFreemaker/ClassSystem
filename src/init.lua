@@ -2,66 +2,100 @@
 local Configs = require("src.Config")
 
 -- to package meta in the bundled file
-_ = require("src.Meta")
+require("src.Meta")
 
 local Utils = require("tools.Freemaker.bin.utils")
 
----@type Freemaker.ClassSystem.Utils
-local ClassUtils = require("src.ClassUtils")
-
+local Class = require("src.Class")
 local ObjectType = require("src.Object")
 local TypeHandler = require("src.Type")
 local MembersHandler = require("src.Members")
-local InstanceHandler = require("src.Instance")
 local ConstructionHandler = require("src.Construction")
 
 ---@class Freemaker.ClassSystem
 local ClassSystem = {}
 
-ClassSystem.GetNormal = Configs.GetNormal
-ClassSystem.SetNormal = Configs.SetNormal
-ClassSystem.Deconstructed = Configs.Deconstructing
-ClassSystem.Placeholder = Configs.Placeholder
+ClassSystem.Deconstructing = Configs.Deconstructing
 ClassSystem.IsAbstract = Configs.AbstractPlaceholder
+ClassSystem.IsInterface = Configs.InterfacePlaceholder --//TODO: how to find better name
+
+ClassSystem.ObjectType = ObjectType
+
+ClassSystem.Typeof = Class.Typeof
+ClassSystem.Nameof = Class.Nameof
+ClassSystem.GetInstanceData = Class.GetInstanceData
+ClassSystem.IsClass = Class.IsClass
+ClassSystem.HasBase = Class.HasBase
+ClassSystem.HasInterface = Class.HasInterface
 
 ---@param options Freemaker.ClassSystem.Create.Options
----@return Freemaker.ClassSystem.Type baseClass
+---@return Freemaker.ClassSystem.Type | nil base, table<Freemaker.ClassSystem.Type> interfaces
 local function processOptions(options)
     options.IsAbstract = options.IsAbstract or false
+    options.IsInterface = options.IsInterface or false
 
-    if options.BaseClass and not ClassSystem.IsClass(options.BaseClass) then
-        error("the provided base class is not a class", 2)
+    if options.IsAbstract and options.IsInterface then
+        error("cannot mark class as interface and abstract class")
     end
-    local baseClass = ClassSystem.Typeof(options.BaseClass) or ObjectType
-    options.BaseClass = nil
 
-    return baseClass
+    if options.Inherit then
+        if ClassSystem.IsClass(options.Inherit) then
+            options.Inherit = { options.Inherit }
+        end
+    else
+        -- could also return here
+        options.Inherit = {}
+    end
+
+    ---@type Freemaker.ClassSystem.Type, table<Freemaker.ClassSystem.Type>
+    local base, interfaces = nil, {}
+    for i, parent in ipairs(options.Inherit) do
+        local parentType = ClassSystem.Typeof(parent)
+        ---@cast parentType Freemaker.ClassSystem.Type
+
+        if options.IsAbstract and (not parentType.Options.IsAbstract and not parentType.Options.IsInterface) then
+            error("cannot inherit from not abstract class: ".. tostring(parent) .." in abstract class: " .. options.Name)
+        end
+
+        if parentType.Options.IsInterface then
+            interfaces[i] = ClassSystem.Typeof(parent)
+        else
+            if base ~= nil then
+                error("cannot inherit from more than one (abstract) class: " .. tostring(parent) .. " in class: " .. options.Name)
+            end
+
+            base = parentType
+        end
+    end
+
+    if not options.IsInterface and not base then
+        base = ObjectType
+    end
+
+    return base, interfaces
 end
 
----@generic TClass : object
+---@generic TClass
 ---@param data TClass
----@param name string
----@param options Freemaker.ClassSystem.Create.Options?
+---@param options Freemaker.ClassSystem.Create.Options
 ---@return TClass
-function ClassSystem.Create(data, name, options)
+function ClassSystem.Create(data, options)
     options = options or {}
-    local baseClass = processOptions(options)
+    local base, interfaces = processOptions(options)
 
-    local typeInfo = TypeHandler.Create(name, baseClass, options)
+    local typeInfo = TypeHandler.Create(base, interfaces, options)
 
-    MembersHandler.Initialize(typeInfo)
     MembersHandler.Sort(data, typeInfo)
     MembersHandler.Check(typeInfo)
 
     Utils.Table.Clear(data)
 
-    InstanceHandler.InitializeType(typeInfo)
-    ConstructionHandler.Template(data, typeInfo)
+    ConstructionHandler.CreateTemplate(data, typeInfo)
 
     return data
 end
 
----@generic TClass : object
+---@generic TClass
 ---@param class TClass
 ---@param extensions TClass
 ---@return TClass
@@ -88,10 +122,34 @@ function ClassSystem.Deconstruct(obj)
     ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
 end
 
-ClassSystem.Typeof = ClassUtils.Class.Typeof
-ClassSystem.Nameof = ClassUtils.Class.Nameof
-ClassSystem.GetInstanceData = ClassUtils.Class.GetInstanceData
-ClassSystem.IsClass = ClassUtils.Class.IsClass
-ClassSystem.HasBase = ClassUtils.Class.HasBase
+---@generic TClass : object
+---@param name string
+---@param table TClass
+---@param options Freemaker.ClassSystem.Create.Options | nil
+---@return TClass
+function class(name, table, options)
+    options = options or {}
+    ---@cast options Freemaker.ClassSystem.Create.Options
+    options.Name = name
+
+    return ClassSystem.Create(table, options)
+end
+
+---@generic TClass
+---@param name string
+---@param table TClass
+---@param options Freemaker.ClassSystem.Create.Options | nil
+---@return TClass
+function interface(name, table, options)
+    options = options or {}
+    ---@cast options Freemaker.ClassSystem.Create.Options
+    options.Name = name
+    options.IsInterface = true
+
+    return ClassSystem.Create(table, options)
+end
+
+typeof = ClassSystem.Typeof
+nameof = ClassSystem.Nameof
 
 return ClassSystem

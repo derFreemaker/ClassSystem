@@ -1,15 +1,26 @@
 ---@class Freemaker.ClassSystem.TypeHandler
 local TypeHandler = {}
 
----@param name string
----@param baseClass Freemaker.ClassSystem.Type
----@param options Freemaker.ClassSystem.Type.Options
-function TypeHandler.Create(name, baseClass, options)
+---@param base Freemaker.ClassSystem.Type | nil
+---@param interfaces table<Freemaker.ClassSystem.Type>
+---@param options Freemaker.ClassSystem.Create.Options
+function TypeHandler.Create(base, interfaces, options)
     local typeInfo = {
-        Name = name,
-        Base = baseClass,
-        Options = options
+        Name = options.Name,
+        Base = base,
+        Interfaces = interfaces,
+
+        Options = options,
+
+        MetaMethods = {},
+        Members = {},
+        Static = {},
+
+        Instances = setmetatable({}, { __mode = "k" }),
     }
+
+    options.Name = nil
+    options.Inherit = nil
     ---@cast typeInfo Freemaker.ClassSystem.Type
 
     setmetatable(

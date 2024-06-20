@@ -9,6 +9,8 @@ The [Samples](https://github.com/derFreemaker/ClassSystem/tree/master/samples) a
 `ClassSystem.lua` is the only file you need. It contains all files combined from the src folder.
 It is not performance optimized at the moment.
 
+The tests are awfully writen but work.
+
 ## Features
 
 -   Class Basics
@@ -16,6 +18,7 @@ It is not performance optimized at the moment.
 -   MetaMethods
 -   Static Class Values/Functions
 -   Abstract Class
+-   Interface Class
 
 ## TODO
 

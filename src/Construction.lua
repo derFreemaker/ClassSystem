@@ -18,6 +18,9 @@ local function construct(obj, ...)
     if typeInfo.Options.IsAbstract then
         error("cannot construct abstract class: " .. typeInfo.Name)
     end
+    if typeInfo.Options.IsInterface then
+        error("cannot construct interface class: " .. typeInfo.Name)
+    end
 
     local classInstance, classMetatable = {}, {}
     ---@cast classInstance Freemaker.ClassSystem.Instance
@@ -36,13 +39,13 @@ end
 
 ---@param data table
 ---@param typeInfo Freemaker.ClassSystem.Type
-function ConstructionHandler.Template(data, typeInfo)
-    local metatable = MetatableHandler.Template(typeInfo)
+function ConstructionHandler.CreateTemplate(data, typeInfo)
+    local metatable = MetatableHandler.CreateTemplateMetatable(typeInfo)
     metatable.__call = construct
 
     setmetatable(data, metatable)
 
-    if not typeInfo.Options.IsAbstract then
+    if not typeInfo.Options.IsAbstract and not typeInfo.Options.IsInterface then
         typeInfo.Blueprint = data
     end
 end
@@ -55,7 +58,10 @@ local function invokeDeconstructor(typeInfo, class)
     end
     if typeInfo.HasDeconstructor then
         typeInfo.MetaMethods.__gc(class)
-        invokeDeconstructor(typeInfo.Base, class)
+
+        if typeInfo.Base then
+            invokeDeconstructor(typeInfo.Base, class)
+        end
     end
 end
 
@@ -70,7 +76,7 @@ function ConstructionHandler.Construct(typeInfo, obj, instance, metatable, ...)
 
     local function constructMembers()
         for key, value in pairs(typeInfo.MetaMethods) do
-            if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and metatable[key] == nil then
+            if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and not Utils.Table.ContainsKey(metatable, key) then
                 metatable[key] = value
             end
         end
@@ -78,6 +84,20 @@ function ConstructionHandler.Construct(typeInfo, obj, instance, metatable, ...)
         for key, value in pairs(typeInfo.Members) do
             if obj[key] == nil then
                 rawset(obj, key, Utils.Value.Copy(value))
+            end
+        end
+
+        for _, interface in pairs(typeInfo.Interfaces) do
+            for key, value in pairs(interface.MetaMethods) do
+                if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and not Utils.Table.ContainsKey(metatable, key) then
+                    metatable[key] = value
+                end
+            end
+
+            for key, value in pairs(interface.Members) do
+                if not Utils.Table.ContainsKey(obj, key) then
+                    obj[key] = value
+                end
             end
         end
 

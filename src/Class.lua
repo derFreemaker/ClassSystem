@@ -1,19 +1,18 @@
----@class Freemaker.ClassSystem.Utils
-local Utils = {}
-
--- ############ Class ############ --
-
----@class Freemaker.ClassSystem.Utils.Class
+---@class Freemaker.ClassSystem
 local Class = {}
 
 ---@param obj any
----@return Freemaker.ClassSystem.Type?
+---@return Freemaker.ClassSystem.Type | nil
 function Class.Typeof(obj)
     if not type(obj) == "table" then
         return nil
     end
 
-    local metatable = getmetatable(obj) or {}
+    local metatable = getmetatable(obj)
+    if not metatable then
+        return nil
+    end
+
     return metatable.Type
 end
 
@@ -29,7 +28,7 @@ function Class.Nameof(obj)
 end
 
 ---@param obj object
----@return Freemaker.ClassSystem.Instance?
+---@return Freemaker.ClassSystem.Instance | nil
 function Class.GetInstanceData(obj)
     if not Class.IsClass(obj) then
         return
@@ -75,24 +74,49 @@ function Class.HasBase(obj, className)
     local metatable = getmetatable(obj)
 
     ---@param typeInfo Freemaker.ClassSystem.Type
-    local function hasTypeBase(typeInfo)
+    local function hasBase(typeInfo)
         local typeName = typeInfo.Name
         if typeName == className then
             return true
         end
 
-        if typeName ~= "object" then
-            return hasTypeBase(typeInfo.Base)
+        if not typeInfo.Base then
+            return false
+        end
+
+        return hasBase(typeInfo.Base)
+    end
+
+    return hasBase(metatable.Type)
+end
+
+---@param obj any
+---@param interfaceName string
+---@return boolean hasInterface
+function Class.HasInterface(obj, interfaceName)
+    if not Class.IsClass(obj) then
+        return false
+    end
+
+    local metatable = getmetatable(obj)
+
+    ---@param typeInfo Freemaker.ClassSystem.Type
+    local function hasInterface(typeInfo)
+        local typeName = typeInfo.Name
+        if typeName == interfaceName then
+            return true
+        end
+
+        for _, value in pairs(typeInfo.Interfaces) do
+            if hasInterface(value) then
+                return true
+            end
         end
 
         return false
     end
 
-    return hasTypeBase(metatable.Type)
+    return hasInterface(metatable.Type)
 end
 
-Utils.Class = Class
-
--- ############ Class ############ --
-
-return Utils
+return Class

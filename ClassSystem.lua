@@ -70,22 +70,16 @@
 	    __newindex = true
 	}
 
-	-- Indicates that the value should be retrieved with rawget. Needs to be returned by the __index meta method.
-	Configs.GetNormal = {}
-
-	-- Indicates that value in newindex should be set like table[index] = value. Needs to be returned by the __newindex meta method.
-	Configs.SetNormal = {}
-
 	-- Indicates that the __close method is called from the ClassSystem.Deconstruct method.
 	Configs.Deconstructing = {}
-
-	-- Placeholder has no functionality.
-	---@type any
-	Configs.Placeholder = {}
 
 	-- Placeholder is used to indicate that this member should be set by super class of the abstract class
 	---@type any
 	Configs.AbstractPlaceholder = {}
+
+	-- Placeholder is used to indicate that this member should be set by super class of the interface
+	---@type any
+	Configs.InterfacePlaceholder = {}
 
 	return Configs
 
@@ -99,68 +93,68 @@ __fileFuncs__["src.Meta"] = function()
 	----------------------------------------------------------------
 
 	---@class Freemaker.ClassSystem.ObjectMetaMethods
-	---@field protected __init (fun(self: object, ...))? self(...) before construction
-	---@field protected __call (fun(self: object, ...) : ...)? self(...) after construction
-	---@field protected __close (fun(self: object, errObj: any) : any)? invoked when the object gets out of scope
-	---@field protected __gc fun(self: object)? Freemaker.ClassSystem.old.Deconstruct(self) or garbageCollection
-	---@field protected __add (fun(self: object, other: any) : any)? (self) + (value)
-	---@field protected __sub (fun(self: object, other: any) : any)? (self) - (value)
-	---@field protected __mul (fun(self: object, other: any) : any)? (self) * (value)
-	---@field protected __div (fun(self: object, other: any) : any)? (self) / (value)
-	---@field protected __mod (fun(self: object, other: any) : any)? (self) % (value)
-	---@field protected __pow (fun(self: object, other: any) : any)? (self) ^ (value)
-	---@field protected __idiv (fun(self: object, other: any) : any)? (self) // (value)
-	---@field protected __band (fun(self: object, other: any) : any)? (self) & (value)
-	---@field protected __bor (fun(self: object, other: any) : any)? (self) | (value)
-	---@field protected __bxor (fun(self: object, other: any) : any)? (self) ~ (value)
-	---@field protected __shl (fun(self: object, other: any) : any)? (self) << (value)
-	---@field protected __shr (fun(self: object, other: any) : any)? (self) >> (value)
-	---@field protected __concat (fun(self: object, other: any) : any)? (self) .. (value)
-	---@field protected __eq (fun(self: object, other: any) : any)? (self) == (value)
-	---@field protected __lt (fun(t1: any, t2: any) : any)? (self) < (value)
-	---@field protected __le (fun(t1: any, t2: any) : any)? (self) <= (value)
-	---@field protected __unm (fun(self: object) : any)? -(self)
-	---@field protected __bnot (fun(self: object) : any)?  ~(self)
-	---@field protected __len (fun(self: object) : any)? #(self)
-	---@field protected __pairs (fun(t: table) : ((fun(t: table, key: any) : key: any, value: any), t: table, startKey: any))? pairs(self)
-	---@field protected __ipairs (fun(t: table) : ((fun(t: table, key: number) : key: number, value: any), t: table, startKey: number))? ipairs(self)
-	---@field protected __tostring (fun(t):string)? tostring(self)
-	---@field protected __index (fun(class, key) : any)? xxx = self.xxx | self[xxx]
-	---@field protected __newindex fun(class, key, value)? self.xxx = xxx | self[xxx] = xxx
+	---@field protected __init (fun(self: object, ...)) | nil self(...) before construction
+	---@field protected __call (fun(self: object, ...) : ...) | nil self(...) after construction
+	---@field protected __close (fun(self: object, errObj: any) : any) | nil invoked when the object gets out of scope
+	---@field protected __gc fun(self: object) | nil Freemaker.ClassSystem.Deconstruct(self) or garbageCollection
+	---@field protected __add (fun(self: object, other: any) : any) | nil (self) + (value)
+	---@field protected __sub (fun(self: object, other: any) : any) | nil (self) - (value)
+	---@field protected __mul (fun(self: object, other: any) : any) | nil (self) * (value)
+	---@field protected __div (fun(self: object, other: any) : any) | nil (self) / (value)
+	---@field protected __mod (fun(self: object, other: any) : any) | nil (self) % (value)
+	---@field protected __pow (fun(self: object, other: any) : any) | nil (self) ^ (value)
+	---@field protected __idiv (fun(self: object, other: any) : any) | nil (self) // (value)
+	---@field protected __band (fun(self: object, other: any) : any) | nil (self) & (value)
+	---@field protected __bor (fun(self: object, other: any) : any) | nil (self) | (value)
+	---@field protected __bxor (fun(self: object, other: any) : any) | nil (self) ~ (value)
+	---@field protected __shl (fun(self: object, other: any) : any) | nil (self) << (value)
+	---@field protected __shr (fun(self: object, other: any) : any) | nil (self) >> (value)
+	---@field protected __concat (fun(self: object, other: any) : any) | nil (self) .. (value)
+	---@field protected __eq (fun(self: object, other: any) : any) | nil (self) == (value)
+	---@field protected __lt (fun(t1: any, t2: any) : any) | nil (self) < (value)
+	---@field protected __le (fun(t1: any, t2: any) : any) | nil (self) <= (value)
+	---@field protected __unm (fun(self: object) : any) | nil -(self)
+	---@field protected __bnot (fun(self: object) : any) | nil  ~(self)
+	---@field protected __len (fun(self: object) : any) | nil #(self)
+	---@field protected __pairs (fun(t: table) : ((fun(t: table, key: any) : key: any, value: any), t: table, startKey: any)) | nil pairs(self)
+	---@field protected __ipairs (fun(t: table) : ((fun(t: table, key: number) : key: number, value: any), t: table, startKey: number)) | nil ipairs(self)
+	---@field protected __tostring (fun(t):string) | nil tostring(self)
+	---@field protected __index (fun(class, key) : any) | nil xxx = self.xxx | self[xxx]
+	---@field protected __newindex fun(class, key, value) | nil self.xxx = xxx | self[xxx] = xxx
 
 	---@class object : Freemaker.ClassSystem.ObjectMetaMethods, function
 
 	---@class Freemaker.ClassSystem.MetaMethods
-	---@field __gc fun(self: object)? Class.Deconstruct(self) or garbageCollection
-	---@field __close (fun(self: object, errObj: any) : any)? invoked when the object gets out of scope
-	---@field __call (fun(self: object, ...) : ...)? self(...) after construction
-	---@field __index (fun(class: object, key: any) : any)? xxx = self.xxx | self[xxx]
-	---@field __newindex fun(class: object, key: any, value: any)? self.xxx | self[xxx] = xxx
-	---@field __tostring (fun(t):string)? tostring(self)
-	---@field __add (fun(left: any, right: any) : any)? (left) + (right)
-	---@field __sub (fun(left: any, right: any) : any)? (left) - (right)
-	---@field __mul (fun(left: any, right: any) : any)? (left) * (right)
-	---@field __div (fun(left: any, right: any) : any)? (left) / (right)
-	---@field __mod (fun(left: any, right: any) : any)? (left) % (right)
-	---@field __pow (fun(left: any, right: any) : any)? (left) ^ (right)
-	---@field __idiv (fun(left: any, right: any) : any)? (left) // (right)
-	---@field __band (fun(left: any, right: any) : any)? (left) & (right)
-	---@field __bor (fun(left: any, right: any) : any)? (left) | (right)
-	---@field __bxor (fun(left: any, right: any) : any)? (left) ~ (right)
-	---@field __shl (fun(left: any, right: any) : any)? (left) << (right)
-	---@field __shr (fun(left: any, right: any) : any)? (left) >> (right)
-	---@field __concat (fun(left: any, right: any) : any)? (left) .. (right)
-	---@field __eq (fun(left: any, right: any) : any)? (left) == (right)
-	---@field __lt (fun(left: any, right: any) : any)? (left) < (right)
-	---@field __le (fun(left: any, right: any) : any)? (left) <= (right)
-	---@field __unm (fun(self: object) : any)? -(self)
-	---@field __bnot (fun(self: object) : any)?  ~(self)
-	---@field __len (fun(self: object) : any)? #(self)
-	---@field __pairs (fun(self: object) : ((fun(t: table, key: any) : key: any, value: any), t: table, startKey: any))? pairs(self)
-	---@field __ipairs (fun(self: object) : ((fun(t: table, key: number) : key: number, value: any), t: table, startKey: number))? ipairs(self)
+	---@field __gc fun(self: object) | nil Class.Deconstruct(self) or garbageCollection
+	---@field __close (fun(self: object, errObj: any) : any) | nil invoked when the object gets out of scope
+	---@field __call (fun(self: object, ...) : ...) | nil self(...) after construction
+	---@field __index (fun(class: object, key: any) : any) | nil xxx = self.xxx | self[xxx]
+	---@field __newindex fun(class: object, key: any, value: any) | nil self.xxx | self[xxx] = xxx
+	---@field __tostring (fun(t):string) | nil tostring(self)
+	---@field __add (fun(left: any, right: any) : any) | nil (left) + (right)
+	---@field __sub (fun(left: any, right: any) : any) | nil (left) - (right)
+	---@field __mul (fun(left: any, right: any) : any) | nil (left) * (right)
+	---@field __div (fun(left: any, right: any) : any) | nil (left) / (right)
+	---@field __mod (fun(left: any, right: any) : any) | nil (left) % (right)
+	---@field __pow (fun(left: any, right: any) : any) | nil (left) ^ (right)
+	---@field __idiv (fun(left: any, right: any) : any) | nil (left) // (right)
+	---@field __band (fun(left: any, right: any) : any) | nil (left) & (right)
+	---@field __bor (fun(left: any, right: any) : any) | nil (left) | (right)
+	---@field __bxor (fun(left: any, right: any) : any) | nil (left) ~ (right)
+	---@field __shl (fun(left: any, right: any) : any) | nil (left) << (right)
+	---@field __shr (fun(left: any, right: any) : any) | nil (left) >> (right)
+	---@field __concat (fun(left: any, right: any) : any) | nil (left) .. (right)
+	---@field __eq (fun(left: any, right: any) : any) | nil (left) == (right)
+	---@field __lt (fun(left: any, right: any) : any) | nil (left) < (right)
+	---@field __le (fun(left: any, right: any) : any) | nil (left) <= (right)
+	---@field __unm (fun(self: object) : any) | nil -(self)
+	---@field __bnot (fun(self: object) : any) | nil ~(self)
+	---@field __len (fun(self: object) : any) | nil #(self)
+	---@field __pairs (fun(self: object) : ((fun(t: table, key: any) : key: any, value: any), t: table, startKey: any)) | nil pairs(self)
+	---@field __ipairs (fun(self: object) : ((fun(t: table, key: number) : key: number, value: any), t: table, startKey: number)) | nil ipairs(self)
 
 	---@class Freemaker.ClassSystem.TypeMetaMethods : Freemaker.ClassSystem.MetaMethods
-	---@field __init (fun(self: object, ...))? self(...) before construction
+	---@field __init (fun(self: object, ...)) | nil self(...) before construction
 
 	----------------------------------------------------------------
 	-- Type
@@ -168,7 +162,9 @@ __fileFuncs__["src.Meta"] = function()
 
 	---@class Freemaker.ClassSystem.Type
 	---@field Name string
-	---@field Base Freemaker.ClassSystem.Type?
+	---
+	---@field Base Freemaker.ClassSystem.Type | nil
+	---@field Interfaces table<integer, Freemaker.ClassSystem.Type>
 	---
 	---@field Static table<string, any>
 	---
@@ -185,10 +181,11 @@ __fileFuncs__["src.Meta"] = function()
 	---
 	---@field Instances table<object, boolean>
 	---
-	---@field Blueprint Freemaker.ClassSystem.Blueprint?
+	---@field Blueprint table | nil
 
 	---@class Freemaker.ClassSystem.Type.Options
-	---@field IsAbstract boolean?
+	---@field IsAbstract boolean | nil
+	---@field IsInterface boolean | nil
 
 	----------------------------------------------------------------
 	-- Metatable
@@ -205,8 +202,6 @@ __fileFuncs__["src.Meta"] = function()
 	---@class Freemaker.ClassSystem.BlueprintMetatable : Freemaker.ClassSystem.MetaMethods
 	---@field Type Freemaker.ClassSystem.Type
 
-	---@class Freemaker.ClassSystem.Blueprint
-
 	----------------------------------------------------------------
 	-- Instance
 	----------------------------------------------------------------
@@ -221,29 +216,31 @@ __fileFuncs__["src.Meta"] = function()
 	----------------------------------------------------------------
 
 	---@class Freemaker.ClassSystem.Create.Options : Freemaker.ClassSystem.Type.Options
-	---@field BaseClass object?
+	---@field Name string | nil
+	---
+	---@field Inherit table<object> | object | nil
 
 end
 
 __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 	---@diagnostic disable
 
-		local __fileFuncs__ = {}
-		local __cache__ = {}
-		local function __loadFile__(module)
-		    if not __cache__[module] then
-		        __cache__[module] = { __fileFuncs__[module]() }
-		    end
-		    return table.unpack(__cache__[module])
-		end
-		__fileFuncs__["src.Utils.String"] = function()
+	local __fileFuncs__ = {}
+	local __cache__ = {}
+	local function __loadFile__(module)
+	    if not __cache__[module] then
+	        __cache__[module] = { __fileFuncs__[module]() }
+	    end
+	    return table.unpack(__cache__[module])
+	end
+	__fileFuncs__["src.Utils.String"] = function()
 		---@class Freemaker.Utils.String
 		local String = {}
 
 		---@param str string
 		---@param pattern string
-		---@param plain boolean?
-		---@return string?, integer
+		---@param plain boolean | nil
+		---@return string | nil, integer
 		local function findNext(str, pattern, plain)
 		    local found = str:find(pattern, 0, plain or false)
 		    if found == nil then
@@ -252,9 +249,9 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    return str:sub(0, found - 1), found - 1
 		end
 
-		---@param str string?
-		---@param sep string?
-		---@param plain boolean?
+		---@param str string | nil
+		---@param sep string | nil
+		---@param plain boolean | nil
 		---@return string[]
 		function String.Split(str, sep, plain)
 		    if str == nil then
@@ -287,7 +284,7 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    end
 		end
 
-		---@param str string?
+		---@param str string | nil
 		---@return boolean
 		function String.IsNilOrEmpty(str)
 		    if str == nil then
@@ -321,9 +318,9 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		---@class Freemaker.Utils.Table
 		local Table = {}
 
-		---@param obj table?
+		---@param obj table | nil
 		---@param seen table[]
-		---@return table?
+		---@return table | nil
 		local function copyTable(obj, copy, seen)
 		    if obj == nil then return nil end
 		    if seen[obj] then return seen[obj] end
@@ -354,16 +351,20 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		end
 
 		---@param t table
-		---@param ignoreProperties string[]?
+		---@param ignoreProperties string[] | nil
 		function Table.Clear(t, ignoreProperties)
 		    if not ignoreProperties then
-		        ignoreProperties = {}
-		    end
-		    for key, _ in next, t, nil do
-		        if not Table.Contains(ignoreProperties, key) then
+		        for key, _ in next, t, nil do
 		            t[key] = nil
 		        end
+		    else
+		        for key, _ in next, t, nil do
+		            if not Table.Contains(ignoreProperties, key) then
+		                t[key] = nil
+		            end
+		        end
 		    end
+
 		    setmetatable(t, nil)
 		end
 
@@ -473,23 +474,22 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 
 end
 
-__fileFuncs__["src.ClassUtils"] = function()
-	---@class Freemaker.ClassSystem.Utils
-	local Utils = {}
-
-	-- ############ Class ############ --
-
-	---@class Freemaker.ClassSystem.Utils.Class
+__fileFuncs__["src.Class"] = function()
+	---@class Freemaker.ClassSystem
 	local Class = {}
 
 	---@param obj any
-	---@return Freemaker.ClassSystem.Type?
+	---@return Freemaker.ClassSystem.Type | nil
 	function Class.Typeof(obj)
 	    if not type(obj) == "table" then
 	        return nil
 	    end
 
-	    local metatable = getmetatable(obj) or {}
+	    local metatable = getmetatable(obj)
+	    if not metatable then
+	        return nil
+	    end
+
 	    return metatable.Type
 	end
 
@@ -505,7 +505,7 @@ __fileFuncs__["src.ClassUtils"] = function()
 	end
 
 	---@param obj object
-	---@return Freemaker.ClassSystem.Instance?
+	---@return Freemaker.ClassSystem.Instance | nil
 	function Class.GetInstanceData(obj)
 	    if not Class.IsClass(obj) then
 	        return
@@ -551,34 +551,59 @@ __fileFuncs__["src.ClassUtils"] = function()
 	    local metatable = getmetatable(obj)
 
 	    ---@param typeInfo Freemaker.ClassSystem.Type
-	    local function hasTypeBase(typeInfo)
+	    local function hasBase(typeInfo)
 	        local typeName = typeInfo.Name
 	        if typeName == className then
 	            return true
 	        end
 
-	        if typeName ~= "object" then
-	            return hasTypeBase(typeInfo.Base)
+	        if not typeInfo.Base then
+	            return false
+	        end
+
+	        return hasBase(typeInfo.Base)
+	    end
+
+	    return hasBase(metatable.Type)
+	end
+
+	---@param obj any
+	---@param interfaceName string
+	---@return boolean hasInterface
+	function Class.HasInterface(obj, interfaceName)
+	    if not Class.IsClass(obj) then
+	        return false
+	    end
+
+	    local metatable = getmetatable(obj)
+
+	    ---@param typeInfo Freemaker.ClassSystem.Type
+	    local function hasInterface(typeInfo)
+	        local typeName = typeInfo.Name
+	        if typeName == interfaceName then
+	            return true
+	        end
+
+	        for _, value in pairs(typeInfo.Interfaces) do
+	            if hasInterface(value) then
+	                return true
+	            end
 	        end
 
 	        return false
 	    end
 
-	    return hasTypeBase(metatable.Type)
+	    return hasInterface(metatable.Type)
 	end
 
-	Utils.Class = Class
-
-	-- ############ Class ############ --
-
-	return Utils
+	return Class
 
 end
 
 __fileFuncs__["src.Object"] = function()
 	local Utils = __loadFile__("tools.Freemaker.bin.utils")
 	local Config = __loadFile__("src.Config")
-	local ClassUtils = __loadFile__("src.ClassUtils")
+	local Class = __loadFile__("src.Class")
 
 	---@class object
 	local Object = {}
@@ -586,7 +611,7 @@ __fileFuncs__["src.Object"] = function()
 	---@protected
 	---@return string typeName
 	function Object:__tostring()
-	    return ClassUtils.Class.Typeof(self).Name
+	    return Class.Typeof(self).Name
 	end
 
 	---@protected
@@ -595,11 +620,11 @@ __fileFuncs__["src.Object"] = function()
 	    return tostring(left) .. tostring(right)
 	end
 
-	---@class object.Modify
-	---@field CustomIndexing boolean?
+	---@class Freemaker.ClassSystem.Object.Modify
+	---@field CustomIndexing boolean | nil
 
 	---@protected
-	---@param func fun(modify: object.Modify)
+	---@param func fun(modify: Freemaker.ClassSystem.Object.Modify)
 	function Object:Raw__ModifyBehavior(func)
 	    ---@type Freemaker.ClassSystem.Metatable
 	    local metatable = getmetatable(self)
@@ -621,6 +646,7 @@ __fileFuncs__["src.Object"] = function()
 	local objectTypeInfo = {
 	    Name = "object",
 	    Base = nil,
+	    Interfaces = {},
 
 	    Static = {},
 	    MetaMethods = {},
@@ -636,7 +662,10 @@ __fileFuncs__["src.Object"] = function()
 	        IsAbstract = true,
 	    },
 
-	    Instances = setmetatable({}, { __mode = 'k' })
+	    Instances = setmetatable({}, { __mode = 'k' }),
+
+	    -- no blueprint since cannot be constructed
+	    Blueprint = nil
 	}
 
 	for key, value in pairs(Object) do
@@ -656,6 +685,15 @@ __fileFuncs__["src.Object"] = function()
 	    end
 	end
 
+	setmetatable(
+	        objectTypeInfo,
+	        {
+	            __tostring = function(self)
+	                return self.Name
+	            end
+	        }
+	    )
+
 	return objectTypeInfo
 
 end
@@ -664,15 +702,26 @@ __fileFuncs__["src.Type"] = function()
 	---@class Freemaker.ClassSystem.TypeHandler
 	local TypeHandler = {}
 
-	---@param name string
-	---@param baseClass Freemaker.ClassSystem.Type
-	---@param options Freemaker.ClassSystem.Type.Options
-	function TypeHandler.Create(name, baseClass, options)
+	---@param base Freemaker.ClassSystem.Type | nil
+	---@param interfaces table<Freemaker.ClassSystem.Type>
+	---@param options Freemaker.ClassSystem.Create.Options
+	function TypeHandler.Create(base, interfaces, options)
 	    local typeInfo = {
-	        Name = name,
-	        Base = baseClass,
-	        Options = options
+	        Name = options.Name,
+	        Base = base,
+	        Interfaces = interfaces,
+
+	        Options = options,
+
+	        MetaMethods = {},
+	        Members = {},
+	        Static = {},
+
+	        Instances = setmetatable({}, { __mode = "k" }),
 	    }
+
+	    options.Name = nil
+	    options.Inherit = nil
 	    ---@cast typeInfo Freemaker.ClassSystem.Type
 
 	    setmetatable(
@@ -704,17 +753,16 @@ __fileFuncs__["src.Instance"] = function()
 	end
 
 	---@param typeInfo Freemaker.ClassSystem.Type
-	function InstanceHandler.InitializeType(typeInfo)
-	    typeInfo.Instances = setmetatable({}, { __mode = "k" })
-	end
-
-	---@param typeInfo Freemaker.ClassSystem.Type
 	---@param instance object
 	function InstanceHandler.Add(typeInfo, instance)
 	    typeInfo.Instances[instance] = true
 
 	    if typeInfo.Base then
 	        InstanceHandler.Add(typeInfo.Base, instance)
+	    end
+
+	    for _, parent in pairs(typeInfo.Interfaces) do
+	        InstanceHandler.Add(parent, instance)
 	    end
 	end
 
@@ -725,6 +773,10 @@ __fileFuncs__["src.Instance"] = function()
 
 	    if typeInfo.Base then
 	        InstanceHandler.Remove(typeInfo.Base, instance)
+	    end
+
+	    for _, parent in pairs(typeInfo.Interfaces) do
+	        InstanceHandler.Remove(parent, instance)
 	    end
 	end
 
@@ -771,13 +823,6 @@ __fileFuncs__["src.Members"] = function()
 	local MembersHandler = {}
 
 	---@param typeInfo Freemaker.ClassSystem.Type
-	function MembersHandler.Initialize(typeInfo)
-	    typeInfo.Static = {}
-	    typeInfo.MetaMethods = {}
-	    typeInfo.Members = {}
-	end
-
-	---@param typeInfo Freemaker.ClassSystem.Type
 	function MembersHandler.UpdateState(typeInfo)
 	    local metaMethods = typeInfo.MetaMethods
 
@@ -789,17 +834,7 @@ __fileFuncs__["src.Members"] = function()
 	end
 
 	function MembersHandler.GetStatic(typeInfo, key)
-	    local value = rawget(typeInfo.Static, key)
-
-	    if value ~= nil then
-	        return value
-	    end
-
-	    if typeInfo.Base then
-	        return MembersHandler.GetStatic(typeInfo.Base, key)
-	    end
-
-	    return nil
+	    return rawget(typeInfo.Static, key)
 	end
 
 	---@param typeInfo Freemaker.ClassSystem.Type
@@ -883,11 +918,8 @@ __fileFuncs__["src.Members"] = function()
 	            end
 	        end
 
-	        if typeInfo.HasIndex and not instance.CustomIndexing then
-	            local value = typeInfo.MetaMethods.__index(obj, key)
-	            if value ~= Configs.GetNormal then
-	                return value
-	            end
+	        if typeInfo.HasIndex and instance.CustomIndexing then
+	            return typeInfo.MetaMethods.__index(obj, key)
 	        end
 
 	        return rawget(obj, key)
@@ -908,10 +940,8 @@ __fileFuncs__["src.Members"] = function()
 	            end
 	        end
 
-	        if typeInfo.HasNewIndex and not instance.CustomIndexing then
-	            if typeInfo.MetaMethods.__newindex(obj, key, value) ~= Configs.SetNormal then
-	                return
-	            end
+	        if typeInfo.HasNewIndex and instance.CustomIndexing then
+	            return typeInfo.MetaMethods.__newindex(obj, key, value)
 	        end
 
 	        rawset(obj, key, value)
@@ -1073,27 +1103,115 @@ __fileFuncs__["src.Members"] = function()
 	-- Check
 	-------------------------------------------------------------------------------
 
+	---@private
+	---@param baseInfo Freemaker.ClassSystem.Type
+	---@param member string
+	---@return boolean
+	function MembersHandler.CheckForMetaMethod(baseInfo, member)
+	    if Utils.Table.ContainsKey(baseInfo.MetaMethods, member) then
+	        return true
+	    end
+
+	    if baseInfo.Base then
+	        return MembersHandler.CheckForMetaMethod(baseInfo.Base, member)
+	    end
+
+	    return false
+	end
+
+	---@private
+	---@param baseInfo Freemaker.ClassSystem.Type
+	---@param member string
+	---@return boolean
+	function MembersHandler.CheckForMember(baseInfo, member)
+	    if Utils.Table.ContainsKey(baseInfo.Members, member) then
+	        return true
+	    end
+
+	    if baseInfo.Base then
+	        return MembersHandler.CheckForMember(baseInfo.Base, member)
+	    end
+
+	    return false
+	end
+
 	---@param typeInfo Freemaker.ClassSystem.Type
 	function MembersHandler.Check(typeInfo)
-	    if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) and not typeInfo.Options.IsAbstract then
-	        error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
+	    if not typeInfo.Options.IsAbstract then
+	        if Utils.Table.Contains(typeInfo.MetaMethods, Configs.AbstractPlaceholder) then
+	            error(typeInfo.Name .. " has abstract meta method/s but is not marked as abstract")
+	        end
+
+	        if Utils.Table.Contains(typeInfo.Members, Configs.AbstractPlaceholder) then
+	            error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
+	        end
 	    end
 
-	    if not typeInfo.Base then
-	        return
+	    if not typeInfo.Options.IsInterface then
+	        if Utils.Table.Contains(typeInfo.Members, Configs.InterfacePlaceholder) then
+	            error(typeInfo.Name .. " has interface meta methods/s but is not marked as interface")
+	        end
+
+	        if Utils.Table.Contains(typeInfo.Members, Configs.InterfacePlaceholder) then
+	            error(typeInfo.Name .. " has interface member/s but is not marked as interface")
+	        end
 	    end
 
-	    for key, value in pairs(typeInfo.Base.Members) do
-	        if value == Configs.AbstractPlaceholder then
-	            if not Utils.Table.ContainsKey(typeInfo.Members, key) then
-	                error(
-	                    typeInfo.Name
-	                    .. " does not implement inherited abstract member: "
-	                    .. typeInfo.Base.Name .. "." .. tostring(key)
-	                )
+	    if not typeInfo.Options.IsAbstract and not typeInfo.Options.IsInterface then
+	        for _, interface in pairs(typeInfo.Interfaces) do
+	            for key, value in pairs(interface.MetaMethods) do
+	                if value == Configs.InterfacePlaceholder then
+	                    if not MembersHandler.CheckForMetaMethod(typeInfo, key) then
+	                        error(
+	                            typeInfo.Name
+	                            .. " does not implement inherited interface meta method: "
+	                            .. interface.Name .. "." .. tostring(key)
+	                        )
+	                    end
+	                end
+	            end
+
+	            for key, value in pairs(interface.Members) do
+	                if value == Configs.InterfacePlaceholder then
+	                    if not MembersHandler.CheckForMember(typeInfo, key) then
+	                        error(
+	                            typeInfo.Name
+	                            .. " does not implement inherited interface member: "
+	                            .. interface.Name .. "." .. tostring(key)
+	                        )
+	                    end
+	                end
+	            end
+	        end
+
+	        if typeInfo.Base then
+	            for key, value in pairs(typeInfo.Base.MetaMethods) do
+	                if value == Configs.AbstractPlaceholder then
+	                    if not MembersHandler.CheckForMetaMethod(typeInfo, key) then
+	                        error(
+	                            typeInfo.Name
+	                            .. " does not implement inherited abstract meta method: "
+	                            .. typeInfo.Base.Name .. "." .. tostring(key)
+	                        )
+	                    end
+	                end
+	            end
+
+	            for key, value in pairs(typeInfo.Base.Members) do
+	                if value == Configs.AbstractPlaceholder then
+	                    if not MembersHandler.CheckForMember(typeInfo, key) then
+	                        error(
+	                            typeInfo.Name
+	                            .. " does not implement inherited abstract member: "
+	                            .. typeInfo.Base.Name .. "." .. tostring(key)
+	                        )
+	                    end
+	                end
 	            end
 	        end
 	    end
+
+	    --//TODO: need to interrate over interfaces of base classes
 	end
 
 	return MembersHandler
@@ -1112,7 +1230,7 @@ __fileFuncs__["src.Metatable"] = function()
 
 	---@param typeInfo Freemaker.ClassSystem.Type
 	---@return Freemaker.ClassSystem.BlueprintMetatable metatable
-	function MetatableHandler.Template(typeInfo)
+	function MetatableHandler.CreateTemplateMetatable(typeInfo)
 	    ---@type Freemaker.ClassSystem.BlueprintMetatable
 	    local metatable = { Type = typeInfo }
 
@@ -1178,6 +1296,9 @@ __fileFuncs__["src.Construction"] = function()
 	    if typeInfo.Options.IsAbstract then
 	        error("cannot construct abstract class: " .. typeInfo.Name)
 	    end
+	    if typeInfo.Options.IsInterface then
+	        error("cannot construct interface class: " .. typeInfo.Name)
+	    end
 
 	    local classInstance, classMetatable = {}, {}
 	    ---@cast classInstance Freemaker.ClassSystem.Instance
@@ -1196,13 +1317,13 @@ __fileFuncs__["src.Construction"] = function()
 
 	---@param data table
 	---@param typeInfo Freemaker.ClassSystem.Type
-	function ConstructionHandler.Template(data, typeInfo)
-	    local metatable = MetatableHandler.Template(typeInfo)
+	function ConstructionHandler.CreateTemplate(data, typeInfo)
+	    local metatable = MetatableHandler.CreateTemplateMetatable(typeInfo)
 	    metatable.__call = construct
 
 	    setmetatable(data, metatable)
 
-	    if not typeInfo.Options.IsAbstract then
+	    if not typeInfo.Options.IsAbstract and not typeInfo.Options.IsInterface then
 	        typeInfo.Blueprint = data
 	    end
 	end
@@ -1215,7 +1336,10 @@ __fileFuncs__["src.Construction"] = function()
 	    end
 	    if typeInfo.HasDeconstructor then
 	        typeInfo.MetaMethods.__gc(class)
-	        invokeDeconstructor(typeInfo.Base, class)
+
+	        if typeInfo.Base then
+	            invokeDeconstructor(typeInfo.Base, class)
+	        end
 	    end
 	end
 
@@ -1230,7 +1354,7 @@ __fileFuncs__["src.Construction"] = function()
 
 	    local function constructMembers()
 	        for key, value in pairs(typeInfo.MetaMethods) do
-	            if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and metatable[key] == nil then
+	            if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and not Utils.Table.ContainsKey(metatable, key) then
 	                metatable[key] = value
 	            end
 	        end
@@ -1238,6 +1362,20 @@ __fileFuncs__["src.Construction"] = function()
 	        for key, value in pairs(typeInfo.Members) do
 	            if obj[key] == nil then
 	                rawset(obj, key, Utils.Value.Copy(value))
+	            end
+	        end
+
+	        for _, interface in pairs(typeInfo.Interfaces) do
+	            for key, value in pairs(interface.MetaMethods) do
+	                if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and not Utils.Table.ContainsKey(metatable, key) then
+	                    metatable[key] = value
+	                end
+	            end
+
+	            for key, value in pairs(interface.Members) do
+	                if not Utils.Table.ContainsKey(obj, key) then
+	                    obj[key] = value
+	                end
 	            end
 	        end
 
@@ -1306,66 +1444,100 @@ __fileFuncs__["__main__"] = function()
 	local Configs = __loadFile__("src.Config")
 
 	-- to package meta in the bundled file
-	_ = __loadFile__("src.Meta")
+	__loadFile__("src.Meta")
 
 	local Utils = __loadFile__("tools.Freemaker.bin.utils")
 
-	---@type Freemaker.ClassSystem.Utils
-	local ClassUtils = __loadFile__("src.ClassUtils")
-
+	local Class = __loadFile__("src.Class")
 	local ObjectType = __loadFile__("src.Object")
 	local TypeHandler = __loadFile__("src.Type")
 	local MembersHandler = __loadFile__("src.Members")
-	local InstanceHandler = __loadFile__("src.Instance")
 	local ConstructionHandler = __loadFile__("src.Construction")
 
 	---@class Freemaker.ClassSystem
 	local ClassSystem = {}
 
-	ClassSystem.GetNormal = Configs.GetNormal
-	ClassSystem.SetNormal = Configs.SetNormal
-	ClassSystem.Deconstructed = Configs.Deconstructing
-	ClassSystem.Placeholder = Configs.Placeholder
+	ClassSystem.Deconstructing = Configs.Deconstructing
 	ClassSystem.IsAbstract = Configs.AbstractPlaceholder
+	ClassSystem.IsInterface = Configs.InterfacePlaceholder --//TODO: how to find better name
+
+	ClassSystem.ObjectType = ObjectType
+
+	ClassSystem.Typeof = Class.Typeof
+	ClassSystem.Nameof = Class.Nameof
+	ClassSystem.GetInstanceData = Class.GetInstanceData
+	ClassSystem.IsClass = Class.IsClass
+	ClassSystem.HasBase = Class.HasBase
+	ClassSystem.HasInterface = Class.HasInterface
 
 	---@param options Freemaker.ClassSystem.Create.Options
-	---@return Freemaker.ClassSystem.Type baseClass
+	---@return Freemaker.ClassSystem.Type | nil base, table<Freemaker.ClassSystem.Type> interfaces
 	local function processOptions(options)
 	    options.IsAbstract = options.IsAbstract or false
+	    options.IsInterface = options.IsInterface or false
 
-	    if options.BaseClass and not ClassSystem.IsClass(options.BaseClass) then
-	        error("the provided base class is not a class", 2)
+	    if options.IsAbstract and options.IsInterface then
+	        error("cannot mark class as interface and abstract class")
 	    end
-	    local baseClass = ClassSystem.Typeof(options.BaseClass) or ObjectType
-	    options.BaseClass = nil
 
-	    return baseClass
+	    if options.Inherit then
+	        if ClassSystem.IsClass(options.Inherit) then
+	            options.Inherit = { options.Inherit }
+	        end
+	    else
+	        -- could also return here
+	        options.Inherit = {}
+	    end
+
+	    ---@type Freemaker.ClassSystem.Type, table<Freemaker.ClassSystem.Type>
+	    local base, interfaces = nil, {}
+	    for i, parent in ipairs(options.Inherit) do
+	        local parentType = ClassSystem.Typeof(parent)
+	        ---@cast parentType Freemaker.ClassSystem.Type
+
+	        if options.IsAbstract and (not parentType.Options.IsAbstract and not parentType.Options.IsInterface) then
+	            error("cannot inherit from not abstract class: ".. tostring(parent) .." in abstract class: " .. options.Name)
+	        end
+
+	        if parentType.Options.IsInterface then
+	            interfaces[i] = ClassSystem.Typeof(parent)
+	        else
+	            if base ~= nil then
+	                error("cannot inherit from more than one (abstract) class: " .. tostring(parent) .. " in class: " .. options.Name)
+	            end
+
+	            base = parentType
+	        end
+	    end
+
+	    if not options.IsInterface and not base then
+	        base = ObjectType
+	    end
+
+	    return base, interfaces
 	end
 
-	---@generic TClass : object
+	---@generic TClass
 	---@param data TClass
-	---@param name string
-	---@param options Freemaker.ClassSystem.Create.Options?
+	---@param options Freemaker.ClassSystem.Create.Options
 	---@return TClass
-	function ClassSystem.Create(data, name, options)
+	function ClassSystem.Create(data, options)
 	    options = options or {}
-	    local baseClass = processOptions(options)
+	    local base, interfaces = processOptions(options)
 
-	    local typeInfo = TypeHandler.Create(name, baseClass, options)
+	    local typeInfo = TypeHandler.Create(base, interfaces, options)
 
-	    MembersHandler.Initialize(typeInfo)
 	    MembersHandler.Sort(data, typeInfo)
 	    MembersHandler.Check(typeInfo)
 
 	    Utils.Table.Clear(data)
 
-	    InstanceHandler.InitializeType(typeInfo)
-	    ConstructionHandler.Template(data, typeInfo)
+	    ConstructionHandler.CreateTemplate(data, typeInfo)
 
 	    return data
 	end
 
-	---@generic TClass : object
+	---@generic TClass
 	---@param class TClass
 	---@param extensions TClass
 	---@return TClass
@@ -1392,11 +1564,35 @@ __fileFuncs__["__main__"] = function()
 	    ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
 	end
 
-	ClassSystem.Typeof = ClassUtils.Class.Typeof
-	ClassSystem.Nameof = ClassUtils.Class.Nameof
-	ClassSystem.GetInstanceData = ClassUtils.Class.GetInstanceData
-	ClassSystem.IsClass = ClassUtils.Class.IsClass
-	ClassSystem.HasBase = ClassUtils.Class.HasBase
+	---@generic TClass : object
+	---@param name string
+	---@param table TClass
+	---@param options Freemaker.ClassSystem.Create.Options | nil
+	---@return TClass
+	function class(name, table, options)
+	    options = options or {}
+	    ---@cast options Freemaker.ClassSystem.Create.Options
+	    options.Name = name
+
+	    return ClassSystem.Create(table, options)
+	end
+
+	---@generic TClass
+	---@param name string
+	---@param table TClass
+	---@param options Freemaker.ClassSystem.Create.Options | nil
+	---@return TClass
+	function interface(name, table, options)
+	    options = options or {}
+	    ---@cast options Freemaker.ClassSystem.Create.Options
+	    options.Name = name
+	    options.IsInterface = true
+
+	    return ClassSystem.Create(table, options)
+	end
+
+	typeof = ClassSystem.Typeof
+	nameof = ClassSystem.Nameof
 
 	return ClassSystem
 
