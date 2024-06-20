@@ -3,22 +3,22 @@ local ClassSystem = require("ClassSystem")
 
 ---@class TestClass.MetaMethods : object
 ---@overload fun() : TestClass.MetaMethods
-local class = {}
+local testClass = {}
 
 ---@private
-function class:__gc()
+function testClass:__gc()
     print("garbage collection")
 end
 
 ---@private
-function class:__index(key)
+function testClass:__index(key)
     return key .. " some value"
 end
 
-ClassSystem.Create(class, "Class Name")
+class("Class Name", testClass)
 
 
-local instance = class()
+local instance = testClass()
 
 ---@diagnostic disable-next-line
 local val1 = instance.foo

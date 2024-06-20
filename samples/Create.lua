@@ -3,23 +3,24 @@ local ClassSystem = require("ClassSystem")
 
 ---@class TestClass.Create : object
 ---@overload fun() : TestClass.Create
-local class = {}
+local testClass = {}
 
 ---@private
-function class:__init()
+function testClass:__init()
     print("constructor")
 end
 
-function class:foo()
+function testClass:foo()
     print("foo")
 end
 
-class.fooValue = 100
+testClass.fooValue = 100
 
-ClassSystem.Create(class, "Class Name")
+class("Class Name", testClass)
+-- does the same class global function just makes it more pretty
+-- ClassSystem.Create(class, { Name = "Class Name" })
 
-
-local instance = class()
+local instance = testClass()
 -- Triggers class:__init with self being set with all members added.
 
 instance:foo()

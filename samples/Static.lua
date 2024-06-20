@@ -3,23 +3,23 @@ local ClassSystem = require("ClassSystem")
 
 ---@class TestClass.Raw : object
 ---@overload fun() : TestClass.Raw
-local class = {}
+local testClass = {}
 
-function class.Static__foo()
+function testClass.Static__foo()
     print("foo")
 end
 
-function class:foo()
+function testClass:foo()
     print("foo")
 end
 
-ClassSystem.Create(class, "Class Name")
+class("Class Name", testClass)
 
-local instance = class()
+local instance = testClass()
 
 -- class:foo()
 -- Will cause an error because class an template is and not an instance.
 
-class.Static__foo()
+testClass.Static__foo()
 instance.Static__foo()
 -- Will work since all static values and function are accessible from the template and an instance.

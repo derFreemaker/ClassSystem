@@ -3,9 +3,9 @@ local ClassSystem = require("ClassSystem")
 
 ---@class TestClass.Extensions : object
 ---@overload fun() : TestClass.Extensions
-local class = {}
-ClassSystem.Create(class, "Class Name")
-local instanceBeforeExtension = class()
+local testClass = {}
+class("Class Name", testClass)
+local instanceBeforeExtension = testClass()
 
 
 ---@class TestClass.Extensions
@@ -17,10 +17,10 @@ end
 
 classExtensions.fooVal = 100
 
-ClassSystem.Extend(class, classExtensions)
+ClassSystem.Extend(testClass, classExtensions)
 
 
-local instanceAfterExtension = class()
+local instanceAfterExtension = testClass()
 
 instanceAfterExtension:foo()
 instanceBeforeExtension:foo()

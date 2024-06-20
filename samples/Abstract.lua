@@ -12,7 +12,7 @@ abstract.foo = ClassSystem.IsAbstract
 ---@type integer
 abstract.fooValue = ClassSystem.IsAbstract
 
-ClassSystem.Create(abstract, { Name = "abstract", IsAbstract = true })
+class("abstract", abstract, { IsAbstract = true })
 -- If IsAbstract is not set in options, will throw an error since not abstract class has abstract members.
 
 local instance = abstract()
@@ -42,5 +42,6 @@ notAbstract.fooValue = 100
 -- Has to implement fooValue since its inherited this abstract member from TestClass.Abstract
 -- If not will throw an error at ClassSystem.Create
 
-ClassSystem.Create(notAbstract, { Name = "notAbstract", BaseClass = abstract })
+ClassSystem.Create(notAbstract, { Name = "notAbstract", Inherit = abstract })
+-- Inherit can have an table with multiple interfaces and one base class set in form of an array.
 -- If not all abstract members are implemented an error will occur.
