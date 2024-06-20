@@ -17,11 +17,11 @@ function Object.__concat(left, right)
     return tostring(left) .. tostring(right)
 end
 
----@class object.Modify
+---@class Freemaker.ClassSystem.Object.Modify
 ---@field CustomIndexing boolean | nil
 
 ---@protected
----@param func fun(modify: object.Modify)
+---@param func fun(modify: Freemaker.ClassSystem.Object.Modify)
 function Object:Raw__ModifyBehavior(func)
     ---@type Freemaker.ClassSystem.Metatable
     local metatable = getmetatable(self)
