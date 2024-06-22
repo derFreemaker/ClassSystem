@@ -5,6 +5,14 @@ local ClassSystem = require("ClassSystem")
 ---@overload fun() : TestClass.Create
 local testClass = {}
 
+-- pre constructor if returns value other than `nil` will skip class construction and return the result
+---@private
+---@return any
+function testClass:__preinit()
+    return nil
+end
+
+-- class constructor
 ---@private
 function testClass:__init()
     print("constructor")

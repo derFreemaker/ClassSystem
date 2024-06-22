@@ -22,6 +22,13 @@ local function construct(obj, ...)
         error("cannot construct interface class: " .. typeInfo.Name)
     end
 
+    if typeInfo.MetaMethods.__preinit then
+        local result = typeInfo.MetaMethods.__preinit()
+        if result ~= nil then
+            return result
+        end
+    end
+
     local classInstance, classMetatable = {}, {}
     ---@cast classInstance Freemaker.ClassSystem.Instance
     ---@cast classMetatable Freemaker.ClassSystem.Metatable
