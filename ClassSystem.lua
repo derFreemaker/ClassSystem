@@ -96,7 +96,7 @@ __fileFuncs__["src.Meta"] = function()
 	----------------------------------------------------------------
 
 	---@class Freemaker.ClassSystem.ObjectMetaMethods
-	---@field protected __preinit (fun() : any) | nil self(...) before contructor
+	---@field protected __preinit (fun(...) : any) | nil self(...) before contructor
 	---@field protected __init (fun(self: object, ...)) | nil self(...) constructor
 	---@field protected __call (fun(self: object, ...) : ...) | nil self(...) after construction
 	---@field protected __close (fun(self: object, errObj: any) : any) | nil invoked when the object gets out of scope
@@ -158,7 +158,7 @@ __fileFuncs__["src.Meta"] = function()
 	---@field __ipairs (fun(self: object) : ((fun(t: table, key: number) : key: number, value: any), t: table, startKey: number)) | nil ipairs(self)
 
 	---@class Freemaker.ClassSystem.TypeMetaMethods : Freemaker.ClassSystem.MetaMethods
-	---@field __preinit (fun() : any) | nil self(...) before constructor
+	---@field __preinit (fun(...) : any) | nil self(...) before constructor
 	---@field __init (fun(self: object, ...)) | nil self(...) constructor
 
 	----------------------------------------------------------------
@@ -1306,7 +1306,7 @@ __fileFuncs__["src.Construction"] = function()
 	    end
 
 	    if typeInfo.MetaMethods.__preinit then
-	        local result = typeInfo.MetaMethods.__preinit()
+	        local result = typeInfo.MetaMethods.__preinit(...)
 	        if result ~= nil then
 	            return result
 	        end

@@ -23,7 +23,7 @@ local function construct(obj, ...)
     end
 
     if typeInfo.MetaMethods.__preinit then
-        local result = typeInfo.MetaMethods.__preinit()
+        local result = typeInfo.MetaMethods.__preinit(...)
         if result ~= nil then
             return result
         end
