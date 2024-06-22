@@ -135,7 +135,7 @@ function class(name, table, options)
     return ClassSystem.Create(table, options)
 end
 
----@generic TClass
+---@generic TClass : interface
 ---@param name string
 ---@param table TClass
 ---@param options Freemaker.ClassSystem.Create.Options | nil

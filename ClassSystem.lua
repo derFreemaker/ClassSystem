@@ -127,6 +127,7 @@ __fileFuncs__["src.Meta"] = function()
 	---@field protected __newindex fun(class, key, value) | nil self.xxx = xxx | self[xxx] = xxx
 
 	---@class object : Freemaker.ClassSystem.ObjectMetaMethods, function
+	---@class interface : Freemaker.ClassSystem.ObjectMetaMethods
 
 	---@class Freemaker.ClassSystem.MetaMethods
 	---@field __gc fun(self: object) | nil Class.Deconstruct(self) or garbageCollection
@@ -1589,7 +1590,7 @@ __fileFuncs__["__main__"] = function()
 	    return ClassSystem.Create(table, options)
 	end
 
-	---@generic TClass
+	---@generic TClass : interface
 	---@param name string
 	---@param table TClass
 	---@param options Freemaker.ClassSystem.Create.Options | nil
