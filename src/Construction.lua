@@ -22,7 +22,7 @@ local function construct(obj, ...)
         error("cannot construct interface class: " .. typeInfo.Name)
     end
 
-    if typeInfo.MetaMethods.__preinit then
+    if typeInfo.HasPreConstructor then
         local result = typeInfo.MetaMethods.__preinit(...)
         if result ~= nil then
             return result

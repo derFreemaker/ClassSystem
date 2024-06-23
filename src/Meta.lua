@@ -86,6 +86,7 @@
 ---@field MetaMethods Freemaker.ClassSystem.TypeMetaMethods
 ---@field Members table<any, any>
 ---
+---@field HasPreConstructor boolean
 ---@field HasConstructor boolean
 ---@field HasDeconstructor boolean
 ---@field HasClose boolean
