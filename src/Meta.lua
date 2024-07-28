@@ -36,7 +36,6 @@
 ---@field protected __newindex fun(class, key, value) | nil self.xxx = xxx | self[xxx] = xxx
 
 ---@class object : Freemaker.ClassSystem.ObjectMetaMethods, function
----@class interface : Freemaker.ClassSystem.ObjectMetaMethods
 
 ---@class Freemaker.ClassSystem.MetaMethods
 ---@field __gc fun(self: object) | nil Class.Deconstruct(self) or garbageCollection

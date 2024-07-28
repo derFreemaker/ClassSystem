@@ -135,11 +135,11 @@ function class(name, table, options)
     return ClassSystem.Create(table, options)
 end
 
----@generic TClass : interface
+---@generic TInterface
 ---@param name string
----@param table TClass
+---@param table TInterface
 ---@param options Freemaker.ClassSystem.Create.Options | nil
----@return TClass
+---@return TInterface
 function interface(name, table, options)
     options = options or {}
     ---@cast options Freemaker.ClassSystem.Create.Options

@@ -1,7 +1,7 @@
 ---@type Freemaker.ClassSystem
 local ClassSystem = require("ClassSystem")
 
----@class TestClass.Interface : interface
+---@class TestClass.Interface
 local testInterface = {}
 
 function testInterface:foo()
@@ -13,7 +13,7 @@ testInterface.fooValue = ClassSystem.IsInterface
 
 interface("interface", testInterface)
 -- If IsInterface is not set in options, will throw an error since not interfaces has interface members.
--- Also as you might notice all classes have `object` as base class interfaces have `interface`.
+-- Also as you might notice all classes have `object` as base class interfaces don't.
 
 local instance = testInterface()
 -- Will throw an error since interfaces cannot be constructed

@@ -27,8 +27,9 @@ end
 testClass.fooValue = 100
 
 class("Class Name", testClass)
--- does the same class global function just makes it more pretty
+-- does the same as
 -- ClassSystem.Create(class, { Name = "Class Name" })
+-- just makes it prettier
 
 local instance = testClass()
 -- Triggers class:__init with self being set with all members added.
