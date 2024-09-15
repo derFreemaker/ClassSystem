@@ -5,7 +5,8 @@
 ----------------------------------------------------------------
 
 ---@class Freemaker.ClassSystem.ObjectMetaMethods
----@field protected __init (fun(self: object, ...)) | nil self(...) before construction
+---@field protected __preinit (fun(...) : any) | nil self(...) before contructor
+---@field protected __init (fun(self: object, ...)) | nil self(...) constructor
 ---@field protected __call (fun(self: object, ...) : ...) | nil self(...) after construction
 ---@field protected __close (fun(self: object, errObj: any) : any) | nil invoked when the object gets out of scope
 ---@field protected __gc fun(self: object) | nil Freemaker.ClassSystem.Deconstruct(self) or garbageCollection
@@ -66,7 +67,8 @@
 ---@field __ipairs (fun(self: object) : ((fun(t: table, key: number) : key: number, value: any), t: table, startKey: number)) | nil ipairs(self)
 
 ---@class Freemaker.ClassSystem.TypeMetaMethods : Freemaker.ClassSystem.MetaMethods
----@field __init (fun(self: object, ...)) | nil self(...) before construction
+---@field __preinit (fun(...) : any) | nil self(...) before constructor
+---@field __init (fun(self: object, ...)) | nil self(...) constructor
 
 ----------------------------------------------------------------
 -- Type
@@ -83,6 +85,7 @@
 ---@field MetaMethods Freemaker.ClassSystem.TypeMetaMethods
 ---@field Members table<any, any>
 ---
+---@field HasPreConstructor boolean
 ---@field HasConstructor boolean
 ---@field HasDeconstructor boolean
 ---@field HasClose boolean

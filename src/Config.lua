@@ -3,6 +3,8 @@ local Configs = {}
 
 --- All meta methods that should be added as meta method to the class.
 Configs.AllMetaMethods = {
+    --- Before Constructor
+    __preinit = true,
     --- Constructor
     __init = true,
     --- Garbage Collection
@@ -54,6 +56,7 @@ Configs.BlockMetaMethodsOnInstance = {
 
 --- Meta methods that should not be set to the classes metatable, but remain in the type.MetaMethods.
 Configs.IndirectMetaMethods = {
+    __preinit = true,
     __gc = true,
     __index = true,
     __newindex = true

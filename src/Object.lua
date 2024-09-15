@@ -49,6 +49,7 @@ local objectTypeInfo = {
     MetaMethods = {},
     Members = {},
 
+    HasPreConstructor = false,
     HasConstructor = false,
     HasDeconstructor = false,
     HasClose = false,
