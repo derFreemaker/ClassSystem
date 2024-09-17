@@ -224,7 +224,15 @@ __fileFuncs__["src.Meta"] = function()
 	---@class Freemaker.ClassSystem.Create.Options : Freemaker.ClassSystem.Type.Options
 	---@field Name string | nil
 	---
-	---@field Inherit table<object> | object | nil
+	---@field Inherit object[] | object | nil
+
+	---@class Freemaker.ClassSystem.Create.Options.Class.Nice
+	---@field IsAbstract boolean | nil
+	---
+	---@field Inherit any | any[]
+
+	---@class Freemaker.ClassSystem.Create.Options.Interface.Nice
+	---@field Inherit any | any[]
 
 end
 
@@ -882,9 +890,10 @@ __fileFuncs__["src.Members"] = function()
 	            error("can only use static members in template")
 	            return {}
 	        end
+	        ---@cast key string
 
-	        local splittedKey = Utils.String.Split(key, "__")
-	        if Utils.Table.Contains(splittedKey, "Static") then
+	        local splittedKey = Utils.String.Split(key:lower(), "__")
+	        if Utils.Table.Contains(splittedKey, "static") then
 	            return MembersHandler.GetStatic(typeInfo, key)
 	        end
 
@@ -900,9 +909,10 @@ __fileFuncs__["src.Members"] = function()
 	            error("can only use static members in template")
 	            return
 	        end
+	        ---@cast key string
 
-	        local splittedKey = Utils.String.Split(key, "__")
-	        if Utils.Table.Contains(splittedKey, "Static") then
+	        local splittedKey = Utils.String.Split(key:lower(), "__")
+	        if Utils.Table.Contains(splittedKey, "static") then
 	            MembersHandler.SetStatic(typeInfo, key, value)
 	            return
 	        end
@@ -917,10 +927,11 @@ __fileFuncs__["src.Members"] = function()
 	function MembersHandler.InstanceIndex(instance, typeInfo)
 	    return function(obj, key)
 	        if type(key) == "string" then
-	            local splittedKey = Utils.String.Split(key, "__")
-	            if Utils.Table.Contains(splittedKey, "Static") then
+	            ---@cast key string
+	            local splittedKey = Utils.String.Split(key:lower(), "__")
+	            if Utils.Table.Contains(splittedKey, "static") then
 	                return MembersHandler.GetStatic(typeInfo, key)
-	            elseif Utils.Table.Contains(splittedKey, "Raw") then
+	            elseif Utils.Table.Contains(splittedKey, "raw") then
 	                return rawget(obj, key)
 	            end
 	        end
@@ -939,10 +950,11 @@ __fileFuncs__["src.Members"] = function()
 	function MembersHandler.InstanceNewIndex(instance, typeInfo)
 	    return function(obj, key, value)
 	        if type(key) == "string" then
-	            local splittedKey = Utils.String.Split(key, "__")
-	            if Utils.Table.Contains(splittedKey, "Static") then
+	            ---@cast key string
+	            local splittedKey = Utils.String.Split(key:lower(), "__")
+	            if Utils.Table.Contains(splittedKey, "static") then
 	                return MembersHandler.SetStatic(typeInfo, key, value)
-	            elseif Utils.Table.Contains(splittedKey, "Raw") then
+	            elseif Utils.Table.Contains(splittedKey, "raw") then
 	                rawset(obj, key, value)
 	            end
 	        end
@@ -1495,7 +1507,7 @@ __fileFuncs__["__main__"] = function()
 
 	ClassSystem.Deconstructing = Configs.Deconstructing
 	ClassSystem.IsAbstract = Configs.AbstractPlaceholder
-	ClassSystem.IsInterface = Configs.InterfacePlaceholder --//TODO: how to find better name
+	ClassSystem.IsInterface = Configs.InterfacePlaceholder
 
 	ClassSystem.ObjectType = ObjectType
 
@@ -1603,28 +1615,35 @@ __fileFuncs__["__main__"] = function()
 	---@generic TClass : object
 	---@param name string
 	---@param table TClass
-	---@param options Freemaker.ClassSystem.Create.Options | nil
+	---@param options Freemaker.ClassSystem.Create.Options.Class.Nice | nil
 	---@return TClass
 	function class(name, table, options)
 	    options = options or {}
-	    ---@cast options Freemaker.ClassSystem.Create.Options
-	    options.Name = name
 
-	    return ClassSystem.Create(table, options)
+	    ---@type Freemaker.ClassSystem.Create.Options
+	    local createOptions = {}
+	    createOptions.Name = name
+	    createOptions.IsAbstract = options.IsAbstract
+	    createOptions.Inherit = options.Inherit
+
+	    return ClassSystem.Create(table, createOptions)
 	end
 
 	---@generic TInterface
 	---@param name string
 	---@param table TInterface
-	---@param options Freemaker.ClassSystem.Create.Options | nil
+	---@param options Freemaker.ClassSystem.Create.Options.Interface.Nice | nil
 	---@return TInterface
 	function interface(name, table, options)
 	    options = options or {}
-	    ---@cast options Freemaker.ClassSystem.Create.Options
-	    options.Name = name
-	    options.IsInterface = true
 
-	    return ClassSystem.Create(table, options)
+	    ---@type Freemaker.ClassSystem.Create.Options
+	    local createOptions = {}
+	    createOptions.Name = name
+	    createOptions.IsInterface = true
+	    createOptions.Inherit = options.Inherit
+
+	    return ClassSystem.Create(table, createOptions)
 	end
 
 	typeof = ClassSystem.Typeof

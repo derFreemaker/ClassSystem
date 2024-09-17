@@ -17,7 +17,7 @@ local ClassSystem = {}
 
 ClassSystem.Deconstructing = Configs.Deconstructing
 ClassSystem.IsAbstract = Configs.AbstractPlaceholder
-ClassSystem.IsInterface = Configs.InterfacePlaceholder --//TODO: how to find better name
+ClassSystem.IsInterface = Configs.InterfacePlaceholder
 
 ClassSystem.ObjectType = ObjectType
 
@@ -125,28 +125,35 @@ end
 ---@generic TClass : object
 ---@param name string
 ---@param table TClass
----@param options Freemaker.ClassSystem.Create.Options | nil
+---@param options Freemaker.ClassSystem.Create.Options.Class.Nice | nil
 ---@return TClass
 function class(name, table, options)
     options = options or {}
-    ---@cast options Freemaker.ClassSystem.Create.Options
-    options.Name = name
 
-    return ClassSystem.Create(table, options)
+    ---@type Freemaker.ClassSystem.Create.Options
+    local createOptions = {}
+    createOptions.Name = name
+    createOptions.IsAbstract = options.IsAbstract
+    createOptions.Inherit = options.Inherit
+
+    return ClassSystem.Create(table, createOptions)
 end
 
 ---@generic TInterface
 ---@param name string
 ---@param table TInterface
----@param options Freemaker.ClassSystem.Create.Options | nil
+---@param options Freemaker.ClassSystem.Create.Options.Interface.Nice | nil
 ---@return TInterface
 function interface(name, table, options)
     options = options or {}
-    ---@cast options Freemaker.ClassSystem.Create.Options
-    options.Name = name
-    options.IsInterface = true
 
-    return ClassSystem.Create(table, options)
+    ---@type Freemaker.ClassSystem.Create.Options
+    local createOptions = {}
+    createOptions.Name = name
+    createOptions.IsInterface = true
+    createOptions.Inherit = options.Inherit
+
+    return ClassSystem.Create(table, createOptions)
 end
 
 typeof = ClassSystem.Typeof

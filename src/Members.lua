@@ -60,9 +60,10 @@ function MembersHandler.TemplateIndex(typeInfo)
             error("can only use static members in template")
             return {}
         end
+        ---@cast key string
 
-        local splittedKey = Utils.String.Split(key, "__")
-        if Utils.Table.Contains(splittedKey, "Static") then
+        local splittedKey = Utils.String.Split(key:lower(), "__")
+        if Utils.Table.Contains(splittedKey, "static") then
             return MembersHandler.GetStatic(typeInfo, key)
         end
 
@@ -78,9 +79,10 @@ function MembersHandler.TemplateNewIndex(typeInfo)
             error("can only use static members in template")
             return
         end
+        ---@cast key string
 
-        local splittedKey = Utils.String.Split(key, "__")
-        if Utils.Table.Contains(splittedKey, "Static") then
+        local splittedKey = Utils.String.Split(key:lower(), "__")
+        if Utils.Table.Contains(splittedKey, "static") then
             MembersHandler.SetStatic(typeInfo, key, value)
             return
         end
@@ -95,10 +97,11 @@ end
 function MembersHandler.InstanceIndex(instance, typeInfo)
     return function(obj, key)
         if type(key) == "string" then
-            local splittedKey = Utils.String.Split(key, "__")
-            if Utils.Table.Contains(splittedKey, "Static") then
+            ---@cast key string
+            local splittedKey = Utils.String.Split(key:lower(), "__")
+            if Utils.Table.Contains(splittedKey, "static") then
                 return MembersHandler.GetStatic(typeInfo, key)
-            elseif Utils.Table.Contains(splittedKey, "Raw") then
+            elseif Utils.Table.Contains(splittedKey, "raw") then
                 return rawget(obj, key)
             end
         end
@@ -117,10 +120,11 @@ end
 function MembersHandler.InstanceNewIndex(instance, typeInfo)
     return function(obj, key, value)
         if type(key) == "string" then
-            local splittedKey = Utils.String.Split(key, "__")
-            if Utils.Table.Contains(splittedKey, "Static") then
+            ---@cast key string
+            local splittedKey = Utils.String.Split(key:lower(), "__")
+            if Utils.Table.Contains(splittedKey, "static") then
                 return MembersHandler.SetStatic(typeInfo, key, value)
-            elseif Utils.Table.Contains(splittedKey, "Raw") then
+            elseif Utils.Table.Contains(splittedKey, "raw") then
                 rawset(obj, key, value)
             end
         end

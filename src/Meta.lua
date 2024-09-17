@@ -133,4 +133,12 @@
 ---@class Freemaker.ClassSystem.Create.Options : Freemaker.ClassSystem.Type.Options
 ---@field Name string | nil
 ---
----@field Inherit table<object> | object | nil
+---@field Inherit object[] | object | nil
+
+---@class Freemaker.ClassSystem.Create.Options.Class.Nice
+---@field IsAbstract boolean | nil
+---
+---@field Inherit any | any[]
+
+---@class Freemaker.ClassSystem.Create.Options.Interface.Nice
+---@field Inherit any | any[]
