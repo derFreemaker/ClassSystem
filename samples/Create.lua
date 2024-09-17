@@ -6,7 +6,7 @@ local ClassSystem = require("ClassSystem")
 local testClass = {}
 
 -- pre constructor if returns value other than `nil` will skip class construction and return the result
--- recieves the same arguments like __init
+-- recieves the same arguments like `class:__init`
 -- useful for caching instances
 ---@private
 ---@return any
