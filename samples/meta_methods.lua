@@ -1,30 +1,30 @@
----@type Freemaker.ClassSystem
-local ClassSystem = require("ClassSystem")
+---@type class-system
+local class_system = require("class_system")
 
----@class TestClass.MetaMethods : object
----@overload fun() : TestClass.MetaMethods
-local testClass = {}
+---@class test-class.meta_methods : object
+---@overload fun() : test-class.meta_methods
+local test_class = {}
 
 ---@private
-function testClass:__gc()
+function test_class:__gc()
     print("garbage collection")
 end
 
 ---@private
-function testClass:__index(key)
+function test_class:__index(key)
     return key .. " some value"
 end
 
-class("Class Name", testClass)
+class("test-class", test_class)
 
 
-local instance = testClass()
+local instance = test_class()
 
 ---@diagnostic disable-next-line
 local val1 = instance.foo
 -- Invokes class:__index with key "foo".
 
-ClassSystem.Deconstruct(instance)
+class_system.deconstruct(instance)
 -- Triggers class:__gc.
 -- And removes it after as well cleaning the table rendering the table useless.
 

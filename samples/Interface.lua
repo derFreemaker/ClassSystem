@@ -1,49 +1,49 @@
----@type Freemaker.ClassSystem
+---@type class-system
 local ClassSystem = require("ClassSystem")
 
----@class TestClass.Interface
-local testInterface = {}
+---@class test-class.interface
+local test_interface = {}
 
-function testInterface:foo()
+function test_interface:foo()
 end
-testInterface.foo = ClassSystem.IsInterface
+test_interface.foo = ClassSystem.is_interface
 
 ---@type integer
-testInterface.fooValue = ClassSystem.IsInterface
+test_interface.foo_value = ClassSystem.is_interface
 
-interface("interface", testInterface)
+interface("interface", test_interface)
 -- If IsInterface is not set in options, will throw an error since not interfaces has interface members.
 -- Also as you might notice all classes have `object` as base class interfaces don't.
 
-local instance = testInterface()
+local instance = test_interface()
 -- Will throw an error since interfaces cannot be constructed
 
 ----------------------------------------------------------------
 -- using interface class as base class
 ----------------------------------------------------------------
 
--- have to inherit `object` as well since TestClass.Interface is only a interface
+-- have to inherit `object` as well since test-class.interface is only a interface
 
----@class TestClass.NotInterface : object, TestClass.Interface
----@overload fun() : TestClass.NotInterface
-local notInterface = {}
+---@class test-class : object, test-class.interface
+---@overload fun() : test-class
+local test_class = {}
 
 ---@private
-function notInterface:__init()
+function test_class:__init()
     print("constructor")
 end
 
-function notInterface:foo()
+function test_class:foo()
     print("foo")
 end
 
--- Has to implement foo since its inherited this interface member from TestClass.Interface
--- If not will throw an error at ClassSystem.Create
+-- Has to implement foo since its inherited this interface member
+-- If not will throw an error at class_system.create
 
-notInterface.fooValue = 100
--- Has to implement fooValue since its inherited this interface member from TestClass.Interface
--- If not will throw an error at ClassSystem.Create
+test_class.foo_value = 100
+-- Has to implement fooValue since its inherited this interface member
+-- If not will throw an error at class_system.create
 
-class("notInterface", notInterface, { Inherit = testInterface })
+class("test-class", test_class, { inherit = test_interface })
 -- Inherit can have an table with multiple interfaces and one base class set in form of an array.
 -- If not all interface members are implemented an error will occur.

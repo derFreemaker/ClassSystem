@@ -1,16 +1,16 @@
 local luaunit = require("tests.Luaunit")
-local Functions = require("tests.functions")
-local ClassSystem = require("src.init")
+local functions = require("tests.functions")
+local class_system = require("src.init")
 
-function TestCreateClassBenchmark()
-    local testClass = {}
-    ClassSystem.Create(testClass, { Name = "testClass" })
+function TestBenchmarkCreateClass()
+    local test_class = {}
+    class_system.create(test_class, { name = "test-class" })
 
-    local function createClass()
-        local instance = testClass()
+    local function create_class()
+        local instance = test_class()
     end
 
-    Functions.benchmarkFunction(createClass, 100000)
+    functions.benchmark_function(create_class, 100000)
 end
 
 os.exit(luaunit.LuaUnit.run())

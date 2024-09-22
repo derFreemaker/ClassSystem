@@ -1,57 +1,59 @@
 local luaunit = require("tests.Luaunit")
 
-local ClassSystem = require("src.init")
+local class_system = require("src.init")
 
 function TestCreateClass()
-    local test = ClassSystem.Create({}, { Name = "CreateEmpty" })
+    local test = class_system.create({}, { name = "create-empty" })
 
     luaunit.assertNotIsNil(test)
 end
 
 function TestCreateClassWithBaseClass()
-    local testBaseClass = ClassSystem.Create({}, { Name = "EmptyBaseClass" })
-    local test = ClassSystem.Create({}, { Name = "CreateEmptyWithBaseClass", BaseClass = testBaseClass })
+    local test_base_class = class_system.create({}, { name = "test-base-class" })
+    local test = class_system.create({}, { name = "create_emtpy_test-class", BaseClass = test_base_class })
 
     luaunit.assertNotIsNil(test)
 end
 
 function TestConstructClass()
-    local test = ClassSystem.Create({}, { Name = "CreateEmpty" })
+    local test = class_system.create({}, { name = "test-class" })
 
     luaunit.assertNotIsNil(test())
 end
 
 function TestExtendClass()
-    local test = ClassSystem.Create({}, { Name = "CreateEmpty" })
-    local testClassInstance = test()
+    local test = class_system.create({}, { name = "test-class" })
+    local test_class_instance = test()
 
-    local testBaseClass = ClassSystem.Create({}, { Name = "CreateEmptyWithBaseClass", Inherit = test })
-    local testBaseClassInstance = testBaseClass()
+    local test_base_class = class_system.create({}, { name = "test-base-class", inherit = test })
+    local test_base_class_instance = test_base_class()
 
-    local extended = ClassSystem.Extend(test, { Test = "hi" })
+    local extended = class_system.extend(test, { test = "hi" })
 
-    local extendedTestClassInstance = test()
-    local extendedTestBaseClass = testBaseClass()
-    local extendedClassInstance = extended()
+    local extended_test_class_instance = test()
+    local extended_test_base_class_instance = test_base_class()
+    local extended_class_instance = extended()
 
-    luaunit.assertEquals(testClassInstance.Test, "hi")
-    luaunit.assertEquals(testBaseClassInstance.Test, "hi")
-    luaunit.assertEquals(extendedTestClassInstance.Test, "hi")
-    luaunit.assertEquals(extendedTestBaseClass.Test, "hi")
-    luaunit.assertEquals(extendedClassInstance.Test, "hi")
+    luaunit.assertEquals(test_class_instance.test, "hi")
+    luaunit.assertEquals(test_base_class_instance.test, "hi")
+    luaunit.assertEquals(extended_test_class_instance.test, "hi")
+    luaunit.assertEquals(extended_test_base_class_instance.test, "hi")
+    luaunit.assertEquals(extended_class_instance.test, "hi")
 end
 
 function TestDeconstructClass()
-    local testClass = ClassSystem.Create({}, { Name = "CreateEmpty" })
-    local test = testClass()
-    local function throwErrorBecauseOfDeconstructedClass()
+    local class_name = "test-class"
+
+    local test_class = class_system.create({}, { name = class_name })
+    local test = test_class()
+    local function error_because_of_deconstructed_class()
         _ = test.hi
     end
 
-    ClassSystem.Deconstruct(test)
+    class_system.deconstruct(test)
 
-    luaunit.assertErrorMsgContains("cannot get values from deconstruct class: CreateEmpty",
-        throwErrorBecauseOfDeconstructedClass)
+    luaunit.assertErrorMsgContains("cannot get values from deconstruct class: " .. class_name,
+        error_because_of_deconstructed_class)
 end
 
 os.exit(luaunit.LuaUnit.run())

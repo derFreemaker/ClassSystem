@@ -1,68 +1,68 @@
-local Utils = require("tools.Freemaker.bin.utils")
+local utils = require("tools.Freemaker.bin.utils")
 
----@class Freemaker.ClassSystem.InstanceHandler
-local InstanceHandler = {}
+---@class class-system.instance_handler
+local instance_handler = {}
 
----@param instance Freemaker.ClassSystem.Instance
-function InstanceHandler.Initialize(instance)
-    instance.CustomIndexing = true
-    instance.IsConstructed = false
+---@param instance class-system.instance
+function instance_handler.initialize(instance)
+    instance.custom_indexing = true
+    instance.is_constructed = false
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param instance object
-function InstanceHandler.Add(typeInfo, instance)
-    typeInfo.Instances[instance] = true
+function instance_handler.add(type_info, instance)
+    type_info.instances[instance] = true
 
-    if typeInfo.Base then
-        InstanceHandler.Add(typeInfo.Base, instance)
+    if type_info.base then
+        instance_handler.add(type_info.base, instance)
     end
 
-    for _, parent in pairs(typeInfo.Interfaces) do
-        InstanceHandler.Add(parent, instance)
+    for _, parent in pairs(type_info.interfaces) do
+        instance_handler.add(parent, instance)
     end
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param instance object
-function InstanceHandler.Remove(typeInfo, instance)
-    typeInfo.Instances[instance] = nil
+function instance_handler.remove(type_info, instance)
+    type_info.instances[instance] = nil
 
-    if typeInfo.Base then
-        InstanceHandler.Remove(typeInfo.Base, instance)
+    if type_info.base then
+        instance_handler.remove(type_info.base, instance)
     end
 
-    for _, parent in pairs(typeInfo.Interfaces) do
-        InstanceHandler.Remove(parent, instance)
+    for _, parent in pairs(type_info.interfaces) do
+        instance_handler.remove(parent, instance)
     end
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param name string
 ---@param func function
-function InstanceHandler.UpdateMetaMethod(typeInfo, name, func)
-    typeInfo.MetaMethods[name] = func
+function instance_handler.update_meta_method(type_info, name, func)
+    type_info.meta_methods[name] = func
 
-    for instance in pairs(typeInfo.Instances) do
+    for instance in pairs(type_info.instances) do
         local instanceMetatable = getmetatable(instance)
 
-        if not Utils.Table.ContainsKey(instanceMetatable, name) then
+        if not utils.table.contains_key(instanceMetatable, name) then
             instanceMetatable[name] = func
         end
     end
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param key any
 ---@param value any
-function InstanceHandler.UpdateMember(typeInfo, key, value)
-    typeInfo.Members[key] = value
+function instance_handler.update_member(type_info, key, value)
+    type_info.members[key] = value
 
-    for instance in pairs(typeInfo.Instances) do
-        if not Utils.Table.ContainsKey(instance, key) then
+    for instance in pairs(type_info.instances) do
+        if not utils.table.contains_key(instance, key) then
             rawset(instance, key, value)
         end
     end
 end
 
-return InstanceHandler
+return instance_handler

@@ -1,22 +1,22 @@
-local Utils = require("tools.Freemaker.bin.utils")
+local utils = require("tools.Freemaker.bin.utils")
 
-local Config = require("src.Config")
+local config = require("src.config")
 
-local MembersHandler = require("src.Members")
+local members_handler = require("src.members")
 
----@class Freemaker.ClassSystem.MetatableHandler
-local MetatableHandler = {}
+---@class class-system.metatable_handler
+local metatable_handler = {}
 
----@param typeInfo Freemaker.ClassSystem.Type
----@return Freemaker.ClassSystem.BlueprintMetatable metatable
-function MetatableHandler.CreateTemplateMetatable(typeInfo)
-    ---@type Freemaker.ClassSystem.BlueprintMetatable
-    local metatable = { Type = typeInfo }
+---@param type_info class-system.type
+---@return class-system.blueprint-metatable metatable
+function metatable_handler.create_template_metatable(type_info)
+    ---@type class-system.blueprint-metatable
+    local metatable = { type = type_info }
 
-    metatable.__index = MembersHandler.TemplateIndex(typeInfo)
-    metatable.__newindex = MembersHandler.TemplateNewIndex(typeInfo)
+    metatable.__index = members_handler.template_index(type_info)
+    metatable.__newindex = members_handler.template_new_index(type_info)
 
-    for key in pairs(Config.BlockMetaMethodsOnBlueprint) do
+    for key in pairs(config.block_meta_methods_on_blueprint) do
         local function blockMetaMethod()
             error("cannot use meta method: " .. key .. " on a template from a class")
         end
@@ -25,29 +25,29 @@ function MetatableHandler.CreateTemplateMetatable(typeInfo)
     end
 
     metatable.__tostring = function()
-        return typeInfo.Name .. ".__Blueprint__"
+        return type_info.name .. ".__blueprint__"
     end
 
     return metatable
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
----@param instance Freemaker.ClassSystem.Instance
----@param metatable Freemaker.ClassSystem.Metatable
-function MetatableHandler.Create(typeInfo, instance, metatable)
-    metatable.Type = typeInfo
+---@param type_info class-system.type
+---@param instance class-system.instance
+---@param metatable class-system.metatable
+function metatable_handler.create(type_info, instance, metatable)
+    metatable.type = type_info
 
-    metatable.__index = MembersHandler.InstanceIndex(instance, typeInfo)
-    metatable.__newindex = MembersHandler.InstanceNewIndex(instance, typeInfo)
+    metatable.__index = members_handler.instance_index(instance, type_info)
+    metatable.__newindex = members_handler.instance_new_index(instance, type_info)
 
-    for key, _ in pairs(Config.BlockMetaMethodsOnInstance) do
-        if not Utils.Table.ContainsKey(typeInfo.MetaMethods, key) then
+    for key, _ in pairs(config.block_meta_methods_on_instance) do
+        if not utils.table.contains_key(type_info.meta_methods, key) then
             local function blockMetaMethod()
-                error("cannot use meta method: " .. key .. " on class: " .. typeInfo.Name)
+                error("cannot use meta method: " .. key .. " on class: " .. type_info.name)
             end
             metatable[key] = blockMetaMethod
         end
     end
 end
 
-return MetatableHandler
+return metatable_handler

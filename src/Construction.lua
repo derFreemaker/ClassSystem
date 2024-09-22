@@ -1,167 +1,167 @@
-local Utils = require("tools.Freemaker.bin.utils")
+local utils = require("tools.Freemaker.bin.utils")
 
-local Config = require("src.Config")
+local config = require("src.config")
 
-local InstanceHandler = require("src.Instance")
-local MetatableHandler = require("src.Metatable")
+local instance_handler = require("src.instance")
+local metatable_handler = require("src.metatable")
 
----@class Freemaker.ClassSystem.ConstructionHandler
-local ConstructionHandler = {}
+---@class class-system.construction_handler
+local construction_handler = {}
 
 ---@param obj object
----@return Freemaker.ClassSystem.Instance instance
+---@return class-system.instance instance
 local function construct(obj, ...)
-    ---@type Freemaker.ClassSystem.Metatable
+    ---@type class-system.metatable
     local metatable = getmetatable(obj)
-    local typeInfo = metatable.Type
+    local type_info = metatable.type
 
-    if typeInfo.Options.IsAbstract then
-        error("cannot construct abstract class: " .. typeInfo.Name)
+    if type_info.options.is_abstract then
+        error("cannot construct abstract class: " .. type_info.name)
     end
-    if typeInfo.Options.IsInterface then
-        error("cannot construct interface class: " .. typeInfo.Name)
+    if type_info.options.is_interface then
+        error("cannot construct interface class: " .. type_info.name)
     end
 
-    if typeInfo.HasPreConstructor then
-        local result = typeInfo.MetaMethods.__preinit(...)
+    if type_info.has_pre_constructor then
+        local result = type_info.meta_methods.__preinit(...)
         if result ~= nil then
             return result
         end
     end
 
-    local classInstance, classMetatable = {}, {}
-    ---@cast classInstance Freemaker.ClassSystem.Instance
-    ---@cast classMetatable Freemaker.ClassSystem.Metatable
-    classMetatable.Instance = classInstance
-    local instance = setmetatable({}, classMetatable)
+    local class_instance, class_metatable = {}, {}
+    ---@cast class_instance class-system.instance
+    ---@cast class_metatable class-system.metatable
+    class_metatable.instance = class_instance
+    local instance = setmetatable({}, class_metatable)
 
-    InstanceHandler.Initialize(classInstance)
-    MetatableHandler.Create(typeInfo, classInstance, classMetatable)
-    ConstructionHandler.Construct(typeInfo, instance, classInstance, classMetatable, ...)
+    instance_handler.initialize(class_instance)
+    metatable_handler.create(type_info, class_instance, class_metatable)
+    construction_handler.construct(type_info, instance, class_instance, class_metatable, ...)
 
-    InstanceHandler.Add(typeInfo, instance)
+    instance_handler.add(type_info, instance)
 
     return instance
 end
 
 ---@param data table
----@param typeInfo Freemaker.ClassSystem.Type
-function ConstructionHandler.CreateTemplate(data, typeInfo)
-    local metatable = MetatableHandler.CreateTemplateMetatable(typeInfo)
+---@param type_info class-system.type
+function construction_handler.create_template(data, type_info)
+    local metatable = metatable_handler.create_template_metatable(type_info)
     metatable.__call = construct
 
     setmetatable(data, metatable)
 
-    if not typeInfo.Options.IsAbstract and not typeInfo.Options.IsInterface then
-        typeInfo.Blueprint = data
+    if not type_info.options.is_abstract and not type_info.options.is_interface then
+        type_info.blueprint = data
     end
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param class table
-local function invokeDeconstructor(typeInfo, class)
-    if typeInfo.HasClose then
-        typeInfo.MetaMethods.__close(class, Config.Deconstructing)
+local function invoke_deconstructor(type_info, class)
+    if type_info.has_close then
+        type_info.meta_methods.__close(class, config.deconstructing)
     end
-    if typeInfo.HasDeconstructor then
-        typeInfo.MetaMethods.__gc(class)
+    if type_info.has_deconstructor then
+        type_info.meta_methods.__gc(class)
 
-        if typeInfo.Base then
-            invokeDeconstructor(typeInfo.Base, class)
+        if type_info.base then
+            invoke_deconstructor(type_info.base, class)
         end
     end
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param obj object
----@param instance Freemaker.ClassSystem.Instance
----@param metatable Freemaker.ClassSystem.Metatable
+---@param instance class-system.instance
+---@param metatable class-system.metatable
 ---@param ... any
-function ConstructionHandler.Construct(typeInfo, obj, instance, metatable, ...)
+function construction_handler.construct(type_info, obj, instance, metatable, ...)
     ---@type function
     local super = nil
 
     local function constructMembers()
-        for key, value in pairs(typeInfo.MetaMethods) do
-            if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and not Utils.Table.ContainsKey(metatable, key) then
+        for key, value in pairs(type_info.meta_methods) do
+            if not utils.table.contains_key(config.indirect_meta_methods, key) and not utils.table.contains_key(metatable, key) then
                 metatable[key] = value
             end
         end
 
-        for key, value in pairs(typeInfo.Members) do
+        for key, value in pairs(type_info.members) do
             if obj[key] == nil then
-                rawset(obj, key, Utils.Value.Copy(value))
+                rawset(obj, key, utils.value.copy(value))
             end
         end
 
-        for _, interface in pairs(typeInfo.Interfaces) do
-            for key, value in pairs(interface.MetaMethods) do
-                if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and not Utils.Table.ContainsKey(metatable, key) then
+        for _, interface in pairs(type_info.interfaces) do
+            for key, value in pairs(interface.meta_methods) do
+                if not utils.table.contains_key(config.indirect_meta_methods, key) and not utils.table.contains_key(metatable, key) then
                     metatable[key] = value
                 end
             end
 
-            for key, value in pairs(interface.Members) do
-                if not Utils.Table.ContainsKey(obj, key) then
+            for key, value in pairs(interface.members) do
+                if not utils.table.contains_key(obj, key) then
                     obj[key] = value
                 end
             end
         end
 
         metatable.__gc = function(class)
-            invokeDeconstructor(typeInfo, class)
+            invoke_deconstructor(type_info, class)
         end
 
         setmetatable(obj, metatable)
     end
 
-    if typeInfo.Base then
-        if typeInfo.Base.HasConstructor then
+    if type_info.base then
+        if type_info.base.has_constructor then
             function super(...)
                 constructMembers()
-                ConstructionHandler.Construct(typeInfo.Base, obj, instance, metatable, ...)
+                construction_handler.construct(type_info.base, obj, instance, metatable, ...)
                 return obj
             end
         else
             constructMembers()
-            ConstructionHandler.Construct(typeInfo.Base, obj, instance, metatable)
+            construction_handler.construct(type_info.base, obj, instance, metatable)
         end
     else
         constructMembers()
     end
 
-    if typeInfo.HasConstructor then
+    if type_info.has_constructor then
         if super then
-            typeInfo.MetaMethods.__init(obj, super, ...)
+            type_info.meta_methods.__init(obj, super, ...)
         else
-            typeInfo.MetaMethods.__init(obj, ...)
+            type_info.meta_methods.__init(obj, ...)
         end
     end
 
-    instance.IsConstructed = true
+    instance.is_constructed = true
 end
 
 ---@param obj object
----@param metatable Freemaker.ClassSystem.Metatable
----@param typeInfo Freemaker.ClassSystem.Type
-function ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
-    InstanceHandler.Remove(typeInfo, obj)
-    invokeDeconstructor(typeInfo, obj)
+---@param metatable class-system.metatable
+---@param type_info class-system.type
+function construction_handler.deconstruct(obj, metatable, type_info)
+    instance_handler.remove(type_info, obj)
+    invoke_deconstructor(type_info, obj)
 
-    Utils.Table.Clear(obj)
-    Utils.Table.Clear(metatable)
+    utils.table.clear(obj)
+    utils.table.clear(metatable)
 
     local function blockedNewIndex()
-        error("cannot assign values to deconstruct class: " .. typeInfo.Name, 2)
+        error("cannot assign values to deconstruct class: " .. type_info.name, 2)
     end
     metatable.__newindex = blockedNewIndex
 
     local function blockedIndex()
-        error("cannot get values from deconstruct class: " .. typeInfo.Name, 2)
+        error("cannot get values from deconstruct class: " .. type_info.name, 2)
     end
     metatable.__index = blockedIndex
 
     setmetatable(obj, metatable)
 end
 
-return ConstructionHandler
+return construction_handler

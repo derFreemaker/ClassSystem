@@ -1,38 +1,38 @@
----@type Freemaker.ClassSystem
-local ClassSystem = require("ClassSystem")
+---@type class-system
+local class_system = require("class_system")
 
----@class TestClass.Raw : object
----@overload fun() : TestClass.Raw
-local testClass = {}
+---@class test-class.raw : object
+---@overload fun() : test-class.raw
+local test_class = {}
 
-function testClass.raw__foo()
+function test_class.raw__foo()
     print("foo")
 end
 
-function testClass:foo()
+function test_class:foo()
     print("foo")
 end
 
 -- blocks every assignment to this class / object
-function testClass:__newindex(key, value)
+function test_class:__newindex(key, value)
     error("can not set value: " .. key)
 end
 
-function testClass:disable_custom_indexing()
-    self:Raw__ModifyBehavior(function (modify)
-        modify.CustomIndexing = false
+function test_class:disable_custom_indexing()
+    self:raw__modify_behavior(function (modify)
+        modify.custom_indexing = false
     end)
 end
 
-function testClass:enable_custom_indexing()
-    self:Raw__ModifyBehavior(function (modify)
-        modify.CustomIndexing = true
+function test_class:enable_custom_indexing()
+    self:raw__modify_behavior(function (modify)
+        modify.custom_indexing = true
     end)
 end
 
-class("Class Name", testClass)
+class("test-class", test_class)
 
-local instance = testClass()
+local instance = test_class()
 
 ---@diagnostic disable-next-line: duplicate-set-field
 instance.raw__foo = function() end
