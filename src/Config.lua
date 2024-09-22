@@ -1,8 +1,8 @@
----@class Freemaker.ClassSystem.Configs
-local Configs = {}
+---@class class-system.configs
+local configs = {}
 
 --- All meta methods that should be added as meta method to the class.
-Configs.AllMetaMethods = {
+configs.all_meta_methods = {
     --- Before Constructor
     __preinit = true,
     --- Constructor
@@ -43,19 +43,19 @@ Configs.AllMetaMethods = {
 }
 
 --- Blocks meta methods on the blueprint of an class.
-Configs.BlockMetaMethodsOnBlueprint = {
+configs.block_meta_methods_on_blueprint = {
     __pairs = true,
     __ipairs = true
 }
 
 --- Blocks meta methods if not set by the class.
-Configs.BlockMetaMethodsOnInstance = {
+configs.block_meta_methods_on_instance = {
     __pairs = true,
     __ipairs = true
 }
 
 --- Meta methods that should not be set to the classes metatable, but remain in the type.MetaMethods.
-Configs.IndirectMetaMethods = {
+configs.indirect_meta_methods = {
     __preinit = true,
     __gc = true,
     __index = true,
@@ -63,14 +63,14 @@ Configs.IndirectMetaMethods = {
 }
 
 -- Indicates that the __close method is called from the ClassSystem.Deconstruct method.
-Configs.Deconstructing = {}
+configs.deconstructing = {}
 
 -- Placeholder is used to indicate that this member should be set by super class of the abstract class
 ---@type any
-Configs.AbstractPlaceholder = {}
+configs.abstract_placeholder = {}
 
 -- Placeholder is used to indicate that this member should be set by super class of the interface
 ---@type any
-Configs.InterfacePlaceholder = {}
+configs.interface_placeholder = {}
 
-return Configs
+return configs

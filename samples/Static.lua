@@ -1,25 +1,26 @@
----@type Freemaker.ClassSystem
-local ClassSystem = require("ClassSystem")
+---@type class-system
+local class_system = require("class_system")
 
----@class TestClass.Raw : object
----@overload fun() : TestClass.Raw
-local testClass = {}
+---@class test-class.static : object
+---@overload fun() : test-class.static
+local test_class = {}
 
-function testClass.Static__foo()
+function test_class.static__foo()
     print("foo")
 end
 
-function testClass:foo()
+function test_class:foo()
     print("foo")
 end
 
-class("Class Name", testClass)
+class("test-class", test_class)
 
-local instance = testClass()
+local instance = test_class()
 
 -- class:foo()
 -- Will cause an error because class an template is and not an instance.
 
-testClass.Static__foo()
-instance.Static__foo()
+test_class.static__foo()
+instance.static__foo()
 -- Will work since all static values and function are accessible from the template and an instance.
+-- It will split the name with '__' and search for "static" the name gets lowered so every version of "static" is valid

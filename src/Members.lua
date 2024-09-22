@@ -1,50 +1,52 @@
-local Utils = require("tools.Freemaker.bin.utils")
+local utils = require("tools.Freemaker.bin.utils")
 
-local Config = require("src.Config")
+local config = require("src.config")
 
-local InstanceHandler = require("src.Instance")
+local instance_handler = require("src.instance")
 
----@class Freemaker.ClassSystem.MembersHandler
-local MembersHandler = {}
+---@class class-system.members_handler
+local members_handler = {}
 
----@param typeInfo Freemaker.ClassSystem.Type
-function MembersHandler.UpdateState(typeInfo)
-    local metaMethods = typeInfo.MetaMethods
+---@param type_info class-system.type
+function members_handler.update_state(type_info)
+    local metaMethods = type_info.meta_methods
 
-    typeInfo.HasConstructor = metaMethods.__init ~= nil
-    typeInfo.HasDeconstructor = metaMethods.__gc ~= nil
-    typeInfo.HasClose = metaMethods.__close ~= nil
-    typeInfo.HasIndex = metaMethods.__index ~= nil
-    typeInfo.HasNewIndex = metaMethods.__newindex ~= nil
+    type_info.has_constructor = metaMethods.__init ~= nil
+    type_info.has_deconstructor = metaMethods.__gc ~= nil
+    type_info.has_close = metaMethods.__close ~= nil
+    type_info.has_index = metaMethods.__index ~= nil
+    type_info.has_new_index = metaMethods.__newindex ~= nil
 end
 
-function MembersHandler.GetStatic(typeInfo, key)
-    return rawget(typeInfo.Static, key)
+---@param type_info class-system.type
+---@param key string
+function members_handler.get_static(type_info, key)
+    return rawget(type_info.static, key)
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param key string
 ---@param value any
 ---@return boolean wasFound
-local function assignStatic(typeInfo, key, value)
-    if rawget(typeInfo.Static, key) ~= nil then
-        rawset(typeInfo.Static, key, value)
+local function assign_static(type_info, key, value)
+    if rawget(type_info.static, key) ~= nil then
+        rawset(type_info.static, key, value)
         return true
     end
 
-    if typeInfo.Base then
-        return assignStatic(typeInfo.Base, key, value)
+    if type_info.base then
+        return assign_static(type_info.base, key, value)
     end
 
     return false
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param key string
 ---@param value any
-function MembersHandler.SetStatic(typeInfo, key, value)
-    if not assignStatic(typeInfo, key, value) then
-        rawset(typeInfo.Static, key, value)
+function members_handler.set_static(type_info, key, value)
+    if not assign_static(type_info, key, value) then
+        rawset(type_info.static, key, value)
     end
 end
 
@@ -52,36 +54,38 @@ end
 -- Index & NewIndex
 -------------------------------------------------------------------------------
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@return fun(obj: object, key: any) : any value
-function MembersHandler.TemplateIndex(typeInfo)
+function members_handler.template_index(type_info)
     return function(obj, key)
         if type(key) ~= "string" then
             error("can only use static members in template")
             return {}
         end
+        ---@cast key string
 
-        local splittedKey = Utils.String.Split(key, "__")
-        if Utils.Table.Contains(splittedKey, "Static") then
-            return MembersHandler.GetStatic(typeInfo, key)
+        local splittedKey = utils.string.split(key:lower(), "__")
+        if utils.table.contains(splittedKey, "static") then
+            return members_handler.get_static(type_info, key)
         end
 
         error("can only use static members in template")
     end
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@return fun(obj: object, key: any, value: any)
-function MembersHandler.TemplateNewIndex(typeInfo)
+function members_handler.template_new_index(type_info)
     return function(obj, key, value)
         if type(key) ~= "string" then
             error("can only use static members in template")
             return
         end
+        ---@cast key string
 
-        local splittedKey = Utils.String.Split(key, "__")
-        if Utils.Table.Contains(splittedKey, "Static") then
-            MembersHandler.SetStatic(typeInfo, key, value)
+        local splittedKey = utils.string.split(key:lower(), "__")
+        if utils.table.contains(splittedKey, "static") then
+            members_handler.set_static(type_info, key, value)
             return
         end
 
@@ -89,44 +93,46 @@ function MembersHandler.TemplateNewIndex(typeInfo)
     end
 end
 
----@param instance Freemaker.ClassSystem.Instance
----@param typeInfo Freemaker.ClassSystem.Type
+---@param instance class-system.instance
+---@param type_info class-system.type
 ---@return fun(obj: object, key: any) : any value
-function MembersHandler.InstanceIndex(instance, typeInfo)
+function members_handler.instance_index(instance, type_info)
     return function(obj, key)
         if type(key) == "string" then
-            local splittedKey = Utils.String.Split(key, "__")
-            if Utils.Table.Contains(splittedKey, "Static") then
-                return MembersHandler.GetStatic(typeInfo, key)
-            elseif Utils.Table.Contains(splittedKey, "Raw") then
+            ---@cast key string
+            local splittedKey = utils.string.split(key:lower(), "__")
+            if utils.table.contains(splittedKey, "static") then
+                return members_handler.get_static(type_info, key)
+            elseif utils.table.contains(splittedKey, "raw") then
                 return rawget(obj, key)
             end
         end
 
-        if typeInfo.HasIndex and instance.CustomIndexing then
-            return typeInfo.MetaMethods.__index(obj, key)
+        if type_info.has_index and instance.custom_indexing then
+            return type_info.meta_methods.__index(obj, key)
         end
 
         return rawget(obj, key)
     end
 end
 
----@param instance Freemaker.ClassSystem.Instance
----@param typeInfo Freemaker.ClassSystem.Type
+---@param instance class-system.instance
+---@param type_info class-system.type
 ---@return fun(obj: object, key: any, value: any)
-function MembersHandler.InstanceNewIndex(instance, typeInfo)
+function members_handler.instance_new_index(instance, type_info)
     return function(obj, key, value)
         if type(key) == "string" then
-            local splittedKey = Utils.String.Split(key, "__")
-            if Utils.Table.Contains(splittedKey, "Static") then
-                return MembersHandler.SetStatic(typeInfo, key, value)
-            elseif Utils.Table.Contains(splittedKey, "Raw") then
+            ---@cast key string
+            local splittedKey = utils.string.split(key:lower(), "__")
+            if utils.table.contains(splittedKey, "static") then
+                return members_handler.set_static(type_info, key, value)
+            elseif utils.table.contains(splittedKey, "raw") then
                 rawset(obj, key, value)
             end
         end
 
-        if typeInfo.HasNewIndex and instance.CustomIndexing then
-            return typeInfo.MetaMethods.__newindex(obj, key, value)
+        if type_info.has_new_index and instance.custom_indexing then
+            return type_info.meta_methods.__newindex(obj, key, value)
         end
 
         rawset(obj, key, value)
@@ -137,151 +143,153 @@ end
 -- Sort
 -------------------------------------------------------------------------------
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param name string
 ---@param func function
-local function isNormalFunction(typeInfo, name, func)
-    if Utils.Table.ContainsKey(Config.AllMetaMethods, name) then
-        typeInfo.MetaMethods[name] = func
+local function is_normal_function(type_info, name, func)
+    if utils.table.contains_key(config.all_meta_methods, name) then
+        type_info.meta_methods[name] = func
         return
     end
 
-    typeInfo.Members[name] = func
+    type_info.members[name] = func
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param name string
 ---@param value any
-local function isNormalMember(typeInfo, name, value)
+local function is_normal_member(type_info, name, value)
     if type(value) == 'function' then
-        isNormalFunction(typeInfo, name, value)
+        is_normal_function(type_info, name, value)
         return
     end
 
-    typeInfo.Members[name] = value
+    type_info.members[name] = value
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param name string
 ---@param value any
-local function isStaticMember(typeInfo, name, value)
-    typeInfo.Static[name] = value
+local function is_static_member(type_info, name, value)
+    type_info.static[name] = value
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param key any
 ---@param value any
-local function sortMember(typeInfo, key, value)
+local function sort_member(type_info, key, value)
     if type(key) == 'string' then
-        local splittedKey = Utils.String.Split(key, '__')
-        if Utils.Table.Contains(splittedKey, 'Static') then
-            isStaticMember(typeInfo, key, value)
+        ---@cast key string
+
+        local splittedKey = utils.string.split(key:lower(), '__')
+        if utils.table.contains(splittedKey, 'static') then
+            is_static_member(type_info, key, value)
             return
         end
 
-        isNormalMember(typeInfo, key, value)
+        is_normal_member(type_info, key, value)
         return
     end
 
-    typeInfo.Members[key] = value
+    type_info.members[key] = value
 end
 
-function MembersHandler.Sort(data, typeInfo)
+function members_handler.sort(data, type_info)
     for key, value in pairs(data) do
-        sortMember(typeInfo, key, value)
+        sort_member(type_info, key, value)
     end
 
-    MembersHandler.UpdateState(typeInfo)
+    members_handler.update_state(type_info)
 end
 
 -------------------------------------------------------------------------------
 -- Extend
 -------------------------------------------------------------------------------
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param name string
 ---@param func function
-local function UpdateMethods(typeInfo, name, func)
-    if Utils.Table.ContainsKey(typeInfo.Members, name) then
+local function update_methods(type_info, name, func)
+    if utils.table.contains_key(type_info.members, name) then
         error("trying to extend already existing meta method: " .. name)
     end
 
-    InstanceHandler.UpdateMetaMethod(typeInfo, name, func)
+    instance_handler.update_meta_method(type_info, name, func)
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param key any
 ---@param value any
-local function UpdateMember(typeInfo, key, value)
-    if Utils.Table.ContainsKey(typeInfo.Members, key) then
+local function update_member(type_info, key, value)
+    if utils.table.contains_key(type_info.members, key) then
         error("trying to extend already existing member: " .. tostring(key))
     end
 
-    InstanceHandler.UpdateMember(typeInfo, key, value)
+    instance_handler.update_member(type_info, key, value)
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param name string
 ---@param value any
-local function extendIsStaticMember(typeInfo, name, value)
-    if Utils.Table.ContainsKey(typeInfo.Static, name) then
+local function extend_is_static_member(type_info, name, value)
+    if utils.table.contains_key(type_info.static, name) then
         error("trying to extend already existing static member: " .. name)
     end
 
-    typeInfo.Static[name] = value
+    type_info.static[name] = value
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param name string
 ---@param func function
-local function extendIsNormalFunction(typeInfo, name, func)
-    if Utils.Table.ContainsKey(Config.AllMetaMethods, name) then
-        UpdateMethods(typeInfo, name, func)
+local function extend_is_normal_function(type_info, name, func)
+    if utils.table.contains_key(config.all_meta_methods, name) then
+        update_methods(type_info, name, func)
     end
 
-    UpdateMember(typeInfo, name, func)
+    update_member(type_info, name, func)
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param name string
 ---@param value any
-local function extendIsNormalMember(typeInfo, name, value)
+local function extend_is_normal_member(type_info, name, value)
     if type(value) == 'function' then
-        extendIsNormalFunction(typeInfo, name, value)
+        extend_is_normal_function(type_info, name, value)
         return
     end
 
-    UpdateMember(typeInfo, name, value)
+    update_member(type_info, name, value)
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param key any
 ---@param value any
-local function extendMember(typeInfo, key, value)
+local function extend_member(type_info, key, value)
     if type(key) == 'string' then
-        local splittedKey = Utils.String.Split(key, '__')
-        if Utils.Table.Contains(splittedKey, 'Static') then
-            extendIsStaticMember(typeInfo, key, value)
+        local splittedKey = utils.string.split(key, '__')
+        if utils.table.contains(splittedKey, 'Static') then
+            extend_is_static_member(type_info, key, value)
             return
         end
 
-        extendIsNormalMember(typeInfo, key, value)
+        extend_is_normal_member(type_info, key, value)
         return
     end
 
-    if not Utils.Table.ContainsKey(typeInfo.Members, key) then
-        typeInfo.Members[key] = value
+    if not utils.table.contains_key(type_info.members, key) then
+        type_info.members[key] = value
     end
 end
 
 ---@param data table
----@param typeInfo Freemaker.ClassSystem.Type
-function MembersHandler.Extend(typeInfo, data)
+---@param type_info class-system.type
+function members_handler.extend(type_info, data)
     for key, value in pairs(data) do
-        extendMember(typeInfo, key, value)
+        extend_member(type_info, key, value)
     end
 
-    MembersHandler.UpdateState(typeInfo)
+    members_handler.update_state(type_info)
 end
 
 -------------------------------------------------------------------------------
@@ -289,136 +297,136 @@ end
 -------------------------------------------------------------------------------
 
 ---@private
----@param baseInfo Freemaker.ClassSystem.Type
+---@param baseInfo class-system.type
 ---@param member string
 ---@return boolean
-function MembersHandler.CheckForMetaMethod(baseInfo, member)
-    if Utils.Table.ContainsKey(baseInfo.MetaMethods, member) then
+function members_handler.check_for_meta_method(baseInfo, member)
+    if utils.table.contains_key(baseInfo.meta_methods, member) then
         return true
     end
 
-    if baseInfo.Base then
-        return MembersHandler.CheckForMetaMethod(baseInfo.Base, member)
+    if baseInfo.base then
+        return members_handler.check_for_meta_method(baseInfo.base, member)
     end
 
     return false
 end
 
 ---@private
----@param typeInfo Freemaker.ClassSystem.Type
+---@param type_info class-system.type
 ---@param member string
 ---@return boolean
-function MembersHandler.CheckForMember(typeInfo, member)
-    if Utils.Table.ContainsKey(typeInfo.Members, member)
-        and typeInfo.Members[member] ~= Config.AbstractPlaceholder
-        and typeInfo.Members[member] ~= Config.InterfacePlaceholder then
+function members_handler.check_for_member(type_info, member)
+    if utils.table.contains_key(type_info.members, member)
+        and type_info.members[member] ~= config.abstract_placeholder
+        and type_info.members[member] ~= config.interface_placeholder then
         return true
     end
 
-    if typeInfo.Base then
-        return MembersHandler.CheckForMember(typeInfo.Base, member)
+    if type_info.base then
+        return members_handler.check_for_member(type_info.base, member)
     end
 
     return false
 end
 
 ---@private
----@param typeInfo Freemaker.ClassSystem.Type
----@param typeInfoToCheck Freemaker.ClassSystem.Type
-function MembersHandler.CheckAbstract(typeInfo, typeInfoToCheck)
-    for key, value in pairs(typeInfo.MetaMethods) do
-        if value == Config.AbstractPlaceholder then
-            if not MembersHandler.CheckForMetaMethod(typeInfoToCheck, key) then
+---@param type_info class-system.type
+---@param type_infoToCheck class-system.type
+function members_handler.check_abstract(type_info, type_infoToCheck)
+    for key, value in pairs(type_info.meta_methods) do
+        if value == config.abstract_placeholder then
+            if not members_handler.check_for_meta_method(type_infoToCheck, key) then
                 error(
-                    typeInfoToCheck.Name
+                    type_infoToCheck.name
                     .. " does not implement inherited abstract meta method: "
-                    .. typeInfo.Name .. "." .. tostring(key)
+                    .. type_info.name .. "." .. tostring(key)
                 )
             end
         end
     end
 
-    for key, value in pairs(typeInfo.Members) do
-        if value == Config.AbstractPlaceholder then
-            if not MembersHandler.CheckForMember(typeInfoToCheck, key) then
+    for key, value in pairs(type_info.members) do
+        if value == config.abstract_placeholder then
+            if not members_handler.check_for_member(type_infoToCheck, key) then
                 error(
-                    typeInfoToCheck.Name
+                    type_infoToCheck.name
                     .. " does not implement inherited abstract member: "
-                    .. typeInfo.Name .. "." .. tostring(key)
+                    .. type_info.name .. "." .. tostring(key)
                 )
             end
         end
     end
 
-    if typeInfo.Base and typeInfo.Base.Options.IsAbstract then
-        MembersHandler.CheckAbstract(typeInfo.Base, typeInfoToCheck)
+    if type_info.base and type_info.base.options.is_abstract then
+        members_handler.check_abstract(type_info.base, type_infoToCheck)
     end
 end
 
 ---@private
----@param typeInfo Freemaker.ClassSystem.Type
----@param typeInfoToCheck Freemaker.ClassSystem.Type
-function MembersHandler.CheckInterfaces(typeInfo, typeInfoToCheck)
-    for _, interface in pairs(typeInfo.Interfaces) do
-        for key, value in pairs(interface.MetaMethods) do
-            if value == Config.InterfacePlaceholder then
-                if not MembersHandler.CheckForMetaMethod(typeInfoToCheck, key) then
+---@param type_info class-system.type
+---@param type_infoToCheck class-system.type
+function members_handler.check_interfaces(type_info, type_infoToCheck)
+    for _, interface in pairs(type_info.interfaces) do
+        for key, value in pairs(interface.meta_methods) do
+            if value == config.interface_placeholder then
+                if not members_handler.check_for_meta_method(type_infoToCheck, key) then
                     error(
-                        typeInfoToCheck.Name
+                        type_infoToCheck.name
                         .. " does not implement inherited interface meta method: "
-                        .. interface.Name .. "." .. tostring(key)
+                        .. interface.name .. "." .. tostring(key)
                     )
                 end
             end
         end
 
-        for key, value in pairs(interface.Members) do
-            if value == Config.InterfacePlaceholder then
-                if not MembersHandler.CheckForMember(typeInfoToCheck, key) then
+        for key, value in pairs(interface.members) do
+            if value == config.interface_placeholder then
+                if not members_handler.check_for_member(type_infoToCheck, key) then
                     error(
-                        typeInfoToCheck.Name
+                        type_infoToCheck.name
                         .. " does not implement inherited interface member: "
-                        .. interface.Name .. "." .. tostring(key)
+                        .. interface.name .. "." .. tostring(key)
                     )
                 end
             end
         end
     end
 
-    if typeInfo.Base then
-        MembersHandler.CheckInterfaces(typeInfo.Base, typeInfoToCheck)
+    if type_info.base then
+        members_handler.check_interfaces(type_info.base, type_infoToCheck)
     end
 end
 
----@param typeInfo Freemaker.ClassSystem.Type
-function MembersHandler.Check(typeInfo)
-    if not typeInfo.Options.IsAbstract then
-        if Utils.Table.Contains(typeInfo.MetaMethods, Config.AbstractPlaceholder) then
-            error(typeInfo.Name .. " has abstract meta method/s but is not marked as abstract")
+---@param type_info class-system.type
+function members_handler.check(type_info)
+    if not type_info.options.is_abstract then
+        if utils.table.contains(type_info.meta_methods, config.abstract_placeholder) then
+            error(type_info.name .. " has abstract meta method/s but is not marked as abstract")
         end
 
-        if Utils.Table.Contains(typeInfo.Members, Config.AbstractPlaceholder) then
-            error(typeInfo.Name .. " has abstract member/s but is not marked as abstract")
-        end
-    end
-
-    if not typeInfo.Options.IsInterface then
-        if Utils.Table.Contains(typeInfo.Members, Config.InterfacePlaceholder) then
-            error(typeInfo.Name .. " has interface meta methods/s but is not marked as interface")
-        end
-
-        if Utils.Table.Contains(typeInfo.Members, Config.InterfacePlaceholder) then
-            error(typeInfo.Name .. " has interface member/s but is not marked as interface")
+        if utils.table.contains(type_info.members, config.abstract_placeholder) then
+            error(type_info.name .. " has abstract member/s but is not marked as abstract")
         end
     end
 
-    if not typeInfo.Options.IsAbstract and not typeInfo.Options.IsInterface then
-        MembersHandler.CheckInterfaces(typeInfo, typeInfo)
+    if not type_info.options.is_interface then
+        if utils.table.contains(type_info.members, config.interface_placeholder) then
+            error(type_info.name .. " has interface meta methods/s but is not marked as interface")
+        end
 
-        if typeInfo.Base and typeInfo.Base.Options.IsAbstract then
-            MembersHandler.CheckAbstract(typeInfo.Base, typeInfo)
+        if utils.table.contains(type_info.members, config.interface_placeholder) then
+            error(type_info.name .. " has interface member/s but is not marked as interface")
+        end
+    end
+
+    if not type_info.options.is_abstract and not type_info.options.is_interface then
+        members_handler.check_interfaces(type_info, type_info)
+
+        if type_info.base and type_info.base.options.is_abstract then
+            members_handler.check_abstract(type_info.base, type_info)
         end
     end
 end
 
-return MembersHandler
+return members_handler

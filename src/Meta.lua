@@ -4,12 +4,12 @@
 -- MetaMethods
 ----------------------------------------------------------------
 
----@class Freemaker.ClassSystem.ObjectMetaMethods
+---@class class-system.object-meta-methods
 ---@field protected __preinit (fun(...) : any) | nil self(...) before contructor
 ---@field protected __init (fun(self: object, ...)) | nil self(...) constructor
 ---@field protected __call (fun(self: object, ...) : ...) | nil self(...) after construction
 ---@field protected __close (fun(self: object, errObj: any) : any) | nil invoked when the object gets out of scope
----@field protected __gc fun(self: object) | nil Freemaker.ClassSystem.Deconstruct(self) or garbageCollection
+---@field protected __gc fun(self: object) | nil class-system.deconstruct(self) or on garbageCollection
 ---@field protected __add (fun(self: object, other: any) : any) | nil (self) + (value)
 ---@field protected __sub (fun(self: object, other: any) : any) | nil (self) - (value)
 ---@field protected __mul (fun(self: object, other: any) : any) | nil (self) * (value)
@@ -35,10 +35,10 @@
 ---@field protected __index (fun(class, key) : any) | nil xxx = self.xxx | self[xxx]
 ---@field protected __newindex fun(class, key, value) | nil self.xxx = xxx | self[xxx] = xxx
 
----@class object : Freemaker.ClassSystem.ObjectMetaMethods, function
+---@class object : class-system.object-meta-methods, function
 
----@class Freemaker.ClassSystem.MetaMethods
----@field __gc fun(self: object) | nil Class.Deconstruct(self) or garbageCollection
+---@class class-system.meta-methods
+---@field __gc fun(self: object) | nil class-system.Deconstruct(self) or garbageCollection
 ---@field __close (fun(self: object, errObj: any) : any) | nil invoked when the object gets out of scope
 ---@field __call (fun(self: object, ...) : ...) | nil self(...) after construction
 ---@field __index (fun(class: object, key: any) : any) | nil xxx = self.xxx | self[xxx]
@@ -66,7 +66,7 @@
 ---@field __pairs (fun(self: object) : ((fun(t: table, key: any) : key: any, value: any), t: table, startKey: any)) | nil pairs(self)
 ---@field __ipairs (fun(self: object) : ((fun(t: table, key: number) : key: number, value: any), t: table, startKey: number)) | nil ipairs(self)
 
----@class Freemaker.ClassSystem.TypeMetaMethods : Freemaker.ClassSystem.MetaMethods
+---@class class-system.type-meta-methods : class-system.meta-methods
 ---@field __preinit (fun(...) : any) | nil self(...) before constructor
 ---@field __init (fun(self: object, ...)) | nil self(...) constructor
 
@@ -74,63 +74,71 @@
 -- Type
 ----------------------------------------------------------------
 
----@class Freemaker.ClassSystem.Type
----@field Name string
+---@class class-system.type
+---@field name string
 ---
----@field Base Freemaker.ClassSystem.Type | nil
----@field Interfaces table<integer, Freemaker.ClassSystem.Type>
+---@field base class-system.type | nil
+---@field interfaces table<integer, class-system.type>
 ---
----@field Static table<string, any>
+---@field static table<string, any>
 ---
----@field MetaMethods Freemaker.ClassSystem.TypeMetaMethods
----@field Members table<any, any>
+---@field meta_methods class-system.type-meta-methods
+---@field members table<any, any>
 ---
----@field HasPreConstructor boolean
----@field HasConstructor boolean
----@field HasDeconstructor boolean
----@field HasClose boolean
----@field HasIndex boolean
----@field HasNewIndex boolean
+---@field has_pre_constructor boolean
+---@field has_constructor boolean
+---@field has_deconstructor boolean
+---@field has_close boolean
+---@field has_index boolean
+---@field has_new_index boolean
 ---
----@field Options Freemaker.ClassSystem.Type.Options
+---@field options class-system.type.options
 ---
----@field Instances table<object, boolean>
+---@field instances table<object, boolean>
 ---
----@field Blueprint table | nil
+---@field blueprint table | nil
 
----@class Freemaker.ClassSystem.Type.Options
----@field IsAbstract boolean | nil
----@field IsInterface boolean | nil
+---@class class-system.type.options
+---@field is_abstract boolean | nil
+---@field is_interface boolean | nil
 
 ----------------------------------------------------------------
 -- Metatable
 ----------------------------------------------------------------
 
----@class Freemaker.ClassSystem.Metatable : Freemaker.ClassSystem.MetaMethods
----@field Type Freemaker.ClassSystem.Type
----@field Instance Freemaker.ClassSystem.Instance
+---@class class-system.metatable : class-system.meta-methods
+---@field type class-system.type
+---@field instance class-system.instance
 
 ----------------------------------------------------------------
 -- Blueprint
 ----------------------------------------------------------------
 
----@class Freemaker.ClassSystem.BlueprintMetatable : Freemaker.ClassSystem.MetaMethods
----@field Type Freemaker.ClassSystem.Type
+---@class class-system.blueprint-metatable : class-system.meta-methods
+---@field type class-system.type
 
 ----------------------------------------------------------------
 -- Instance
 ----------------------------------------------------------------
 
----@class Freemaker.ClassSystem.Instance
----@field IsConstructed boolean
+---@class class-system.instance
+---@field is_constructed boolean
 ---
----@field CustomIndexing boolean
+---@field custom_indexing boolean
 
 ----------------------------------------------------------------
 -- Create Options
 ----------------------------------------------------------------
 
----@class Freemaker.ClassSystem.Create.Options : Freemaker.ClassSystem.Type.Options
----@field Name string | nil
+---@class class-system.create.options : class-system.type.options
+---@field name string | nil
 ---
----@field Inherit table<object> | object | nil
+---@field inherit object[] | object | nil
+
+---@class class-system.create.options.class.pretty
+---@field is_abstract boolean | nil
+---
+---@field inherit any | any[]
+
+---@class class-system.create.options.interface.pretty
+---@field inherit any | any[]

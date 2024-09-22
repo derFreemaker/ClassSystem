@@ -1,31 +1,31 @@
----@type Freemaker.ClassSystem
-local ClassSystem = require("ClassSystem")
+---@type class-system
+local class_system = require("class_system")
 
----@class TestClass.Extensions : object
----@overload fun() : TestClass.Extensions
-local testClass = {}
-class("Class Name", testClass)
-local instanceBeforeExtension = testClass()
+---@class test-class.extension : object
+---@overload fun() : test-class.extension
+local test_class = {}
+class("test-class", test_class)
+local instance_before_extension = test_class()
 
 
----@class TestClass.Extensions
-local classExtensions = {}
+---@class test-class.extension
+local class_extensions = {}
 
-function classExtensions:foo()
+function class_extensions:foo()
     print("foo")
 end
 
-classExtensions.fooVal = 100
+class_extensions.foo_val = 100
 
-ClassSystem.Extend(testClass, classExtensions)
+class_system.extend(test_class, class_extensions)
 
 
-local instanceAfterExtension = testClass()
+local instance_after_extension = test_class()
 
-instanceAfterExtension:foo()
-instanceBeforeExtension:foo()
+instance_after_extension:foo()
+instance_before_extension:foo()
 
-local val1 = instanceAfterExtension.fooVal
-local val2 = instanceBeforeExtension.fooVal
+local val1 = instance_after_extension.foo_val
+local val2 = instance_before_extension.foo_val
 -- All instances of the type get extended.
--- If an instance already has a value or function with the same name it will not be overridden.
+-- If an instance already has a value or function with the same key it will not be overridden.

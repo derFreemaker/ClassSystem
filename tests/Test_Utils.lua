@@ -1,146 +1,149 @@
 local luaunit = require("tests.Luaunit")
 
-local ClassSystem = require("src.init")
+local class_system = require("src.init")
 
 function TestModifyBehavior()
-    ---@class TestModifyBehaviorClass : object
-    ---@overload fun() : TestModifyBehaviorClass
-    local testClass = {}
+    ---@class modify_behavior_test-class : object
+    ---@overload fun() : modify_behavior_test-class
+    local test_class = {}
 
-    function testClass:__init()
-        self:Raw__ModifyBehavior(function (modify)
-            modify.CustomIndexing = false
+    function test_class:__init()
+        self:raw__modify_behavior(function (modify)
+            modify.custom_indexing = false
         end)
 
-        self.Test = 123
-        local test = self.Test
+        self.test = 123
 
-        self:Raw__ModifyBehavior(function (modify)
-            modify.CustomIndexing = true
+        self:raw__modify_behavior(function (modify)
+            modify.custom_indexing = true
         end)
     end
 
-    function testClass:__newindex()
+    function test_class:__newindex()
         error()
     end
 
-    function testClass:__index()
+    function test_class:__index()
         error()
     end
 
-    ClassSystem.Create(testClass, { Name = "TestModifyBehaviorClass" })
-    local testClassInstance = testClass()
+    class_system.create(test_class, { name = "modify_behavior_test-class" })
+    local test_class_instance = test_class()
 end
 
 function TestDeconstructing()
-    local correctErrObj = false
+    local correct_err_obj = false
 
-    ---@class TestDeconstructingClass : object
-    ---@overload fun() : TestDeconstructingClass
-    local testClass = {}
+    ---@class deconstructing_test-class : object
+    ---@overload fun() : deconstructing_test-class
+    local test_class = {}
 
-    function testClass:__close(errObj)
-        correctErrObj = errObj == ClassSystem.Deconstructing
+    function test_class:__close(errObj)
+        correct_err_obj = errObj == class_system.deconstructing
     end
 
-    ClassSystem.Create(testClass, { Name = "TestDeconstructingClass" })
-    local instance = testClass()
+    class_system.create(test_class, { name = "deconstructing_test-class" })
+    local instance = test_class()
 
-    ClassSystem.Deconstruct(instance)
+    class_system.deconstruct(instance)
 
-    luaunit.assertIsTrue(correctErrObj, "errObj was not passed correctly")
+    luaunit.assertIsTrue(correct_err_obj, "err_obj was not passed correctly")
 end
 
 function TestTypeof()
-    local CLASS_NAME = "TestTypeofClass"
+    local class_name = "typeof_test-class"
 
-    ---@class TestTypeofClass : object
-    ---@overload fun() : TestTypeofClass
-    local testClass = {}
-    ClassSystem.Create(testClass, { Name = CLASS_NAME })
-    local instance = testClass()
+    ---@class typeof_test-class : object
+    ---@overload fun() : typeof_test-class
+    local test_class = {}
+    class_system.create(test_class, { name = class_name })
+    local instance = test_class()
 
-    local typeInfo = ClassSystem.Typeof(instance)
-    if not typeInfo then
-        luaunit.fail("Typeof returned nil")
+    local type_info = class_system.typeof(instance)
+    if not type_info then
+        luaunit.fail("typeof returned nil")
         return
     end
 
-    luaunit.assertEquals(typeInfo.Name, CLASS_NAME, "class name in type info is not the same")
+    luaunit.assertEquals(type_info.name, class_name, "class name in type info is not the same")
 end
 
 function TestNameof()
-    local CLASS_NAME = "TestNameofClass"
+    local class_name = "nameof_test-class"
 
-    ---@class TestNameofClass : object
-    ---@overload fun() : TestTypeofClass
-    local testClass = {}
-    ClassSystem.Create(testClass, { Name = CLASS_NAME })
-    local instance = testClass()
+    ---@class nameof_test-class : object
+    ---@overload fun() : typeof_test-class
+    local test_class = {}
+    class_system.create(test_class, { name = class_name })
+    local instance = test_class()
 
-    local className = ClassSystem.Nameof(instance)
-    if not className then
-        luaunit.fail("Nameof returned nil")
+    local actual_class_name = class_system.nameof(instance)
+    if not actual_class_name then
+        luaunit.fail("nameof returned nil")
         return
     end
 
-    luaunit.assertEquals(className, CLASS_NAME, "class name is not the same")
+    luaunit.assertEquals(actual_class_name, class_name, "class name is not the same")
 end
 
 function TestGetInstanceData()
-    ---@class TestGetInstanceDataClass : object
-    ---@overload fun() : TestGetInstanceDataClass
-    local testClass = {}
-    ClassSystem.Create(testClass, { Name = "TestGetInstanceDataClass" })
-    local instance = testClass()
+    ---@class get_instance_data_test-class : object
+    ---@overload fun() : get_instance_data_test-class
+    local test_class = {}
+    class_system.create(test_class, { name = "get_instance_data_test-class" })
+    local instance = test_class()
 
-    local instanceData = ClassSystem.GetInstanceData(instance)
+    local instanceData = class_system.get_instance_data(instance)
     if not instanceData then
-        luaunit.fail("GetInstanceData returned nil")
+        luaunit.fail("get_instance_data returned nil")
         return
     end
 
-    luaunit.assertIsTrue(instanceData.IsConstructed)
+    luaunit.assertIsTrue(instanceData.is_constructed)
 end
 
 function TestIsClass()
-    ---@class TestIsClass : object
-    ---@overload fun() : TestIsClass
-    local testClass = {}
-    ClassSystem.Create(testClass, { Name = "TestIsClass" })
-    local instance = testClass()
+    ---@class is_class_test-class : object
+    ---@overload fun() : is_class_test-class
+    local test_class = {}
+    class_system.create(test_class, { name = "is_class_test-class" })
+    local instance = test_class()
 
-    luaunit.assertIsTrue(ClassSystem.IsClass(instance))
+    luaunit.assertIsTrue(class_system.is_class(instance))
 end
 
 function TestHasBase()
-    ---@class TestHasBaseClassBaseClass : object
-    ---@overload fun() : TestHasBaseClassBaseClass
-    local testBaseClass = {}
-    ClassSystem.Create(testBaseClass, { Name = "TestHasBaseClassBaseClass" })
+    local base_class_name = "has_base_class_test-base-class"
 
-    ---@class TestHasBaseClass : object
-    ---@overload fun() : TestHasBaseClass
-    local testClass = {}
-    ClassSystem.Create(testClass, { Name = "TestHasBaseClass", Inherit = testBaseClass })
-    local instance = testClass()
+    ---@class has_base_class_test-base-class : object
+    ---@overload fun() : has_base_class_test-base-class
+    local test_base_class = {}
+    class_system.create(test_base_class, { name = base_class_name })
 
-    luaunit.assertIsTrue(ClassSystem.HasBase(instance, "TestHasBaseClassBaseClass"))
+    ---@class has_base_class_test-class : object
+    ---@overload fun() : has_base_class_test-class
+    local test_class = {}
+    class_system.create(test_class, { name = "has_base_class_test-class", inherit = test_base_class })
+    local instance = test_class()
+
+    luaunit.assertIsTrue(class_system.has_base(instance, base_class_name))
 end
 
 function TestHasInterface()
-    ---@class TestHasInterfaceInterface : object
-    ---@overload fun() : TestHasInterfaceInterface
-    local testInterface = {}
-    ClassSystem.Create(testInterface, { Name = "TestHasInterfaceInterface", IsInterface = true })
+    local interface_class_name = "has_interface_test-interafce-class"
 
-    ---@class TestHasInterfaceClass : object
-    ---@overload fun() : TestHasInterfaceClass
-    local testClass = {}
-    ClassSystem.Create(testClass, { Name = "TestHasInterfaceClass", Inherit = testInterface })
-    local instance = testClass()
+    ---@class has_interface_test-interface-class : object
+    ---@overload fun() : has_interface_test-interface-class
+    local interface_test_class = {}
+    class_system.create(interface_test_class, { name = interface_class_name, is_interface = true })
 
-    luaunit.assertIsTrue(ClassSystem.HasInterface(instance, "TestHasInterfaceInterface"))
+    ---@class has_interface_test-class : object
+    ---@overload fun() : has_interface_test-class
+    local test_class = {}
+    class_system.create(test_class, { name = "has_interface_test-class", inherit = interface_test_class })
+    local instance = test_class()
+
+    luaunit.assertIsTrue(class_system.has_interface(instance, interface_class_name))
 end
 
 os.exit(luaunit.LuaUnit.run())

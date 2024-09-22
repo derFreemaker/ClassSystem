@@ -1,68 +1,68 @@
 local luaunit = require("tests.Luaunit")
 
-local ClassSystem = require("src.init")
+local class_system = require("src.init")
 
 function TestCreateAbstractClass()
-    local testClass = {}
+    local test_class = {}
 
-    function testClass:foo()
+    function test_class:foo()
     end
 
-    testClass.foo = ClassSystem.IsAbstract
+    test_class.foo = class_system.is_abstract
 
-    ClassSystem.Create(testClass, { Name = "testClass", IsAbstract = true })
+    class_system.create(test_class, { name = "test-class", is_abstract = true })
 
-    luaunit.assertErrorMsgContains("cannot construct abstract class", testClass)
+    luaunit.assertErrorMsgContains("cannot construct abstract class", test_class)
 end
 
 function TestCreateClassWithAbstractClassAsBase()
-    local abstractTestClass = {}
-    function abstractTestClass:foo()
+    local abstract_test_class = {}
+    function abstract_test_class:foo()
     end
 
-    abstractTestClass.foo = ClassSystem.IsAbstract
-    ClassSystem.Create(abstractTestClass, { Name = "abstractTestClass", IsAbstract = true })
+    abstract_test_class.foo = class_system.is_abstract
+    class_system.create(abstract_test_class, { name = "abstract_test-class", is_abstract = true })
 
-    local testClass = {}
-    function testClass:foo2()
+    local test_class = {}
+    function test_class:foo2()
         print("foo")
     end
 
-    local function errorBecauseOfNotImplementedMember()
-        ClassSystem.Create(testClass, { Name = "testClass", Inherit = abstractTestClass })
+    local function error_because_of_not_implemented_member()
+        class_system.create(test_class, { name = "test-class", inherit = abstract_test_class })
     end
 
-    luaunit.assertErrorMsgContains("does not implement inherited abstract member", errorBecauseOfNotImplementedMember)
+    luaunit.assertErrorMsgContains("does not implement inherited abstract member", error_because_of_not_implemented_member)
 end
 
 function TestCreateClassWithAbstractMembers()
-    local abstractTestClass = {}
-    function abstractTestClass:foo()
+    local abstract_test_class = {}
+    function abstract_test_class:foo()
     end
 
-    abstractTestClass.foo = ClassSystem.IsAbstract
+    abstract_test_class.foo = class_system.is_abstract
 
-    local function errorBecauseOfNotMarkedAsAbstract()
-        ClassSystem.Create(abstractTestClass, { Name = "abstractTestClass" })
+    local function error_because_of_not_marked_as_abstract_class()
+        class_system.create(abstract_test_class, { name = "abstractTestClass" })
     end
 
     luaunit.assertErrorMsgContains("has abstract member/s but is not marked as abstract",
-        errorBecauseOfNotMarkedAsAbstract)
+        error_because_of_not_marked_as_abstract_class)
 end
 
 function TestCreateAbstractClassWithInterfaces()
     local interface = {}
-    interface.test = ClassSystem.IsInterface
-    ClassSystem.Create(interface, { Name = "interface", IsInterface = true })
+    interface.test = class_system.is_interface
+    class_system.create(interface, { name = "interface", is_interface = true })
 
-    local abstractClass = {}
-    abstractClass.class = ClassSystem.IsAbstract
-    ClassSystem.Create(abstractClass, { Name = "abstractClass", IsAbstract = true })
+    local abstract_test_class = {}
+    abstract_test_class.class = class_system.is_abstract
+    class_system.create(abstract_test_class, { name = "abstract_test-class", is_abstract = true })
 
-    local class = {}
-    class.class = "set"
-    -- class.test = "set"
-    ClassSystem.Create(class, { Name = "class" })
+    local test_class = {}
+    test_class.class = "set"
+    test_class.test = "set"
+    class_system.create(test_class, { name = "test-class" })
 end
 
 os.exit(luaunit.LuaUnit.run())

@@ -1,18 +1,18 @@
----@type Freemaker.ClassSystem
-local ClassSystem = require("ClassSystem")
+---@type class-system
+local class_system = require("class_system")
 
----@class TestClass.Abstract : object
+---@class test-class.abstract : object
 local abstract = {}
 
 function abstract:foo()
 end
 
-abstract.foo = ClassSystem.IsAbstract
+abstract.foo = class_system.is_abstract
 
 ---@type integer
-abstract.fooValue = ClassSystem.IsAbstract
+abstract.fooValue = class_system.is_abstract
 
-class("abstract", abstract, { IsAbstract = true })
+class("abstract", abstract, { is_abstract = true })
 -- If IsAbstract is not set in options, will throw an error since not abstract class has abstract members.
 
 local instance = abstract()
@@ -22,26 +22,26 @@ local instance = abstract()
 -- using abstract class as base class
 ----------------------------------------------------------------
 
----@class TestClass.NotAbstract : TestClass.Abstract
----@overload fun() : TestClass.NotAbstract
-local notAbstract = {}
+---@class test-class.not_abstract : test-class.abstract
+---@overload fun() : test-class.not_abstract
+local not_abstract = {}
 
 ---@private
-function notAbstract:__init()
+function not_abstract:__init()
     print("constructor")
 end
 
-function notAbstract:foo()
+function not_abstract:foo()
     print("foo")
 end
 
--- Has to implement foo since its inherited this abstract member from TestClass.Abstract
--- If not will throw an error at ClassSystem.Create
+-- Has to implement foo since its inherited this abstract member from test-class.abstract
+-- If not will throw an error at class_system.create.
 
-notAbstract.fooValue = 100
--- Has to implement fooValue since its inherited this abstract member from TestClass.Abstract
--- If not will throw an error at ClassSystem.Create
+not_abstract.fooValue = 100
+-- Has to implement fooValue since its inherited this abstract member from test-class.abstract
+-- If not will throw an error at class_system.create.
 
-ClassSystem.Create(notAbstract, { Name = "notAbstract", Inherit = abstract })
+class_system.create(not_abstract, { name = "not_abstract", inherit = abstract })
 -- Inherit can have an table with multiple interfaces and one base class set in form of an array.
 -- If not all abstract members are implemented an error will occur.

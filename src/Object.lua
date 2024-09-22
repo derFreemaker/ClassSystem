@@ -1,90 +1,90 @@
-local Utils = require("tools.Freemaker.bin.utils")
-local Config = require("src.Config")
-local Class = require("src.Class")
+local utils = require("tools.Freemaker.bin.utils")
+local config = require("src.config")
+local class = require("src.class")
 
 ---@class object
-local Object = {}
+local object = {}
 
 ---@protected
 ---@return string typeName
-function Object:__tostring()
-    return Class.Typeof(self).Name
+function object:__tostring()
+    return class.typeof(self).name
 end
 
 ---@protected
 ---@return string
-function Object.__concat(left, right)
+function object.__concat(left, right)
     return tostring(left) .. tostring(right)
 end
 
----@class Freemaker.ClassSystem.Object.Modify
----@field CustomIndexing boolean | nil
+---@class class-system.object.modify
+---@field custom_indexing boolean | nil
 
 ---@protected
----@param func fun(modify: Freemaker.ClassSystem.Object.Modify)
-function Object:Raw__ModifyBehavior(func)
-    ---@type Freemaker.ClassSystem.Metatable
+---@param func fun(modify: class-system.object.modify)
+function object:raw__modify_behavior(func)
+    ---@type class-system.metatable
     local metatable = getmetatable(self)
 
     local modify = {
-        CustomIndexing = metatable.Instance.CustomIndexing
+        custom_indexing = metatable.instance.custom_indexing
     }
 
     func(modify)
 
-    metatable.Instance.CustomIndexing = modify.CustomIndexing
+    metatable.instance.custom_indexing = modify.custom_indexing
 end
 
 ----------------------------------------
 -- Type Info
 ----------------------------------------
 
----@type Freemaker.ClassSystem.Type
-local objectTypeInfo = {
-    Name = "object",
-    Base = nil,
-    Interfaces = {},
+---@type class-system.type
+local object_type_info = {
+    name = "object",
+    base = nil,
+    interfaces = {},
 
-    Static = {},
-    MetaMethods = {},
-    Members = {},
+    static = {},
+    meta_methods = {},
+    members = {},
 
-    HasPreConstructor = false,
-    HasConstructor = false,
-    HasDeconstructor = false,
-    HasClose = false,
-    HasIndex = false,
-    HasNewIndex = false,
+    has_pre_constructor = false,
+    has_constructor = false,
+    has_deconstructor = false,
+    has_close = false,
+    has_index = false,
+    has_new_index = false,
 
-    Options = {
-        IsAbstract = true,
+    options = {
+        is_abstract = true,
     },
 
-    Instances = setmetatable({}, { __mode = 'k' }),
+    instances = setmetatable({}, { __mode = 'k' }),
 
     -- no blueprint since cannot be constructed
-    Blueprint = nil
+    blueprint = nil
 }
 
-for key, value in pairs(Object) do
-    if Config.AllMetaMethods[key] then
-        objectTypeInfo.MetaMethods[key] = value
+for key, value in pairs(object) do
+    if config.all_meta_methods[key] then
+        object_type_info.meta_methods[key] = value
     else
         if type(key) == 'string' then
-            local splittedKey = Utils.String.Split(key, '__')
-            if Utils.Table.Contains(splittedKey, 'Static') then
-                objectTypeInfo.Static[key] = value
+            local splittedKey = utils.string.split(key, '__')
+            if utils.table.contains(splittedKey, 'Static') then
+                object_type_info.static[key] = value
             else
-                objectTypeInfo.Members[key] = value
+                object_type_info.members[key] = value
             end
         else
-            objectTypeInfo.Members[key] = value
+            object_type_info.members[key] = value
         end
     end
 end
 
 setmetatable(
-        objectTypeInfo,
+        object_type_info,
         {
             __tostring = function(self)
                 return self.Name
@@ -92,4 +92,4 @@ setmetatable(
         }
     )
 
-return objectTypeInfo
+return object_type_info
