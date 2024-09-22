@@ -6,7 +6,7 @@ Made in lua 5.4 maybe works with lower versions.
 
 The [Samples](https://github.com/derFreemaker/ClassSystem/tree/master/samples) also act as Documentation.
 
-`ClassSystem.lua` is the only file you need. It contains all files combined from the src folder.
+`class_system.lua` is the only file you need. It contains all files combined from the src folder.
 It is not performance optimized at the moment.
 
 The tests are awfully writen but work.
