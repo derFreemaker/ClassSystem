@@ -58,7 +58,7 @@ local function process_options(options)
         ---@cast parentType class-system.type
 
         if options.is_abstract and (not parentType.options.is_abstract and not parentType.options.is_interface) then
-            error("cannot inherit from not abstract class: ".. tostring(parent) .." in abstract class: " .. options.name)
+            error("cannot inherit from not abstract or interface class: ".. tostring(parent) .." in an abstract class: " .. options.name)
         end
 
         if parentType.options.is_interface then
