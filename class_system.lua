@@ -395,7 +395,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		            if type(copy[key]) ~= "table" then
 		                copy[key] = {}
 		            end
-		            copy_table_to(copy[key], value, seen)
+		            copy_table_to(value, copy[key], seen)
 		        else
 		            copy[key] = value
 		        end
@@ -413,7 +413,9 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		---@param t T
 		---@return T table
 		function table.copy(t)
-		    return copy_table_to(t, {}, {})
+		    local copy = {}
+		    copy_table_to(t, copy, {})
+		    return copy
 		end
 
 		---@generic T
