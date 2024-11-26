@@ -4,6 +4,8 @@
 	    __files__ = {},
 	    __binary_files__ = {},
 	    __cache__ = {},
+	    __temp_files__ = {},
+	    __org_exit__ = os.exit
 	}
 	function __bundler__.__get_os__()
 	    if package.config:sub(1, 1) == '\\' then
@@ -15,8 +17,12 @@
 	function __bundler__.__loadFile__(module)
 	    if not __bundler__.__cache__[module] then
 	        if __bundler__.__binary_files__[module] then
+	        local tempDir = os.getenv("TEMP") or os.getenv("TMP")
+	            if not tempDir then
+	                tempDir = "/tmp"
+	            end
 	            local os_type = __bundler__.__get_os__()
-	            local file_path = os.tmpname()
+	            local file_path = tempDir .. os.tmpname()
 	            local file = io.open(file_path, "wb")
 	            if not file then
 	                error("unable to open file: " .. file_path)
@@ -27,17 +33,40 @@
 	            else
 	                content = __bundler__.__files__[module .. ".so"]
 	            end
-	            for i = 1, #content do
-	                local byte = tonumber(content[i], 16)
+	            local content_len = content:len()
+	            for i = 2, content_len, 2 do
+	                local byte = tonumber(content:sub(i - 1, i), 16)
 	                file:write(string.char(byte))
 	            end
 	            file:close()
 	            __bundler__.__cache__[module] = { package.loadlib(file_path, "luaopen_" .. module)() }
+	            table.insert(__bundler__.__temp_files__, file_path)
 	        else
 	            __bundler__.__cache__[module] = { __bundler__.__files__[module]() }
 	        end
 	    end
 	    return table.unpack(__bundler__.__cache__[module])
+	end
+	function __bundler__.__cleanup__()
+	    for _, file_path in ipairs(__bundler__.__temp_files__) do
+	        os.remove(file_path)
+	    end
+	end
+	---@diagnostic disable-next-line: duplicate-set-field
+	function os.exit(...)
+	    __bundler__.__cleanup__()
+	    __bundler__.__org_exit__(...)
+	end
+	function __bundler__.__main__()
+	    local loading_thread = coroutine.create(__bundler__.__loadFile__)
+	    local success, items = (function(success, ...) return success, {...} end)
+	        (coroutine.resume(loading_thread, "__main__"))
+	    if not success then
+	        print("error in bundle loading thread:\n"
+	            .. debug.traceback(loading_thread, items[1]))
+	    end
+	    __bundler__.__cleanup__()
+	    return table.unpack(items)
 	end
 	__bundler__.__files__["src.config"] = function()
 	---@class class-system.configs
@@ -267,13 +296,15 @@ __bundler__.__files__["src.meta"] = function()
 
 end
 
-__bundler__.__files__["tools.Freemaker.bin.utils"] = function()
+__bundler__.__files__["tools.utils"] = function()
 	---@diagnostic disable
 
 	local __bundler__ = {
 	    __files__ = {},
 	    __binary_files__ = {},
 	    __cache__ = {},
+	    __temp_files__ = {},
+	    __org_exit__ = os.exit
 	}
 	function __bundler__.__get_os__()
 	    if package.config:sub(1, 1) == '\\' then
@@ -285,8 +316,12 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 	function __bundler__.__loadFile__(module)
 	    if not __bundler__.__cache__[module] then
 	        if __bundler__.__binary_files__[module] then
+	        local tempDir = os.getenv("TEMP") or os.getenv("TMP")
+	            if not tempDir then
+	                tempDir = "/tmp"
+	            end
 	            local os_type = __bundler__.__get_os__()
-	            local file_path = os.tmpname()
+	            local file_path = tempDir .. os.tmpname()
 	            local file = io.open(file_path, "wb")
 	            if not file then
 	                error("unable to open file: " .. file_path)
@@ -297,21 +332,44 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 	            else
 	                content = __bundler__.__files__[module .. ".so"]
 	            end
-	            for i = 1, #content do
-	                local byte = tonumber(content[i], 16)
+	            local content_len = content:len()
+	            for i = 2, content_len, 2 do
+	                local byte = tonumber(content:sub(i - 1, i), 16)
 	                file:write(string.char(byte))
 	            end
 	            file:close()
 	            __bundler__.__cache__[module] = { package.loadlib(file_path, "luaopen_" .. module)() }
+	            table.insert(__bundler__.__temp_files__, file_path)
 	        else
 	            __bundler__.__cache__[module] = { __bundler__.__files__[module]() }
 	        end
 	    end
 	    return table.unpack(__bundler__.__cache__[module])
 	end
+	function __bundler__.__cleanup__()
+	    for _, file_path in ipairs(__bundler__.__temp_files__) do
+	        os.remove(file_path)
+	    end
+	end
+	---@diagnostic disable-next-line: duplicate-set-field
+	function os.exit(...)
+	    __bundler__.__cleanup__()
+	    __bundler__.__org_exit__(...)
+	end
+	function __bundler__.__main__()
+	    local loading_thread = coroutine.create(__bundler__.__loadFile__)
+	    local success, items = (function(success, ...) return success, {...} end)
+	        (coroutine.resume(loading_thread, "__main__"))
+	    if not success then
+	        print("error in bundle loading thread:\n"
+	            .. debug.traceback(loading_thread, items[1]))
+	    end
+	    __bundler__.__cleanup__()
+	    return table.unpack(items)
+	end
 	__bundler__.__files__["src.utils.string"] = function()
 		---@class Freemaker.utils.string
-		local string = {}
+		local _string = {}
 
 		---@param str string
 		---@param pattern string
@@ -329,7 +387,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		---@param sep string | nil
 		---@param plain boolean | nil
 		---@return string[]
-		function string.split(str, sep, plain)
+		function _string.split(str, sep, plain)
 		    if str == nil then
 		        return {}
 		    end
@@ -362,7 +420,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 
 		---@param str string | nil
 		---@return boolean
-		function string.is_nil_or_empty(str)
+		function _string.is_nil_or_empty(str)
 		    if str == nil then
 		        return true
 		    end
@@ -372,13 +430,13 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		    return false
 		end
 
-		return string
+		return _string
 
 	end
 
 	__bundler__.__files__["src.utils.table"] = function()
 		---@class Freemaker.utils.table
-		local table = {}
+		local _table = {}
 
 		---@param t table
 		---@param copy table
@@ -412,7 +470,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		---@generic T
 		---@param t T
 		---@return T table
-		function table.copy(t)
+		function _table.copy(t)
 		    local copy = {}
 		    copy_table_to(t, copy, {})
 		    return copy
@@ -421,20 +479,20 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		---@generic T
 		---@param from T
 		---@param to T
-		function table.copy_to(from, to)
+		function _table.copy_to(from, to)
 		    copy_table_to(from, to, {})
 		end
 
 		---@param t table
 		---@param ignoreProperties string[] | nil
-		function table.clear(t, ignoreProperties)
+		function _table.clear(t, ignoreProperties)
 		    if not ignoreProperties then
 		        for key, _ in next, t, nil do
 		            t[key] = nil
 		        end
 		    else
 		        for key, _ in next, t, nil do
-		            if not table.contains(ignoreProperties, key) then
+		            if not _table.contains(ignoreProperties, key) then
 		                t[key] = nil
 		            end
 		        end
@@ -446,7 +504,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		---@param t table
 		---@param value any
 		---@return boolean
-		function table.contains(t, value)
+		function _table.contains(t, value)
 		    for _, tValue in pairs(t) do
 		        if value == tValue then
 		            return true
@@ -458,7 +516,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		---@param t table
 		---@param key any
 		---@return boolean
-		function table.contains_key(t, key)
+		function _table.contains_key(t, key)
 		    if t[key] ~= nil then
 		        return true
 		    end
@@ -467,7 +525,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 
 		--- removes all spaces between
 		---@param t any[]
-		function table.clean(t)
+		function _table.clean(t)
 		    for key, value in pairs(t) do
 		        for i = key - 1, 1, -1 do
 		            if key ~= 1 then
@@ -483,7 +541,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 
 		---@param t table
 		---@return integer count
-		function table.count(t)
+		function _table.count(t)
 		    local count = 0
 		    for _, _ in next, t, nil do
 		        count = count + 1
@@ -493,7 +551,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 
 		---@param t table
 		---@return table
-		function table.invert(t)
+		function _table.invert(t)
 		    local inverted = {}
 		    for key, value in pairs(t) do
 		        inverted[value] = key
@@ -506,7 +564,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		---@param t T[]
 		---@param func fun(value: T) : R
 		---@return R[]
-		function table.map(t, func)
+		function _table.map(t, func)
 		    ---@type any[]
 		    local result = {}
 		    for index, value in ipairs(t) do
@@ -515,7 +573,166 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		    return result
 		end
 
-		return table
+		---@generic T
+		---@param t T
+		---@return T
+		function _table.readonly(t)
+		    return setmetatable({}, {
+		        __newindex = function()
+		            error("this table is readonly")
+		        end,
+		        __index = t
+		    })
+		end
+
+		---@generic T
+		---@param t T
+		---@param func fun(key: any, value: any) : boolean
+		---@return T
+		function _table.select(t, func)
+		    local copy = _table.copy(t)
+		    for key, value in pairs(copy) do
+		        if not func(key, value) then
+		            copy[key] = nil
+		        end
+		    end
+		    return copy
+		end
+
+		---@generic T
+		---@param t T
+		---@param func fun(key: any, value: any) : boolean
+		---@return T
+		function _table.select_implace(t, func)
+		    for key, value in pairs(t) do
+		        if not func(key, value) then
+		            t[key] = nil
+		        end
+		    end
+		    return t
+		end
+
+		return _table
+
+	end
+
+	__bundler__.__files__["src.utils.array"] = function()
+		-- caching globals for more performance
+		local table_insert = table.insert
+
+		---@generic T
+		---@param t T[]
+		---@param value T
+		local function insert_first_nil(t, value)
+		    local i = 0
+		    while true do
+		        i = i + 1
+		        if t[i] == nil then
+		            t[i] = value
+		            return
+		        end
+		    end
+		end
+
+		---@class Freemaker.utils.array
+		local array = {}
+
+		---@generic T
+		---@param t T[]
+		---@param amount integer
+		---@return T[]
+		function array.take_front(t, amount)
+		    local length = #t
+		    if amount > length then
+		        amount = length
+		    end
+
+		    local copy = {}
+		    for i = 1, amount, 1 do
+		        table_insert(copy, t[i])
+		    end
+		    return copy
+		end
+
+		---@generic T
+		---@param t T[]
+		---@param amount integer
+		---@return T[]
+		function array.take_back(t, amount)
+		    local length = #t
+		    local start = #t - amount + 1
+		    if start < 1 then
+		        start = 1
+		    end
+
+		    local copy = {}
+		    for i = start, length, 1 do
+		        table_insert(copy, t[i])
+		    end
+		    return copy
+		end
+
+		---@generic T
+		---@param t T[]
+		---@param amount integer
+		---@return T[]
+		function array.drop_front_implace(t, amount)
+		    for i, value in ipairs(t) do
+		        if i <= amount then
+		            t[i] = nil
+		        else
+		            insert_first_nil(t, value)
+		            t[i] = nil
+		        end
+		    end
+		    return t
+		end
+
+		---@generic T
+		---@param t T[]
+		---@param amount integer
+		---@return T[]
+		function array.drop_back_implace(t, amount)
+		    local length = #t
+		    local start = length - amount + 1
+
+		    for i = start, length, 1 do
+		        t[i] = nil
+		    end
+		    return t
+		end
+
+		---@generic T
+		---@param t T[]
+		---@param func fun(key: any, value: T) : boolean
+		---@return T[]
+		function array.select(t, func)
+		    local copy = {}
+		    for key, value in pairs(t) do
+		        if func(key, value) then
+		            table_insert(copy, value)
+		        end
+		    end
+		    return copy
+		end
+
+		---@generic T
+		---@param t T[]
+		---@param func fun(key: any, value: T) : boolean
+		---@return T[]
+		function array.select_implace(t, func)
+		    for key, value in pairs(t) do
+		        if func(key, value) then
+		            t[key] = nil
+		            insert_first_nil(t, value)
+		        else
+		            t[key] = nil
+		        end
+		    end
+		    return t
+		end
+
+		return array
 
 	end
 
@@ -523,22 +740,46 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		local table = __bundler__.__loadFile__("src.utils.table")
 
 		---@class Freemaker.utils.value
-		local value = {}
+		local _value = {}
 
 		---@generic T
-		---@param value T
+		---@param x T
 		---@return T
-		function value.copy(value)
-		    local typeStr = type(value)
-
+		function _value.copy(x)
+		    local typeStr = type(x)
 		    if typeStr == "table" then
-		        return table.Copy(value)
+		        return table.copy(x)
 		    end
 
+		    return x
+		end
+
+		---@generic T
+		---@param value T | nil
+		---@param default_value T
+		---@return T
+		function _value.default(value, default_value)
+		    if value == nil then
+		        return default_value
+		    end
 		    return value
 		end
 
-		return value
+		---@param value number
+		---@param min number
+		---@param max number
+		---@return number
+		function _value.clamp(value, min, max)
+		    if value < min then
+		        return min
+		    end
+		    if value > max then
+		        return max
+		    end
+		    return value
+		end
+
+		return _value
 
 	end
 
@@ -546,11 +787,13 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 		---@class Freemaker.utils
 		---@field string Freemaker.utils.string
 		---@field table Freemaker.utils.table
+		---@field array Freemaker.utils.array
 		---@field value Freemaker.utils.value
 		local utils = {}
 
 		utils.string = __bundler__.__loadFile__("src.utils.string")
 		utils.table = __bundler__.__loadFile__("src.utils.table")
+		utils.array = __bundler__.__loadFile__("src.utils.array")
 		utils.value = __bundler__.__loadFile__("src.utils.value")
 
 		return utils
@@ -558,7 +801,7 @@ __bundler__.__files__["tools.Freemaker.bin.utils"] = function()
 	end
 
 	---@type { [1]: Freemaker.utils }
-	local main = { __bundler__.__loadFile__("__main__") }
+	local main = { __bundler__.__main__() }
 	return table.unpack(main)
 
 end
@@ -694,7 +937,7 @@ __bundler__.__files__["src.class"] = function()
 end
 
 __bundler__.__files__["src.object"] = function()
-	local utils = __bundler__.__loadFile__("tools.Freemaker.bin.utils")
+	local utils = __bundler__.__loadFile__("tools.utils")
 	local config = __bundler__.__loadFile__("src.config")
 	local class = __bundler__.__loadFile__("src.class")
 
@@ -835,7 +1078,7 @@ __bundler__.__files__["src.type"] = function()
 end
 
 __bundler__.__files__["src.instance"] = function()
-	local utils = __bundler__.__loadFile__("tools.Freemaker.bin.utils")
+	local utils = __bundler__.__loadFile__("tools.utils")
 
 	---@class class-system.instance_handler
 	local instance_handler = {}
@@ -907,7 +1150,7 @@ __bundler__.__files__["src.instance"] = function()
 end
 
 __bundler__.__files__["src.members"] = function()
-	local utils = __bundler__.__loadFile__("tools.Freemaker.bin.utils")
+	local utils = __bundler__.__loadFile__("tools.utils")
 
 	local config = __bundler__.__loadFile__("src.config")
 
@@ -1343,7 +1586,7 @@ __bundler__.__files__["src.members"] = function()
 end
 
 __bundler__.__files__["src.metatable"] = function()
-	local utils = __bundler__.__loadFile__("tools.Freemaker.bin.utils")
+	local utils = __bundler__.__loadFile__("tools.utils")
 
 	local config = __bundler__.__loadFile__("src.config")
 
@@ -1400,7 +1643,7 @@ __bundler__.__files__["src.metatable"] = function()
 end
 
 __bundler__.__files__["src.construction"] = function()
-	local utils = __bundler__.__loadFile__("tools.Freemaker.bin.utils")
+	local utils = __bundler__.__loadFile__("tools.utils")
 
 	local config = __bundler__.__loadFile__("src.config")
 
@@ -1577,7 +1820,7 @@ __bundler__.__files__["__main__"] = function()
 	-- to package meta in the bundled file
 	__bundler__.__loadFile__("src.meta")
 
-	local utils = __bundler__.__loadFile__("tools.Freemaker.bin.utils")
+	local utils = __bundler__.__loadFile__("tools.utils")
 
 	local class = __bundler__.__loadFile__("src.class")
 	local object_type = __bundler__.__loadFile__("src.object")
@@ -1741,5 +1984,5 @@ __bundler__.__files__["__main__"] = function()
 end
 
 ---@type { [1]: class-system }
-local main = { __bundler__.__loadFile__("__main__") }
+local main = { __bundler__.__main__() }
 return table.unpack(main)

@@ -1,0 +1,20 @@
+{
+    "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+    "runtime.version": "Lua 5.3",
+    "runtime.pathStrict": true,
+    "runtime.path": [
+        "?.lua"
+    ],
+    "Lua.diagnostics.ignoredFiles": "Disable",
+    "Lua.workspace.ignoreDir": [
+        ".vscode",
+		"**/tools/Freemaker/src",
+		"class_system.lua"
+	],
+    "Lua.diagnostics.globals": [
+        "class",
+        "interface",
+        "typeof",
+        "nameof"
+    ]
+}
