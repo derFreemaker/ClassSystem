@@ -1,3 +1,4 @@
+package.path = "./?.lua;" .. package.path
 local luaunit = require("tests.Luaunit")
 
 local class_system = require("src.init")
