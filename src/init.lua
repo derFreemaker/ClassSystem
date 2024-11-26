@@ -4,7 +4,7 @@ local configs = require("src.config")
 -- to package meta in the bundled file
 require("src.meta")
 
-local utils = require("tools.Freemaker.bin.utils")
+local utils = require("tools.utils")
 
 local class = require("src.class")
 local object_type = require("src.object")

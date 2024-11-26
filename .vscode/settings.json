@@ -1,10 +1,4 @@
 {
-	"Lua.workspace.ignoreDir": [
-		".vscode",
-		"**/tools/Freemaker/src",
-		"class_system.lua"
-	],
-	"Lua.diagnostics.ignoredFiles": "Disable",
 	"files.exclude": {
 		"**/.git": true,
 		"**/.svn": true,
@@ -13,11 +7,5 @@
 		"**/.DS_Store": true,
 		"**/Thumbs.db": true,
 	},
-	"Lua.diagnostics.globals": [
-		"class",
-		"interface",
-		"typeof",
-		"nameof"
-	],
 	"luaTestAdapter.testGlob": "**/tests/[tT]est*.{lua}",
 }

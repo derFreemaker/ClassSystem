@@ -1,4 +1,4 @@
-local utils = require("tools.Freemaker.bin.utils")
+local utils = require("tools.utils")
 
 ---@class class-system.instance_handler
 local instance_handler = {}
