@@ -710,9 +710,7 @@ __bundler__.__files__["tools.utils"] = function()
 		function array.select(t, func)
 		    local copy = {}
 		    for index, value in pairs(t) do
-		        if func(index, value) then
-		            table_insert(copy, value)
-		        end
+		        copy[index] = func(index, value)
 		    end
 		    return copy
 		end
@@ -724,11 +722,10 @@ __bundler__.__files__["tools.utils"] = function()
 		---@return R[]
 		function array.select_implace(t, func)
 		    for index, value in pairs(t) do
-		        if func(index, value) then
-		            t[index] = nil
-		            insert_first_nil(t, value)
-		        else
-		            t[index] = nil
+		        local new_value = func(index, value)
+		        t[index] = nil
+		        if new_value then
+		            insert_first_nil(t, new_value)
 		        end
 		    end
 		    return t
