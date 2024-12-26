@@ -140,41 +140,39 @@ __bundler__.__files__["src.utils.table"] = function()
 	local _table = {}
 
 	---@param t table
-	---@param copy table
-	---@param seen table<table, table>
-	local function copy_table_to(t, copy, seen)
-	    if seen[t] then
-	        return seen[t]
-	    end
+		---@param copy table
+		---@param seen table<table, table>
+		---@return table
+		local function copy_table_to(t, copy, seen)
+		    if seen[t] then
+		        return seen[t]
+		    end
 
-	    seen[t] = copy
+		    seen[t] = copy
 
-	    for key, value in next, t do
-	        if type(value) == "table" then
-	            if type(copy[key]) ~= "table" then
-	                copy[key] = {}
-	            end
-	            copy_table_to(value, copy[key], seen)
-	        else
-	            copy[key] = value
-	        end
-	    end
+		    for key, value in next, t do
+		        if type(value) == "table" then
+					copy[key] = copy_table_to(value, copy[key] or {}, seen)
+		        else
+		            copy[key] = value
+		        end
+		    end
 
-	    local t_meta = getmetatable(t)
-	    if t_meta then
-	        local copy_meta = getmetatable(copy) or {}
-	        copy_table_to(t_meta, copy_meta, seen)
-	        setmetatable(copy, copy_meta)
-	    end
-	end
+		    local t_meta = getmetatable(t)
+		    if t_meta then
+		        local copy_meta = getmetatable(copy) or {}
+		        copy_table_to(t_meta, copy_meta, seen)
+		        setmetatable(copy, copy_meta)
+		    end
+
+			return copy
+		end
 
 	---@generic T
 	---@param t T
 	---@return T table
 	function _table.copy(t)
-	    local copy = {}
-	    copy_table_to(t, copy, {})
-	    return copy
+	    return copy_table_to(t, {}, {})
 	end
 
 	---@generic T
@@ -287,9 +285,10 @@ __bundler__.__files__["src.utils.table"] = function()
 	end
 
 	---@generic T
+	---@generic R
 	---@param t T
-	---@param func fun(key: any, value: any) : boolean
-	---@return T
+	---@param func fun(key: any, value: any) : R
+	---@return R[]
 	function _table.select(t, func)
 	    local copy = _table.copy(t)
 	    for key, value in pairs(copy) do
@@ -301,9 +300,10 @@ __bundler__.__files__["src.utils.table"] = function()
 	end
 
 	---@generic T
+	---@generic R
 	---@param t T
-	---@param func fun(key: any, value: any) : boolean
-	---@return T
+	---@param func fun(key: any, value: any) : R
+	---@return R[]
 	function _table.select_implace(t, func)
 	    for key, value in pairs(t) do
 	        if not func(key, value) then
@@ -404,30 +404,29 @@ __bundler__.__files__["src.utils.array"] = function()
 	end
 
 	---@generic T
+	---@generic R
 	---@param t T[]
-	---@param func fun(key: any, value: T) : boolean
-	---@return T[]
+	---@param func fun(index: integer, value: T) : R
+	---@return R[]
 	function array.select(t, func)
 	    local copy = {}
-	    for key, value in pairs(t) do
-	        if func(key, value) then
-	            table_insert(copy, value)
-	        end
+	    for index, value in pairs(t) do
+	        copy[index] = func(index, value)
 	    end
 	    return copy
 	end
 
 	---@generic T
+	---@generic R
 	---@param t T[]
-	---@param func fun(key: any, value: T) : boolean
-	---@return T[]
+	---@param func fun(index: integer, value: T) : R
+	---@return R[]
 	function array.select_implace(t, func)
-	    for key, value in pairs(t) do
-	        if func(key, value) then
-	            t[key] = nil
-	            insert_first_nil(t, value)
-	        else
-	            t[key] = nil
+	    for index, value in pairs(t) do
+	        local new_value = func(index, value)
+	        t[index] = nil
+	        if new_value then
+	            insert_first_nil(t, new_value)
 	        end
 	    end
 	    return t
